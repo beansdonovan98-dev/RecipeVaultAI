@@ -1,3 +1,4 @@
+dRuby
 default_platform(:ios)
 
 platform :ios do
@@ -31,7 +32,6 @@ platform :ios do
       workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
-      team_id: "PKM33XZW3X",
       export_team_id: "PKM33XZW3X",
       output_directory: "build",
       output_name: "RecipeVaultAI.ipa",
@@ -84,7 +84,6 @@ platform :ios do
       workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
-      team_id: "PKM33XZW3X",
       export_team_id: "PKM33XZW3X",
       output_directory: "build",
       output_name: "RecipeVaultAI.ipa",
