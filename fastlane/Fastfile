@@ -13,12 +13,6 @@ platform :ios do
       in_house: false
     )
 
-    sync_code_signing(
-      type: "appstore",
-      api_key: api_key,
-      readonly: false
-    )
-
     build_app(
       scheme: "RecipeVaultAI",
       workspace: "RecipeVaultAI.xcworkspace",
@@ -30,11 +24,10 @@ platform :ios do
       derived_data_path: "build/DerivedData",
       clean: true,
       disable_package_automatic_updates: true,
+      api_key: api_key,
       export_options: {
-        provisioningProfiles: {
-          "com.recipevault.ai" => "match AppStore com.recipevault.ai"
-        },
-        manageAppVersionAndBuildNumber: true
+        manageAppVersionAndBuildNumber: true,
+        signingStyle: "automatic"
       }
     )
 
@@ -57,12 +50,6 @@ platform :ios do
       in_house: false
     )
 
-    sync_code_signing(
-      type: "appstore",
-      api_key: api_key,
-      readonly: false
-    )
-
     build_app(
       scheme: "RecipeVaultAI",
       workspace: "RecipeVaultAI.xcworkspace",
@@ -74,11 +61,10 @@ platform :ios do
       derived_data_path: "build/DerivedData",
       clean: true,
       disable_package_automatic_updates: true,
+      api_key: api_key,
       export_options: {
-        provisioningProfiles: {
-          "com.recipevault.ai" => "match AppStore com.recipevault.ai"
-        },
-        manageAppVersionAndBuildNumber: true
+        manageAppVersionAndBuildNumber: true,
+        signingStyle: "automatic"
       }
     )
 
