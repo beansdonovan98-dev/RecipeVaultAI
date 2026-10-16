@@ -13,11 +13,25 @@ platform :ios do
       in_house: false
     )
 
+    update_project_team(
+      path: "RecipeVaultAI.xcodeproj",
+      teamid: "PKM33XZW3X"
+    )
+
+    update_code_signing_settings(
+      path: "RecipeVaultAI.xcodeproj",
+      use_automatic_signing: true,
+      team_id: "PKM33XZW3X",
+      targets: ["RecipeVaultAI"],
+      code_sign_identity: "Apple Development"
+    )
+
     build_app(
       scheme: "RecipeVaultAI",
       workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
+      team_id: "PKM33XZW3X",
       export_team_id: "PKM33XZW3X",
       output_directory: "build",
       output_name: "RecipeVaultAI.ipa",
@@ -52,11 +66,25 @@ platform :ios do
       in_house: false
     )
 
+    update_project_team(
+      path: "RecipeVaultAI.xcodeproj",
+      teamid: "PKM33XZW3X"
+    )
+
+    update_code_signing_settings(
+      path: "RecipeVaultAI.xcodeproj",
+      use_automatic_signing: true,
+      team_id: "PKM33XZW3X",
+      targets: ["RecipeVaultAI"],
+      code_sign_identity: "Apple Development"
+    )
+
     build_app(
       scheme: "RecipeVaultAI",
       workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
+      team_id: "PKM33XZW3X",
       export_team_id: "PKM33XZW3X",
       output_directory: "build",
       output_name: "RecipeVaultAI.ipa",
