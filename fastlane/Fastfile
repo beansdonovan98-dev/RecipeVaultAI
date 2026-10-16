@@ -18,6 +18,7 @@ platform :ios do
       workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
+      team_id: "PKM33XZW3X",
       output_directory: "build",
       output_name: "RecipeVaultAI.ipa",
       build_path: "build",
@@ -25,6 +26,8 @@ platform :ios do
       clean: true,
       disable_package_automatic_updates: true,
       export_options: {
+        method: "app-store",
+        teamID: "PKM33XZW3X",
         manageAppVersionAndBuildNumber: true,
         signingStyle: "automatic"
       }
@@ -54,6 +57,7 @@ platform :ios do
       workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
+      team_id: "PKM33XZW3X",
       output_directory: "build",
       output_name: "RecipeVaultAI.ipa",
       build_path: "build",
@@ -61,6 +65,8 @@ platform :ios do
       clean: true,
       disable_package_automatic_updates: true,
       export_options: {
+        method: "app-store",
+        teamID: "PKM33XZW3X",
         manageAppVersionAndBuildNumber: true,
         signingStyle: "automatic"
       }
