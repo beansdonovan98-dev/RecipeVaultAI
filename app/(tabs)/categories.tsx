@@ -1,0 +1,123 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import * as db from '@/db';
+import { Recipe } from '@/types/recipe';
+import { RecipeCard } from '@/components/RecipeCard';
+import { EmptyState } from '@/components/EmptyState';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
+import { getCategoryInfo } from '@/constants/categories';
+import { ALL_CATEGORIES, Category } from '@/types/recipe';
+
+export default function CategoriesScreen() {
+  const router = useRouter();
+  const [recipesByCategory, setRecipesByCategory] = useState<Record<string, Recipe[]>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      const result: Record<string, Recipe[]> = {};
+      for (const cat of ALL_CATEGORIES) {
+        const recipes = await db.getRecipesByCategory(cat);
+        if (recipes.length > 0) {
+          result[cat] = recipes;
+        }
+      }
+      setRecipesByCategory(result);
+    } catch (e) {
+      setRecipesByCategory({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+
+  const categoriesWithRecipes = ALL_CATEGORIES.filter(cat => recipesByCategory[cat]?.length);
+
+  if (categoriesWithRecipes.length === 0) {
+    return (
+      <View style={styles.container}>
+        <EmptyState
+          icon="grid-outline"
+          title="No categories yet"
+          message="Add recipes to see them organized by category"
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={categoriesWithRecipes}
+        keyExtractor={item => item}
+        contentContainerStyle={styles.list}
+        renderItem={({ item: category }) => {
+          const info = getCategoryInfo(category);
+          const recipes = recipesByCategory[category] || [];
+          return (
+            <View style={styles.categorySection}>
+              <View style={styles.categoryHeader}>
+                <View style={styles.categoryTitleRow}>
+                  <Ionicons name={info.icon as any} size={20} color={info.color} />
+                  <Text style={styles.categoryTitle}>{category}</Text>
+                  <Text style={styles.categoryCount}>({recipes.length})</Text>
+                </View>
+              </View>
+              {recipes.map(recipe => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  variant="compact"
+                  onPress={() => router.push(`/recipe/${recipe.id}`)}
+                />
+              ))}
+            </View>
+          );
+        }}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  list: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xxxl,
+  },
+  categorySection: {
+    marginBottom: Spacing.xl,
+  },
+  categoryHeader: {
+    marginBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  categoryTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  categoryTitle: {
+    ...Typography.subtitle,
+    fontSize: 18,
+  },
+  categoryCount: {
+    ...Typography.bodySmall,
+    color: Colors.textMuted,
+  },
+});

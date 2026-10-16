@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "Recipe Vault AI",
+    "slug": "recipe-vault-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAF7F2"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.recipevault.ai",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Recipe Vault AI needs access to your photos to add recipe images.",
+        "NSCameraUsageDescription": "Recipe Vault AI needs access to your camera to take recipe photos.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FAF7F2"
+      },
+      "package": "com.recipevault.ai",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Recipe Vault AI needs access to your photos to add recipe images."
+        }
+      ]
+    ],
+    "scheme": "recipevaultai",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4d0e04d6-06b6-45fd-9213-c25deea7d036"
+      }
+    },
+    "owner": "beans0809"
+  }
+}
