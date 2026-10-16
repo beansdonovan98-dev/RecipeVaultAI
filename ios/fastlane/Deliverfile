@@ -1,8 +1,0 @@
-app_identifier("com.recipevault.ai")
-username("beansdonovan98@gmail.com")
-force(true)
-skip_metadata(true)
-skip_screenshots(true)
-submit_for_review(false)
-automatic_release(false)
-precheck_include_in_app_purchases(false)
