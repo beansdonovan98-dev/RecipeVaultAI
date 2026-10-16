@@ -20,12 +20,12 @@ platform :ios do
     )
 
     build_app(
-      scheme: "recipe-vault-ai",
-      workspace: "recipe-vault-ai.xcworkspace",
+      scheme: "RecipeVaultAI",
+      workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
       output_directory: "build",
-      output_name: "recipe-vault-ai.ipa",
+      output_name: "RecipeVaultAI.ipa",
       build_path: "build",
       derived_data_path: "build/DerivedData",
       clean: true,
@@ -64,12 +64,12 @@ platform :ios do
     )
 
     build_app(
-      scheme: "recipe-vault-ai",
-      workspace: "recipe-vault-ai.xcworkspace",
+      scheme: "RecipeVaultAI",
+      workspace: "RecipeVaultAI.xcworkspace",
       configuration: "Release",
       export_method: "app-store",
       output_directory: "build",
-      output_name: "recipe-vault-ai.ipa",
+      output_name: "RecipeVaultAI.ipa",
       build_path: "build",
       derived_data_path: "build/DerivedData",
       clean: true,
