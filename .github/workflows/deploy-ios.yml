@@ -36,6 +36,11 @@ jobs:
       - name: Generate iOS native project
         run: npx expo prebuild --platform ios --no-install
 
+      - name: Copy Fastlane configuration
+        run: |
+          mkdir -p ios/fastlane
+          cp -r fastlane/* ios/fastlane/
+
       - name: Install CocoaPods
         run: |
           cd ios
