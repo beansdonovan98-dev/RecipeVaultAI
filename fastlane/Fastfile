@@ -24,7 +24,6 @@ platform :ios do
       derived_data_path: "build/DerivedData",
       clean: true,
       disable_package_automatic_updates: true,
-      api_key: api_key,
       export_options: {
         manageAppVersionAndBuildNumber: true,
         signingStyle: "automatic"
@@ -61,7 +60,6 @@ platform :ios do
       derived_data_path: "build/DerivedData",
       clean: true,
       disable_package_automatic_updates: true,
-      api_key: api_key,
       export_options: {
         manageAppVersionAndBuildNumber: true,
         signingStyle: "automatic"
