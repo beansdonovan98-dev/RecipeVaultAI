@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.recipevault.ai",
+      "bundleIdentifier": "com.beans.recipevaultai",
       "buildNumber": "1",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Recipe Vault AI needs access to your photos to add recipe images.",

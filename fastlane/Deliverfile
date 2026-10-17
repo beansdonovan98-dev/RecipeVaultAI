@@ -1,4 +1,4 @@
-app_identifier("com.recipevault.ai")
+app_identifier("com.beans.recipevaultai")
 username("beansdonovan98@gmail.com")
 force(true)
 skip_metadata(true)
