@@ -38,6 +38,8 @@ platform :ios do
       derived_data_path: "build/DerivedData",
       clean: true,
       disable_package_automatic_updates: true,
+      xcargs: "-allowProvisioningUpdates",
+      export_xcargs: "-allowProvisioningUpdates",
       export_options: {
         method: "app-store",
         teamID: "PKM33XZW3X",
