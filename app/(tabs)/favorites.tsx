@@ -55,10 +55,12 @@ export default function FavoritesScreen() {
               <RecipeCard
                 recipe={item}
                 onPress={() => router.push(`/recipe/${item.id}`)}
-                onToggleFavorite={async () => {
-                  await db.toggleFavorite(item.id, false);
-                  loadFavorites();
-                }}
+          onToggleFavorite={async () => {
+            try {
+              await db.toggleFavorite(item.id, false);
+              loadFavorites();
+            } catch (e) {}
+          }}
               />
             )}
           />
