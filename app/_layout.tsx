@@ -52,11 +52,11 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="add" options={{ presentation: 'modal', title: 'Add Recipe' }} />
-          <Stack.Screen name="edit" options={{ presentation: 'modal', title: 'Edit Recipe' }} />
+          <Stack.Screen name="add" options={{ title: 'Add Recipe' }} />
+          <Stack.Screen name="edit" options={{ title: 'Edit Recipe' }} />
           <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe Details' }} />
-          <Stack.Screen name="ai/generate" options={{ presentation: 'modal', title: 'AI Recipe Generator' }} />
-          <Stack.Screen name="ai/substitute" options={{ presentation: 'modal', title: 'Ingredient Substitutions' }} />
+          <Stack.Screen name="ai/generate" options={{ title: 'AI Recipe Generator' }} />
+          <Stack.Screen name="ai/substitute" options={{ title: 'Ingredient Substitutions' }} />
         </Stack>
       )}
     </ErrorBoundary>
