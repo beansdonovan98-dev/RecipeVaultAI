@@ -21,6 +21,13 @@ match(
       path: "RecipeVaultAI.xcodeproj",
       teamid: "PKM33XZW3X"
     )
+    update_code_signing_settings(
+      path: "RecipeVaultAI.xcodeproj",
+      use_automatic_signing: false,
+      team_id: "PKM33XZW3X",
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore com.beans.recipevaultai"
+)
 
 
     build_app(
