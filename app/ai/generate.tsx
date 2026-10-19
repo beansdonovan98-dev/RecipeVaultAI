@@ -13,14 +13,31 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { generateRecipeFromIngredients } from '@/services/ai';
 import { addRecipe } from '@/db';
-import { Ingredient } from '@/types/recipe';
+import { Ingredient, RecipeInput } from '@/types/recipe';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+
+function isValidRecipe(obj: any): obj is RecipeInput {
+  return (
+    obj &&
+    typeof obj.title === 'string' &&
+    typeof obj.description === 'string' &&
+    typeof obj.category === 'string' &&
+    typeof obj.prepTime === 'number' &&
+    typeof obj.cookTime === 'number' &&
+    typeof obj.servings === 'number' &&
+    Array.isArray(obj.ingredients) &&
+    obj.ingredients.every((ing: any) => ing && typeof ing.name === 'string' && typeof ing.amount === 'string' && typeof ing.unit === 'string') &&
+    Array.isArray(obj.instructions) &&
+    obj.instructions.every((inst: any) => inst && typeof inst.text === 'string')
+  );
+}
 
 export default function AIGenerateScreen() {
   const router = useRouter();
   const [ingredients, setIngredients] = useState<string>('');
   const [generating, setGenerating] = useState(false);
-  const [generatedRecipe, setGeneratedRecipe] = useState<any>(null);
+  const [generatedRecipe, setGeneratedRecipe] = useState<RecipeInput | null>(null);
 
   const handleGenerate = async () => {
     const lines = ingredients
@@ -49,6 +66,10 @@ export default function AIGenerateScreen() {
     setGenerating(true);
     try {
       const recipe = await generateRecipeFromIngredients(parsedIngredients);
+      if (!isValidRecipe(recipe)) {
+        Alert.alert('Error', 'AI returned an invalid recipe format. Please try again.');
+        return;
+      }
       setGeneratedRecipe(recipe);
     } catch (e) {
       Alert.alert('Error', 'Failed to generate recipe. Please try again.');
@@ -58,7 +79,10 @@ export default function AIGenerateScreen() {
   };
 
   const handleSaveRecipe = async () => {
-    if (!generatedRecipe) return;
+    if (!generatedRecipe || !isValidRecipe(generatedRecipe)) {
+      Alert.alert('Error', 'Invalid recipe data. Please generate a new recipe.');
+      return;
+    }
     try {
       await addRecipe(generatedRecipe);
       Alert.alert('Success', 'Recipe saved to your collection!', [
@@ -70,6 +94,7 @@ export default function AIGenerateScreen() {
   };
 
   return (
+    <ErrorBoundary>
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Enter Your Ingredients</Text>
@@ -132,9 +157,9 @@ export default function AIGenerateScreen() {
 
             <View style={styles.previewSection}>
               <Text style={styles.previewLabel}>Ingredients:</Text>
-              {generatedRecipe.ingredients.slice(0, 5).map((ing: any, i: number) => (
+              {generatedRecipe.ingredients.slice(0, 5).map((ing, i) => (
                 <Text key={i} style={styles.previewIngredient}>
-                  • {ing.amount} {ing.unit} {ing.name}
+                  • {String(ing.amount ?? '')} {String(ing.unit ?? '')} {String(ing.name ?? '')}
                 </Text>
               ))}
               {generatedRecipe.ingredients.length > 5 && (
@@ -156,6 +181,7 @@ export default function AIGenerateScreen() {
         </View>
       )}
     </ScrollView>
+    </ErrorBoundary>
   );
 }
 

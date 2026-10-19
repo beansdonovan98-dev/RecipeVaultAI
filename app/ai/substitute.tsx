@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 
 export default function AISubstituteScreen() {
@@ -44,6 +45,7 @@ export default function AISubstituteScreen() {
   };
 
   return (
+    <ErrorBoundary>
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.searchSection}>
         <Text style={styles.sectionTitle}>Find Substitutions</Text>
@@ -130,6 +132,7 @@ export default function AISubstituteScreen() {
         )}
       </View>
     </ScrollView>
+    </ErrorBoundary>
   );
 }
 

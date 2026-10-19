@@ -6,6 +6,7 @@ import { Recipe } from '@/types/recipe';
 import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
 export default function FavoritesScreen() {
@@ -32,36 +33,38 @@ export default function FavoritesScreen() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Favorites</Text>
-        <Text style={styles.headerSubtitle}>{favorites.length} saved</Text>
-      </View>
+    <ErrorBoundary>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Favorites</Text>
+          <Text style={styles.headerSubtitle}>{favorites.length} saved</Text>
+        </View>
 
-      {favorites.length === 0 ? (
-        <EmptyState
-          icon="heart-outline"
-          title="No favorites yet"
-          message="Tap the heart icon on any recipe to save it here"
-        />
-      ) : (
-        <FlatList
-          data={favorites}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <RecipeCard
-              recipe={item}
-              onPress={() => router.push(`/recipe/${item.id}`)}
-              onToggleFavorite={async () => {
-                await db.toggleFavorite(item.id, false);
-                loadFavorites();
-              }}
-            />
-          )}
-        />
-      )}
-    </View>
+        {favorites.length === 0 ? (
+          <EmptyState
+            icon="heart-outline"
+            title="No favorites yet"
+            message="Tap the heart icon on any recipe to save it here"
+          />
+        ) : (
+          <FlatList
+            data={favorites}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={styles.list}
+            renderItem={({ item }) => (
+              <RecipeCard
+                recipe={item}
+                onPress={() => router.push(`/recipe/${item.id}`)}
+                onToggleFavorite={async () => {
+                  await db.toggleFavorite(item.id, false);
+                  loadFavorites();
+                }}
+              />
+            )}
+          />
+        )}
+      </View>
+    </ErrorBoundary>
   );
 }
 

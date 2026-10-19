@@ -15,13 +15,15 @@ import { useRecipe } from '@/hooks/useRecipes';
 import { deleteRecipe } from '@/db';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';
 
 export default function RecipeDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { recipe, loading, error, toggleFavorite } = useRecipe(id ? parseInt(id) : null);
+  const parsedId = id && !isNaN(parseInt(id, 10)) ? parseInt(id, 10) : null;
+  const { recipe, loading, error, toggleFavorite } = useRecipe(parsedId);
 
   const handleDelete = useCallback(() => {
     Alert.alert(
@@ -33,13 +35,13 @@ export default function RecipeDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await deleteRecipe(parseInt(id));
-            router.back();
-          },
+             if (parsedId !== null) await deleteRecipe(parsedId);
+             router.back();
+           },
         },
       ]
     );
-  }, [id, router]);
+  }, [parsedId, router]);
 
   const handleShare = useCallback(async () => {
     if (!recipe) return;
@@ -53,6 +55,10 @@ export default function RecipeDetailScreen() {
 
   if (loading) return <LoadingSpinner />;
 
+  if (parsedId === null) {
+    return <EmptyState icon="alert-circle-outline" title="Invalid recipe ID" message="The recipe ID is missing or invalid." />;
+  }
+
   if (error || !recipe) {
     return <EmptyState icon="alert-circle-outline" title="Recipe not found" message={error || undefined} />;
   }
@@ -60,106 +66,108 @@ export default function RecipeDetailScreen() {
   const categoryInfo = getCategoryInfo(recipe.category as any);
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {recipe.imageUri ? (
-          <Image source={{ uri: recipe.imageUri }} style={styles.image} />
-        ) : (
-          <View style={[styles.image, styles.placeholderImage]}>
-            <Ionicons name="restaurant" size={48} color={Colors.textMuted} />
-          </View>
-        )}
+    <ErrorBoundary>
+      <View style={styles.container}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          {recipe.imageUri ? (
+            <Image source={{ uri: recipe.imageUri }} style={styles.image} />
+          ) : (
+            <View style={[styles.image, styles.placeholderImage]}>
+              <Ionicons name="restaurant" size={48} color={Colors.textMuted} />
+            </View>
+          )}
 
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <View style={styles.categoryBadge}>
-              <Ionicons name={categoryInfo.icon as any} size={14} color={categoryInfo.color} />
-              <Text style={styles.categoryText}>{recipe.category}</Text>
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <View style={styles.categoryBadge}>
+                <Ionicons name={categoryInfo.icon as any} size={14} color={categoryInfo.color} />
+                <Text style={styles.categoryText}>{recipe.category}</Text>
+              </View>
+              <View style={styles.headerActions}>
+                <TouchableOpacity onPress={() => toggleFavorite(!recipe.isFavorite)} style={styles.actionButton}>
+                  <Ionicons
+                    name={recipe.isFavorite ? 'heart' : 'heart-outline'}
+                    size={24}
+                    color={recipe.isFavorite ? Colors.heart : Colors.textMuted}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleShare} style={styles.actionButton}>
+                  <Ionicons name="share-outline" size={22} color={Colors.textMuted} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push(`/edit?id=${recipe.id}`)} style={styles.actionButton}>
+                  <Ionicons name="create-outline" size={22} color={Colors.textMuted} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
+                  <Ionicons name="trash-outline" size={22} color={Colors.error} />
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={styles.headerActions}>
-              <TouchableOpacity onPress={() => toggleFavorite(!recipe.isFavorite)} style={styles.actionButton}>
-                <Ionicons
-                  name={recipe.isFavorite ? 'heart' : 'heart-outline'}
-                  size={24}
-                  color={recipe.isFavorite ? Colors.heart : Colors.textMuted}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleShare} style={styles.actionButton}>
-                <Ionicons name="share-outline" size={22} color={Colors.textMuted} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push(`/edit?id=${recipe.id}`)} style={styles.actionButton}>
-                <Ionicons name="create-outline" size={22} color={Colors.textMuted} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                <Ionicons name="trash-outline" size={22} color={Colors.error} />
-              </TouchableOpacity>
-            </View>
-          </View>
 
-          <Text style={styles.title}>{recipe.title}</Text>
-          {recipe.description ? <Text style={styles.description}>{recipe.description}</Text> : null}
+            <Text style={styles.title}>{recipe.title}</Text>
+            {recipe.description ? <Text style={styles.description}>{recipe.description}</Text> : null}
 
-          <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={16} color={Colors.accent} />
-              <Text style={styles.metaLabel}>Prep Time</Text>
-              <Text style={styles.metaValue}>{recipe.prepTime} min</Text>
+            <View style={styles.metaRow}>
+              <View style={styles.metaItem}>
+                <Ionicons name="time-outline" size={16} color={Colors.accent} />
+                <Text style={styles.metaLabel}>Prep Time</Text>
+                <Text style={styles.metaValue}>{String(recipe.prepTime ?? '')} min</Text>
+              </View>
+              <View style={styles.metaDivider} />
+              <View style={styles.metaItem}>
+                <Ionicons name="flame-outline" size={16} color={Colors.accent} />
+                <Text style={styles.metaLabel}>Cook Time</Text>
+                <Text style={styles.metaValue}>{String(recipe.cookTime ?? '')} min</Text>
+              </View>
+              <View style={styles.metaDivider} />
+              <View style={styles.metaItem}>
+                <Ionicons name="people-outline" size={16} color={Colors.accent} />
+                <Text style={styles.metaLabel}>Servings</Text>
+                <Text style={styles.metaValue}>{String(recipe.servings ?? '')}</Text>
+              </View>
             </View>
-            <View style={styles.metaDivider} />
-            <View style={styles.metaItem}>
-              <Ionicons name="flame-outline" size={16} color={Colors.accent} />
-              <Text style={styles.metaLabel}>Cook Time</Text>
-              <Text style={styles.metaValue}>{recipe.cookTime} min</Text>
-            </View>
-            <View style={styles.metaDivider} />
-            <View style={styles.metaItem}>
-              <Ionicons name="people-outline" size={16} color={Colors.accent} />
-              <Text style={styles.metaLabel}>Servings</Text>
-              <Text style={styles.metaValue}>{recipe.servings}</Text>
-            </View>
-          </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ingredients</Text>
-            <View style={styles.ingredientsList}>
-              {recipe.ingredients.map((ing, index) => (
-                <View key={index} style={styles.ingredientItem}>
-                  <View style={styles.bullet} />
-                  <Text style={styles.ingredientText}>
-                    <Text style={styles.ingredientAmount}>{ing.amount} {ing.unit}</Text>
-                    {' '}
-                    <Text style={styles.ingredientName}>{ing.name}</Text>
-                    {ing.notes ? <Text style={styles.ingredientNotes}> ({ing.notes})</Text> : null}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Instructions</Text>
-            <View style={styles.instructionsList}>
-              {recipe.instructions.map((inst, index) => (
-                <View key={index} style={styles.instructionItem}>
-                  <View style={styles.stepNumber}>
-                    <Text style={styles.stepNumberText}>{inst.step}</Text>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Ingredients</Text>
+              <View style={styles.ingredientsList}>
+                {recipe.ingredients.map((ing, index) => (
+                  <View key={index} style={styles.ingredientItem}>
+                    <View style={styles.bullet} />
+                    <Text style={styles.ingredientText}>
+                      <Text style={styles.ingredientAmount}>{String(ing.amount ?? '')} {String(ing.unit ?? '')}</Text>
+                      {' '}
+                      <Text style={styles.ingredientName}>{String(ing.name ?? '')}</Text>
+                      {ing.notes ? <Text style={styles.ingredientNotes}> ({String(ing.notes ?? '')})</Text> : null}
+                    </Text>
                   </View>
-                  <View style={styles.instructionContent}>
-                    <Text style={styles.instructionText}>{inst.text}</Text>
-                    {inst.tip ? (
-                      <View style={styles.tipBox}>
-                        <Ionicons name="bulb-outline" size={14} color={Colors.accent} />
-                        <Text style={styles.tipText}>{inst.tip}</Text>
-                      </View>
-                    ) : null}
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Instructions</Text>
+              <View style={styles.instructionsList}>
+                {recipe.instructions.map((inst, index) => (
+                  <View key={index} style={styles.instructionItem}>
+                    <View style={styles.stepNumber}>
+                      <Text style={styles.stepNumberText}>{String(inst.step ?? '')}</Text>
+                    </View>
+                    <View style={styles.instructionContent}>
+                      <Text style={styles.instructionText}>{inst.text}</Text>
+                      {inst.tip ? (
+                        <View style={styles.tipBox}>
+                          <Ionicons name="bulb-outline" size={14} color={Colors.accent} />
+                          <Text style={styles.tipText}>{String(inst.tip ?? '')}</Text>
+                        </View>
+                      ) : null}
+                    </View>
                   </View>
-                </View>
-              ))}
+                ))}
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+    </ErrorBoundary>
   );
 }
 

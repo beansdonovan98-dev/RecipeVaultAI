@@ -30,7 +30,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
           <Text style={styles.compactTitle} numberOfLines={2}>{recipe.title}</Text>
           <View style={styles.compactMeta}>
             <Ionicons name="time-outline" size={12} color={Colors.textMuted} />
-            <Text style={styles.compactMetaText}>{recipe.prepTime + recipe.cookTime} min</Text>
+            <Text style={styles.compactMetaText}>{(Number(recipe.prepTime ?? 0) + Number(recipe.cookTime ?? 0))} min</Text>
           </View>
         </View>
         {onToggleFavorite && (
@@ -83,19 +83,19 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
           <View style={styles.metaItem}>
             <Ionicons name="time-outline" size={14} color={Colors.accent} />
             <Text style={styles.metaLabel}>Prep</Text>
-            <Text style={styles.metaValue}>{recipe.prepTime}m</Text>
+            <Text style={styles.metaValue}>{String(recipe.prepTime ?? '')}m</Text>
           </View>
           <View style={styles.metaDivider} />
           <View style={styles.metaItem}>
             <Ionicons name="flame-outline" size={14} color={Colors.accent} />
             <Text style={styles.metaLabel}>Cook</Text>
-            <Text style={styles.metaValue}>{recipe.cookTime}m</Text>
+            <Text style={styles.metaValue}>{String(recipe.cookTime ?? '')}m</Text>
           </View>
           <View style={styles.metaDivider} />
           <View style={styles.metaItem}>
             <Ionicons name="people-outline" size={14} color={Colors.accent} />
             <Text style={styles.metaLabel}>Serves</Text>
-            <Text style={styles.metaValue}>{recipe.servings}</Text>
+            <Text style={styles.metaValue}>{String(recipe.servings ?? '')}</Text>
           </View>
         </View>
       </View>

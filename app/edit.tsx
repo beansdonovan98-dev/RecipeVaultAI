@@ -20,10 +20,12 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function EditRecipeScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const parsedId = id && !isNaN(parseInt(id, 10)) ? parseInt(id, 10) : null;
   const { updateRecipe } = useRecipes();
 
   const [loading, setLoading] = useState(true);
@@ -33,19 +35,19 @@ export default function EditRecipeScreen() {
   const [prepTime, setPrepTime] = useState('15');
   const [cookTime, setCookTime] = useState('30');
   const [servings, setServings] = useState('4');
-  const [ingredients, setIngredients] = useState<Omit<Ingredient, 'id'>[]>([]);
-  const [instructions, setInstructions] = useState<Omit<Instruction, 'id' | 'step'>[]>([]);
+  const [ingredients, setIngredients] = useState<(Omit<Ingredient, 'id'> & { id: string })[]>([]);
+  const [instructions, setInstructions] = useState<(Omit<Instruction, 'id' | 'step'> & { id: string })[]>([]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    loadRecipe();
-  }, [id]);
+    if (parsedId !== null) loadRecipe();
+  }, [parsedId]);
 
   const loadRecipe = async () => {
     try {
       setLoading(true);
-      const recipe = await db.getRecipeById(parseInt(id));
+      const recipe = await db.getRecipeById(parsedId!);
       if (recipe) {
         setTitle(recipe.title);
         setDescription(recipe.description);
@@ -53,8 +55,8 @@ export default function EditRecipeScreen() {
         setPrepTime(recipe.prepTime.toString());
         setCookTime(recipe.cookTime.toString());
         setServings(recipe.servings.toString());
-        setIngredients(recipe.ingredients.map(({ name, amount, unit, notes }) => ({ name, amount, unit, notes })));
-        setInstructions(recipe.instructions.map(({ text, tip }) => ({ text, tip })));
+        setIngredients(recipe.ingredients.map(({ id, name, amount, unit, notes }) => ({ id, name, amount, unit, notes })));
+        setInstructions(recipe.instructions.map(({ id, text, tip }) => ({ id, text, tip })));
         setImageUri(recipe.imageUri);
       }
     } catch (e) {
@@ -96,7 +98,7 @@ export default function EditRecipeScreen() {
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { name: '', amount: '', unit: '' }]);
+    setIngredients([...ingredients, { id: `ing-${Date.now()}-${ingredients.length}`, name: '', amount: '', unit: '' }]);
   };
 
   const updateIngredient = (index: number, field: keyof Omit<Ingredient, 'id'>, value: string) => {
@@ -110,7 +112,7 @@ export default function EditRecipeScreen() {
   };
 
   const addInstruction = () => {
-    setInstructions([...instructions, { text: '' }]);
+    setInstructions([...instructions, { id: `inst-${Date.now()}-${instructions.length}`, text: '' }]);
   };
 
   const updateInstruction = (index: number, value: string) => {
@@ -143,7 +145,7 @@ export default function EditRecipeScreen() {
     if (!validate()) return;
     setSaving(true);
     try {
-      await updateRecipe(parseInt(id), {
+      await updateRecipe(parsedId!, {
         title: title.trim(),
         description: description.trim(),
         category,
@@ -164,13 +166,16 @@ export default function EditRecipeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      <ErrorBoundary>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      </ErrorBoundary>
     );
   }
 
   return (
+    <ErrorBoundary>
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -269,7 +274,7 @@ export default function EditRecipeScreen() {
             </TouchableOpacity>
           </View>
           {ingredients.map((ing, index) => (
-            <View key={index} style={styles.ingredientRow}>
+            <View key={ing.id} style={styles.ingredientRow}>
               <TextInput
                 style={[styles.input, styles.ingredientName]}
                 value={ing.name}
@@ -306,7 +311,7 @@ export default function EditRecipeScreen() {
             </TouchableOpacity>
           </View>
           {instructions.map((inst, index) => (
-            <View key={index} style={styles.instructionRow}>
+            <View key={inst.id} style={styles.instructionRow}>
               <Text style={styles.stepNumber}>{index + 1}</Text>
               <TextInput
                 style={[styles.input, styles.instructionInput]}
@@ -339,6 +344,7 @@ export default function EditRecipeScreen() {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </ErrorBoundary>
   );
 }
 

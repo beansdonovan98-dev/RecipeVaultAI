@@ -6,6 +6,7 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
@@ -33,61 +34,63 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Recipe Vault</Text>
-        <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+    <ErrorBoundary>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Recipe Vault</Text>
+          <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+        </View>
+
+        <View style={styles.filterSection}>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={ALL_CATEGORIES}
+            keyExtractor={item => item}
+            contentContainerStyle={styles.filterList}
+            renderItem={({ item }) => (
+              <CategoryBadge
+                category={item}
+                selected={selectedCategory === item}
+                onPress={() => setSelectedCategory(selectedCategory === item ? null : item)}
+              />
+            )}
+          />
+        </View>
+
+        {filteredRecipes.length === 0 ? (
+          <EmptyState
+            icon="restaurant-outline"
+            title={selectedCategory ? `No ${selectedCategory} recipes` : 'No recipes yet'}
+            message={selectedCategory ? 'Try a different category' : 'Tap the + button to add your first recipe'}
+          />
+        ) : (
+          <FlatList
+            data={filteredRecipes}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={styles.list}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={Colors.primary} />
+            }
+            renderItem={({ item }) => (
+              <RecipeCard
+                recipe={item}
+                onPress={() => router.push(`/recipe/${item.id}`)}
+                onToggleFavorite={() => toggleFavorite(item.id, !item.isFavorite)}
+              />
+            )}
+          />
+        )}
+
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push('/add')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={28} color={Colors.white} />
+        </TouchableOpacity>
       </View>
-
-      <View style={styles.filterSection}>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={ALL_CATEGORIES}
-          keyExtractor={item => item}
-          contentContainerStyle={styles.filterList}
-          renderItem={({ item }) => (
-            <CategoryBadge
-              category={item}
-              selected={selectedCategory === item}
-              onPress={() => setSelectedCategory(selectedCategory === item ? null : item)}
-            />
-          )}
-        />
-      </View>
-
-      {filteredRecipes.length === 0 ? (
-        <EmptyState
-          icon="restaurant-outline"
-          title={selectedCategory ? `No ${selectedCategory} recipes` : 'No recipes yet'}
-          message={selectedCategory ? 'Try a different category' : 'Tap the + button to add your first recipe'}
-        />
-      ) : (
-        <FlatList
-          data={filteredRecipes}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={Colors.primary} />
-          }
-          renderItem={({ item }) => (
-            <RecipeCard
-              recipe={item}
-              onPress={() => router.push(`/recipe/${item.id}`)}
-              onToggleFavorite={() => toggleFavorite(item.id, !item.isFavorite)}
-            />
-          )}
-        />
-      )}
-
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => router.push('/add')}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={28} color={Colors.white} />
-      </TouchableOpacity>
-    </View>
+    </ErrorBoundary>
   );
 }
 

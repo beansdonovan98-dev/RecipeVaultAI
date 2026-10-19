@@ -18,6 +18,7 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function AddRecipeScreen() {
   const router = useRouter();
@@ -29,11 +30,11 @@ export default function AddRecipeScreen() {
   const [prepTime, setPrepTime] = useState('15');
   const [cookTime, setCookTime] = useState('30');
   const [servings, setServings] = useState('4');
-  const [ingredients, setIngredients] = useState<Omit<Ingredient, 'id'>[]>([
-    { name: '', amount: '', unit: '' },
+  const [ingredients, setIngredients] = useState<(Omit<Ingredient, 'id'> & { id: string })[]>([
+    { id: `ing-initial-0`, name: '', amount: '', unit: '' },
   ]);
-  const [instructions, setInstructions] = useState<Omit<Instruction, 'id' | 'step'>[]>([
-    { text: '' },
+  const [instructions, setInstructions] = useState<(Omit<Instruction, 'id' | 'step'> & { id: string })[]>([
+    { id: `inst-initial-0`, text: '' },
   ]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -72,7 +73,7 @@ export default function AddRecipeScreen() {
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { name: '', amount: '', unit: '' }]);
+    setIngredients([...ingredients, { id: `ing-${Date.now()}-${ingredients.length}`, name: '', amount: '', unit: '' }]);
   };
 
   const updateIngredient = (index: number, field: keyof Omit<Ingredient, 'id'>, value: string) => {
@@ -86,7 +87,7 @@ export default function AddRecipeScreen() {
   };
 
   const addInstruction = () => {
-    setInstructions([...instructions, { text: '' }]);
+    setInstructions([...instructions, { id: `inst-${Date.now()}-${instructions.length}`, text: '' }]);
   };
 
   const updateInstruction = (index: number, value: string) => {
@@ -140,6 +141,7 @@ export default function AddRecipeScreen() {
   };
 
   return (
+    <ErrorBoundary>
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -238,7 +240,7 @@ export default function AddRecipeScreen() {
             </TouchableOpacity>
           </View>
           {ingredients.map((ing, index) => (
-            <View key={index} style={styles.ingredientRow}>
+            <View key={ing.id} style={styles.ingredientRow}>
               <TextInput
                 style={[styles.input, styles.ingredientName]}
                 value={ing.name}
@@ -275,7 +277,7 @@ export default function AddRecipeScreen() {
             </TouchableOpacity>
           </View>
           {instructions.map((inst, index) => (
-            <View key={index} style={styles.instructionRow}>
+            <View key={inst.id} style={styles.instructionRow}>
               <Text style={styles.stepNumber}>{index + 1}</Text>
               <TextInput
                 style={[styles.input, styles.instructionInput]}
@@ -308,6 +310,7 @@ export default function AddRecipeScreen() {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </ErrorBoundary>
   );
 }
 

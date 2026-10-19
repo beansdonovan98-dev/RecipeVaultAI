@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
+import '@/utils/errorHandler';
 import { initializeDatabase } from '@/db/schema';
 import { Colors } from '@/constants/theme';
 

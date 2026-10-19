@@ -6,6 +6,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing } from '@/constants/theme';
 
 export default function SearchScreen() {
@@ -25,44 +26,46 @@ export default function SearchScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <SearchBar
-          value={query}
-          onChangeText={setQuery}
-          onClear={handleClear}
-          autoFocus
-        />
-      </View>
+    <ErrorBoundary>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            onClear={handleClear}
+            autoFocus
+          />
+        </View>
 
-      {loading ? (
-        <LoadingSpinner />
-      ) : query.length === 0 ? (
-        <EmptyState
-          icon="search-outline"
-          title="Search recipes"
-          message="Enter a recipe name, ingredient, or category"
-        />
-      ) : results.length === 0 ? (
-        <EmptyState
-          icon="sad-outline"
-          title="No results found"
-          message={`No recipes matching "${query}"`}
-        />
-      ) : (
-        <FlatList
-          data={results}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <RecipeCard
-              recipe={item}
-              onPress={() => router.push(`/recipe/${item.id}`)}
-            />
-          )}
-        />
-      )}
-    </View>
+        {loading ? (
+          <LoadingSpinner />
+        ) : query.length === 0 ? (
+          <EmptyState
+            icon="search-outline"
+            title="Search recipes"
+            message="Enter a recipe name, ingredient, or category"
+          />
+        ) : results.length === 0 ? (
+          <EmptyState
+            icon="sad-outline"
+            title="No results found"
+            message={`No recipes matching "${query}"`}
+          />
+        ) : (
+          <FlatList
+            data={results}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={styles.list}
+            renderItem={({ item }) => (
+              <RecipeCard
+                recipe={item}
+                onPress={() => router.push(`/recipe/${item.id}`)}
+              />
+            )}
+          />
+        )}
+      </View>
+    </ErrorBoundary>
   );
 }
 
