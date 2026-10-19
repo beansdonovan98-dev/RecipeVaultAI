@@ -22,7 +22,8 @@ import { getCategoryInfo } from '@/constants/categories';
 export default function RecipeDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const parsedId = id && !isNaN(parseInt(id, 10)) ? parseInt(id, 10) : null;
+  const idStr = Array.isArray(id) ? id[0] : id;
+  const parsedId = idStr && !isNaN(parseInt(idStr, 10)) ? parseInt(idStr, 10) : null;
   const { recipe, loading, error, toggleFavorite } = useRecipe(parsedId);
 
   const handleDelete = useCallback(() => {
