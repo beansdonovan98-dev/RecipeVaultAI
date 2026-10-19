@@ -14,7 +14,7 @@ platform :ios do
 
 match(
   type: "appstore",
-  readonly: false
+  readonly: true
 )
 
     update_project_team(
