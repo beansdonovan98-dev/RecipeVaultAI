@@ -40,7 +40,8 @@ match(
         teamID: "PKM33XZW3X",
         signingStyle: "manual",
         provisioningProfiles: {
-          "com.beans.recipevaultai" => "match AppStore com.beans.recipevaultai" => "match AppStore com.beans.recipevaultai"
+          "com.beans.recipevaultai" => "match AppStore com.beans.recipevaultai"
+        }
       }
     )
 
