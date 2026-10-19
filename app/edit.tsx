@@ -25,8 +25,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 export default function EditRecipeScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const idStr = Array.isArray(id) ? id[0] : id;
-  const parsedId = idStr && !isNaN(parseInt(idStr, 10)) ? parseInt(idStr, 10) : null;
+  const parsedId = id && !isNaN(parseInt(id, 10)) ? parseInt(id, 10) : null;
   const { updateRecipe } = useRecipes();
 
   const [loading, setLoading] = useState(true);
