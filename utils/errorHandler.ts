@@ -1,8 +1,13 @@
-import { ErrorUtils } from 'react-native';
+type GlobalErrorHandler = (error: unknown, isFatal?: boolean) => void;
 
-console.log('[STARTUP] installing global error handlers');
+export type ErrorUtilsLike = {
+  getGlobalHandler?: () => GlobalErrorHandler | undefined;
+  setGlobalHandler?: (handler: GlobalErrorHandler) => void;
+};
 
-function describe(error: unknown): string {
+type ErrorTarget = Record<string, unknown>;
+
+export function describeError(error: unknown): string {
   if (error instanceof Error) {
     return error.stack ?? error.message;
   }
@@ -13,29 +18,53 @@ function describe(error: unknown): string {
   }
 }
 
-const originalHandler = ErrorUtils.getGlobalHandler();
+export function installGlobalErrorHandlers(
+  errorUtils: ErrorUtilsLike | undefined,
+  target: ErrorTarget = globalThis as unknown as ErrorTarget,
+  logger: Pick<Console, 'error'> = console
+): void {
+  if (
+    errorUtils &&
+    typeof errorUtils.getGlobalHandler === 'function' &&
+    typeof errorUtils.setGlobalHandler === 'function'
+  ) {
+    let originalHandler: GlobalErrorHandler | undefined;
+    try {
+      originalHandler = errorUtils.getGlobalHandler();
+    } catch {
+      originalHandler = undefined;
+    }
 
-ErrorUtils.setGlobalHandler((error, isFatal) => {
-  console.error(`[GLOBAL ERROR] isFatal=${isFatal}\nStack trace:\n${describe(error)}`);
-  if (originalHandler) {
-    originalHandler(error, isFatal);
+    try {
+      errorUtils.setGlobalHandler((error, isFatal) => {
+        try {
+          logger.error(`[GLOBAL ERROR] isFatal=${isFatal}\nStack trace:\n${describeError(error)}`);
+        } catch {
+          // Diagnostics must never throw.
+        }
+        if (typeof originalHandler === 'function') {
+          originalHandler(error, isFatal);
+        }
+      });
+    } catch {
+      // Diagnostics must never prevent the app from starting.
+    }
   }
-});
 
-if (typeof global !== 'undefined' && typeof (global as any).onunhandledrejection === 'undefined') {
-  (global as any).onunhandledrejection = (event: any) => {
-    console.error(`[UNHANDLED PROMISE REJECTION]\nStack trace:\n${describe(event?.reason)}`);
-  };
+  if (typeof target.onunhandledrejection === 'undefined') {
+    target.onunhandledrejection = (event: unknown) => {
+      const reason = (event as { reason?: unknown } | undefined)?.reason;
+      try {
+        logger.error(`[UNHANDLED PROMISE REJECTION]\nStack trace:\n${describeError(reason)}`);
+      } catch {
+        // Diagnostics must never throw.
+      }
+    };
+  }
 }
 
-const originalConsoleError = console.error.bind(console);
-console.error = (...args: any[]) => {
-  try {
-    const message = args.map(describe).join(' ');
-    originalConsoleError(`[CONSOLE.ERROR] ${message}`);
-  } catch {
-    originalConsoleError('[CONSOLE.ERROR] Failed to format console error');
-  }
-};
+console.log('[STARTUP] installing global error handlers');
 
-export {};
+installGlobalErrorHandlers(
+  (globalThis as unknown as { ErrorUtils?: ErrorUtilsLike }).ErrorUtils
+);

@@ -109,3 +109,19 @@ test('synchronous open errors are surfaced as rejections', async () => {
     return true;
   });
 });
+
+test('schema initialization failure is surfaced and can be retried', async () => {
+  let attempts = 0;
+  const database = { name: 'recipevault.db' };
+  const initializer = createDatabaseInitializer(async () => {
+    attempts += 1;
+    if (attempts === 1) {
+      throw new Error('schema initialization failed');
+    }
+    return database;
+  });
+
+  await assert.rejects(initializer.get(), /schema initialization failed/);
+  assert.equal(await initializer.get(), database);
+  assert.equal(attempts, 2);
+});
