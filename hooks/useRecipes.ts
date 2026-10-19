@@ -25,24 +25,43 @@ export function useRecipes() {
   }, [loadRecipes]);
 
   const addRecipe = useCallback(async (input: RecipeInput) => {
-    const id = await db.addRecipe(input);
-    await loadRecipes();
-    return id;
+    try {
+      const id = await db.addRecipe(input);
+      await loadRecipes();
+      return id;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to add recipe');
+      throw e;
+    }
   }, [loadRecipes]);
 
   const updateRecipe = useCallback(async (id: number, input: RecipeInput) => {
-    await db.updateRecipe(id, input);
-    await loadRecipes();
+    try {
+      await db.updateRecipe(id, input);
+      await loadRecipes();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to update recipe');
+      throw e;
+    }
   }, [loadRecipes]);
 
   const deleteRecipe = useCallback(async (id: number) => {
-    await db.deleteRecipe(id);
-    await loadRecipes();
+    try {
+      await db.deleteRecipe(id);
+      await loadRecipes();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete recipe');
+      throw e;
+    }
   }, [loadRecipes]);
 
   const toggleFavorite = useCallback(async (id: number, isFavorite: boolean) => {
-    await db.toggleFavorite(id, isFavorite);
-    setRecipes(prev => prev.map(r => r.id === id ? { ...r, isFavorite } : r));
+    try {
+      await db.toggleFavorite(id, isFavorite);
+      setRecipes(prev => prev.map(r => r.id === id ? { ...r, isFavorite } : r));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to toggle favorite');
+    }
   }, []);
 
   const refresh = useCallback(() => {
@@ -67,7 +86,10 @@ export function useRecipe(id: number | null) {
   const [error, setError] = useState<string | null>(null);
 
   const loadRecipe = useCallback(async () => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -137,7 +159,11 @@ export function useCategories() {
   }, [loadCategories]);
 
   const getRecipesByCategory = useCallback(async (category: string) => {
-    return await db.getRecipesByCategory(category);
+    try {
+      return await db.getRecipesByCategory(category);
+    } catch (e) {
+      return [];
+    }
   }, []);
 
   return { categories, loading, loadCategories, getRecipesByCategory };
