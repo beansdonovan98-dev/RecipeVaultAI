@@ -26,7 +26,6 @@ export default function TabLayout() {
         headerTintColor: Colors.primary,
         headerTitleStyle: {
           fontWeight: '700',
-          fontFamily: 'serif',
           fontSize: 20,
         },
         headerShadowVisible: false,

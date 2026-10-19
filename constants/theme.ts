@@ -47,14 +47,12 @@ export const Typography = {
     fontSize: 28,
     fontWeight: '700' as const,
     color: Colors.primary,
-    fontFamily: 'serif',
     lineHeight: 36,
   },
   subtitle: {
     fontSize: 18,
     fontWeight: '600' as const,
     color: Colors.primary,
-    fontFamily: 'serif',
     lineHeight: 24,
   },
   sectionLabel: {
@@ -68,7 +66,6 @@ export const Typography = {
     fontSize: 20,
     fontWeight: '700' as const,
     color: Colors.primary,
-    fontFamily: 'serif',
     lineHeight: 26,
   },
   body: {
