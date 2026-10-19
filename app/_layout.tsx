@@ -1,41 +1,64 @@
 import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import '@/utils/errorHandler';
 import { initializeDatabase } from '@/db/schema';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { StartupErrorScreen } from '@/components/StartupErrorScreen';
 import { Colors } from '@/constants/theme';
 
+console.log('[STARTUP] JS startup');
+
 export default function RootLayout() {
-  useEffect(() => {
-    initializeDatabase().catch((err) => {
-      console.error('[DB INIT] Database initialization failed:', err);
-    });
+  const [dbError, setDbError] = useState<Error | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  const bootstrapDatabase = useCallback(() => {
+    setIsRetrying(true);
+    initializeDatabase()
+      .then(() => {
+        console.log('[STARTUP] database ready');
+        setDbError(null);
+      })
+      .catch((error: unknown) => {
+        setDbError(error instanceof Error ? error : new Error(String(error)));
+      })
+      .finally(() => {
+        setIsRetrying(false);
+      });
   }, []);
+
+  useEffect(() => {
+    bootstrapDatabase();
+  }, [bootstrapDatabase]);
 
   return (
     <ErrorBoundary>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: Colors.background,
-          },
-          headerTintColor: Colors.primary,
-          headerTitleStyle: {
-            fontWeight: '600',
-          },
-          headerShadowVisible: false,
-          contentStyle: {
-            backgroundColor: Colors.background,
-          },
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="add" options={{ presentation: 'modal', title: 'Add Recipe' }} />
-        <Stack.Screen name="edit" options={{ presentation: 'modal', title: 'Edit Recipe' }} />
-        <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe Details' }} />
-        <Stack.Screen name="ai/generate" options={{ presentation: 'modal', title: 'AI Recipe Generator' }} />
-        <Stack.Screen name="ai/substitute" options={{ presentation: 'modal', title: 'Ingredient Substitutions' }} />
-      </Stack>
+      {dbError ? (
+        <StartupErrorScreen error={dbError} onRetry={bootstrapDatabase} isRetrying={isRetrying} />
+      ) : (
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: Colors.background,
+            },
+            headerTintColor: Colors.primary,
+            headerTitleStyle: {
+              fontWeight: '600',
+            },
+            headerShadowVisible: false,
+            contentStyle: {
+              backgroundColor: Colors.background,
+            },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="add" options={{ presentation: 'modal', title: 'Add Recipe' }} />
+          <Stack.Screen name="edit" options={{ presentation: 'modal', title: 'Edit Recipe' }} />
+          <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe Details' }} />
+          <Stack.Screen name="ai/generate" options={{ presentation: 'modal', title: 'AI Recipe Generator' }} />
+          <Stack.Screen name="ai/substitute" options={{ presentation: 'modal', title: 'Ingredient Substitutions' }} />
+        </Stack>
+      )}
     </ErrorBoundary>
   );
 }
