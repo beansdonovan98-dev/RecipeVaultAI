@@ -8,11 +8,11 @@ import {
   Share,
   StatusBar,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import type { CrashReport } from '@/types/crash';
 import {
   clearCrashReports,

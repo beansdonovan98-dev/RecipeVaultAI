@@ -1,7 +1,13 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
+import { AUTHORS } from '@/constants/authors';
 import { Colors, Spacing } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
+import { useMember } from '@/hooks/useMember';
+import { usePartnerPresence } from '@/hooks/usePartnerPresence';
+import { useRoomConfig } from '@/hooks/useRoomConfig';
 
 const styles = StyleSheet.create({
   headerName: {
@@ -12,10 +18,18 @@ const styles = StyleSheet.create({
 });
 
 export default function TabLayout() {
+  const { fontFamily, fontColor } = useAppearance();
+  const member = useMember();
+  const { config } = useRoomConfig();
+  const partner = usePartnerPresence(config, member);
+  const partnerLabel = partner ? AUTHORS[partner].label : null;
+  const showPartnerOnLeft = member === 'princess' && partnerLabel !== null;
+  const showPartnerOnRight = member === 'daddy' && partnerLabel !== null;
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary,
+        tabBarActiveTintColor: fontColor,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarStyle: {
           backgroundColor: Colors.card,
@@ -28,15 +42,18 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '500',
+          fontFamily,
         },
         headerStyle: {
           backgroundColor: Colors.background,
         },
-        headerTintColor: Colors.primary,
+        headerTintColor: fontColor,
         headerTitleAlign: 'center',
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 20,
+          fontFamily,
+          color: fontColor,
         },
         headerShadowVisible: false,
       }}
@@ -45,19 +62,25 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Recipes',
-          headerLeft: () => (
-            <Text style={styles.headerName} numberOfLines={1}>
-              daddy 🍆
-            </Text>
-          ),
+          headerLeft:
+            showPartnerOnLeft && partnerLabel
+              ? () => (
+                  <Text style={styles.headerName} numberOfLines={1}>
+                    {partnerLabel}
+                  </Text>
+                )
+              : undefined,
           headerLeftContainerStyle: {
             paddingLeft: Spacing.md,
           },
-          headerRight: () => (
-            <Text style={styles.headerName} numberOfLines={1}>
-              princess 🍑
-            </Text>
-          ),
+          headerRight:
+            showPartnerOnRight && partnerLabel
+              ? () => (
+                  <Text style={styles.headerName} numberOfLines={1}>
+                    {partnerLabel}
+                  </Text>
+                )
+              : undefined,
           headerRightContainerStyle: {
             paddingRight: Spacing.md,
           },

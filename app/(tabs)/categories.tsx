@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import * as db from '@/db';
 import { Recipe } from '@/types/recipe';
 import { RecipeCard } from '@/components/RecipeCard';

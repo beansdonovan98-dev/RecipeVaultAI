@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
@@ -13,7 +11,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { generateRecipeFromIngredients } from '@/services/ai';
 import { addRecipe, getMember, setMember } from '@/db';
-import type { AuthorId } from '@/constants/authors';
+import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
+import { AUTHORS, type AuthorId } from '@/constants/authors';
 import { Ingredient, RecipeInput } from '@/types/recipe';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
@@ -142,18 +141,20 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
       'Choose which person is using this phone so the recipe is labeled correctly.',
       [
         {
-          text: 'daddy 🍆',
+          text: AUTHORS.daddy.label,
           onPress: () => {
             void setMember('daddy')
               .catch((error) => captureException(error, { source: 'aiGenerate.setMember' }))
+              .then(() => notifyDataChanged())
               .then(() => saveGeneratedRecipe('daddy'));
           },
         },
         {
-          text: 'princess 🍑',
+          text: AUTHORS.princess.label,
           onPress: () => {
             void setMember('princess')
               .catch((error) => captureException(error, { source: 'aiGenerate.setMember' }))
+              .then(() => notifyDataChanged())
               .then(() => saveGeneratedRecipe('princess'));
           },
         },

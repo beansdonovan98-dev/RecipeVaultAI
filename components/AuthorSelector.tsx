@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AppText as Text } from '@/components/AppText';
 import { AUTHOR_IDS, AUTHORS, type AuthorId } from '@/constants/authors';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
 

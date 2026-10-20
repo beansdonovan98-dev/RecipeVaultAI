@@ -1,4 +1,5 @@
 import type { RemoteRecipe, RemoteRecipeInput } from '@/types/sync';
+import { isAuthorId, type AuthorId } from '@/constants/authors';
 import { getImageFileMeta, isRemoteImageUri } from './syncHelpers';
 
 const SUPABASE_URL = (process.env.EXPO_PUBLIC_SUPABASE_URL ?? '').trim().replace(/\/+$/, '');
@@ -93,6 +94,14 @@ export async function upsertRecipe(code: string, recipe: RemoteRecipeInput): Pro
 
 export async function deleteRecipe(code: string, remoteId: string): Promise<void> {
   await rpc<null>('rvai_delete_recipe', { p_code: code, p_id: remoteId });
+}
+
+export async function refreshPresence(code: string, member: AuthorId): Promise<AuthorId[]> {
+  const activeMembers = await rpc<string[] | null>('rvai_refresh_presence', {
+    p_code: code,
+    p_member: member,
+  });
+  return Array.isArray(activeMembers) ? activeMembers.filter(isAuthorId) : [];
 }
 
 export async function uploadPhoto(

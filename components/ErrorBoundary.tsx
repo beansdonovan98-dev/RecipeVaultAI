@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { AppText as Text } from '@/components/AppText';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
 import { captureException } from '@/services/crashTracker';
 import { requestCrashViewer } from '@/services/crashViewer';

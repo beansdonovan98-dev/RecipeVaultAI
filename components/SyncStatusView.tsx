@@ -3,11 +3,11 @@ import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import { useRoomConfig } from '@/hooks/useRoomConfig';
 import { useSyncStatus } from '@/hooks/useSyncStatus';
 import { syncRecipes } from '@/services/recipeSync';

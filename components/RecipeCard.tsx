@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import { Recipe } from '@/types/recipe';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';

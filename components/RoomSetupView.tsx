@@ -5,13 +5,12 @@ import {
   ScrollView,
   Share,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as db from '@/db';
+import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { AuthorSelector } from '@/components/AuthorSelector';
 import type { AuthorId } from '@/constants/authors';
 import { useRoomConfig } from '@/hooks/useRoomConfig';
@@ -235,6 +234,20 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
           <Text style={styles.helperText}>Check sync state and the last successful sync.</Text>
         </View>
         <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.statusButton}
+        onPress={() => openScreenOverlay('customize')}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Open appearance customization"
+      >
+        <View style={styles.statusTextBlock}>
+          <Text style={styles.sectionLabel}>Customize appearance</Text>
+          <Text style={styles.helperText}>Choose the app font and text color.</Text>
+        </View>
+        <Ionicons name="color-palette-outline" size={20} color={Colors.textMuted} />
       </TouchableOpacity>
 
       <View style={styles.formCard}>

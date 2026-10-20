@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import { useRecipe } from '@/hooks/useRecipes';
 import { deleteRecipe } from '@/db';
 import { LoadingSpinner } from '@/components/LoadingSpinner';

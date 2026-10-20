@@ -5,7 +5,6 @@ import {
   AppState,
   BackHandler,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -15,11 +14,14 @@ import { initializeDatabase } from '@/db/schema';
 import AddRecipeScreen from '@/app/add';
 import AIGenerateScreen from '@/app/ai/generate';
 import AISubstituteScreen from '@/app/ai/substitute';
+import { AppText as Text } from '@/components/AppText';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StartupErrorScreen } from '@/components/StartupErrorScreen';
 import { CrashReportsView } from '@/components/CrashReportsView';
+import { CustomizeAppearanceView } from '@/components/CustomizeAppearanceView';
 import { RoomSetupView } from '@/components/RoomSetupView';
 import { SyncStatusView } from '@/components/SyncStatusView';
+import { AppearanceProvider, useAppearance } from '@/contexts/AppearanceContext';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import {
   acknowledgeCrash,
@@ -48,6 +50,7 @@ const OVERLAY_TITLES: Record<OverlayScreen, string> = {
   'ai-substitute': 'Ingredient Substitutions',
   settings: 'Shared Room',
   'sync-status': 'Connection Status',
+  customize: 'Customize Appearance',
 };
 
 function syncInBackground(source: string): void {
@@ -58,6 +61,15 @@ function syncInBackground(source: string): void {
 }
 
 export default function RootLayout() {
+  return (
+    <AppearanceProvider>
+      <RootLayoutContent />
+    </AppearanceProvider>
+  );
+}
+
+function RootLayoutContent() {
+  const { fontFamily, fontColor } = useAppearance();
   const [dbError, setDbError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [showCrashViewer, setShowCrashViewer] = useState(false);
@@ -175,9 +187,11 @@ export default function RootLayout() {
               headerStyle: {
                 backgroundColor: Colors.background,
               },
-              headerTintColor: Colors.primary,
+              headerTintColor: fontColor,
               headerTitleStyle: {
                 fontWeight: '600',
+                fontFamily,
+                color: fontColor,
               },
               headerShadowVisible: false,
               contentStyle: {
@@ -223,6 +237,10 @@ export default function RootLayout() {
               ) : screenOverlay === 'sync-status' ? (
                 <ErrorBoundary>
                   <SyncStatusView onClose={closeScreenOverlay} />
+                </ErrorBoundary>
+              ) : screenOverlay === 'customize' ? (
+                <ErrorBoundary>
+                  <CustomizeAppearanceView onClose={closeScreenOverlay} />
                 </ErrorBoundary>
               ) : (
                 <AISubstituteScreen />

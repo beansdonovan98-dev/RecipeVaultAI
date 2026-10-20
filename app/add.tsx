@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   Alert,
   Image,
@@ -17,7 +15,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRecipes } from '@/hooks/useRecipes';
 import * as db from '@/db';
 import { AuthorSelector } from '@/components/AuthorSelector';
-import type { AuthorId } from '@/constants/authors';
+import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
+import { AUTHORS, type AuthorId } from '@/constants/authors';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
@@ -189,13 +188,13 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
         'Choose which person is using this phone so the recipe is labeled correctly.',
         [
           {
-            text: 'daddy 🍆',
+            text: AUTHORS.daddy.label,
             onPress: () => {
               void chooseMember('daddy').then(() => saveRecipe('daddy'));
             },
           },
           {
-            text: 'princess 🍑',
+            text: AUTHORS.princess.label,
             onPress: () => {
               void chooseMember('princess').then(() => saveRecipe('princess'));
             },

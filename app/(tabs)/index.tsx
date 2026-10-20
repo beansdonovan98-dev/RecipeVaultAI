@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useRoomConfig } from '@/hooks/useRoomConfig';
 import { RecipeCard } from '@/components/RecipeCard';

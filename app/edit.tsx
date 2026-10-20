@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   Alert,
   Image,
@@ -16,6 +14,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as db from '@/db';
+import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { useRecipes } from '@/hooks/useRecipes';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';

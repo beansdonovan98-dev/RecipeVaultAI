@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppText as Text } from '@/components/AppText';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
 import { openScreenOverlay } from '@/services/screenOverlay';
 import { recordBreadcrumb } from '@/services/crashTracker';
