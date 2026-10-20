@@ -55,3 +55,8 @@ export interface RoomConfig {
   code: string;
   roomId: string;
 }
+
+export interface RoomSetting {
+  key: string;
+  value: string;
+}

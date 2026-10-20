@@ -25,7 +25,7 @@ import {
 import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface CustomizeAppearanceViewProps {
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProps) {
@@ -58,7 +58,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         <Text style={styles.introTitle}>Make it yours</Text>
         <Text style={styles.introText}>
           Choose a font and text color for recipe titles, headings, labels, and form fields. Your
-          choice is saved on this phone.
+          choice is saved for both phones in your shared room.
         </Text>
       </View>
 
@@ -178,9 +178,11 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         <Text style={styles.resetText}>Reset to defaults</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.doneButton} onPress={onClose} activeOpacity={0.8}>
-        <Text style={styles.doneButtonText}>Done</Text>
-      </TouchableOpacity>
+      {onClose ? (
+        <TouchableOpacity style={styles.doneButton} onPress={onClose} activeOpacity={0.8}>
+          <Text style={styles.doneButtonText}>Done</Text>
+        </TouchableOpacity>
+      ) : null}
     </ScrollView>
   );
 }

@@ -13,12 +13,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { initializeDatabase } from '@/db/schema';
 import AddRecipeScreen from '@/app/add';
 import AIGenerateScreen from '@/app/ai/generate';
+import AIRecipeLookupScreen from '@/app/ai/lookup';
 import AISubstituteScreen from '@/app/ai/substitute';
 import { AppText as Text } from '@/components/AppText';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StartupErrorScreen } from '@/components/StartupErrorScreen';
 import { CrashReportsView } from '@/components/CrashReportsView';
-import { CustomizeAppearanceView } from '@/components/CustomizeAppearanceView';
 import { RoomSetupView } from '@/components/RoomSetupView';
 import { SyncStatusView } from '@/components/SyncStatusView';
 import { AppearanceProvider, useAppearance } from '@/contexts/AppearanceContext';
@@ -47,10 +47,10 @@ console.log('[STARTUP] JS startup');
 const OVERLAY_TITLES: Record<OverlayScreen, string> = {
   add: 'Add Recipe',
   'ai-generate': 'AI Recipe Generator',
+  'ai-lookup': 'Recipe Name Lookup',
   'ai-substitute': 'Ingredient Substitutions',
   settings: 'Shared Room',
   'sync-status': 'Connection Status',
-  customize: 'Customize Appearance',
 };
 
 function syncInBackground(source: string): void {
@@ -230,6 +230,8 @@ function RootLayoutContent() {
                 <AddRecipeScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'ai-generate' ? (
                 <AIGenerateScreen onClose={closeScreenOverlay} />
+              ) : screenOverlay === 'ai-lookup' ? (
+                <AIRecipeLookupScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'settings' ? (
                 <ErrorBoundary>
                   <RoomSetupView onClose={closeScreenOverlay} />
@@ -237,10 +239,6 @@ function RootLayoutContent() {
               ) : screenOverlay === 'sync-status' ? (
                 <ErrorBoundary>
                   <SyncStatusView onClose={closeScreenOverlay} />
-                </ErrorBoundary>
-              ) : screenOverlay === 'customize' ? (
-                <ErrorBoundary>
-                  <CustomizeAppearanceView onClose={closeScreenOverlay} />
                 </ErrorBoundary>
               ) : (
                 <AISubstituteScreen />

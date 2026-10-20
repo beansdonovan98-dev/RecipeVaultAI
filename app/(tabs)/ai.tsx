@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
@@ -8,7 +8,7 @@ import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function AIToolsScreen() {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>AI Tools</Text>
         <Text style={styles.headerSubtitle}>Powered by smart recipe intelligence</Text>
@@ -39,6 +39,27 @@ export default function AIToolsScreen() {
         <TouchableOpacity
           style={styles.toolCard}
           onPress={() => {
+            recordBreadcrumb('tap:ai-lookup');
+            openScreenOverlay('ai-lookup');
+          }}
+          activeOpacity={0.8}
+        >
+          <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+            <Ionicons name="search" size={28} color="#3182CE" />
+          </View>
+          <Text style={styles.toolTitle}>Recipe Name Lookup</Text>
+          <Text style={styles.toolDescription}>
+            Enter a recipe name and get a method, ingredients, and steps you can save
+          </Text>
+          <View style={styles.toolAction}>
+            <Text style={styles.toolActionText}>Look Up Recipe</Text>
+            <Ionicons name="arrow-forward" size={16} color={Colors.primary} />
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.toolCard}
+          onPress={() => {
             recordBreadcrumb('tap:ai-substitute');
             openScreenOverlay('ai-substitute');
           }}
@@ -57,7 +78,7 @@ export default function AIToolsScreen() {
           </View>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -65,6 +86,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  content: {
+    paddingBottom: Spacing.xxxl,
   },
   header: {
     paddingHorizontal: Spacing.lg,

@@ -40,7 +40,7 @@ export default function TabLayout() {
           paddingTop: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 9,
           fontWeight: '500',
           fontFamily,
         },
@@ -113,6 +113,24 @@ export default function TabLayout() {
         options={{
           title: 'AI Tools',
           tabBarIcon: ({ color, size }) => <Ionicons name="sparkles" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="customize"
+        options={{
+          title: 'Customize',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="color-palette-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cheat-sheet"
+        options={{
+          title: 'Cheat Sheet',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calculator-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

@@ -1,4 +1,4 @@
-import type { RemoteRecipe, RemoteRecipeInput } from '@/types/sync';
+import type { RemoteRecipe, RemoteRecipeInput, RoomSetting } from '@/types/sync';
 import { isAuthorId, type AuthorId } from '@/constants/authors';
 import { getImageFileMeta, isRemoteImageUri } from './syncHelpers';
 
@@ -102,6 +102,26 @@ export async function refreshPresence(code: string, member: AuthorId): Promise<A
     p_member: member,
   });
   return Array.isArray(activeMembers) ? activeMembers.filter(isAuthorId) : [];
+}
+
+export async function getRoomSettings(code: string): Promise<RoomSetting[]> {
+  const settings = await rpc<RoomSetting[] | null>('rvai_get_room_settings', {
+    p_code: code,
+  });
+  if (!Array.isArray(settings)) {
+    return [];
+  }
+  return settings.filter(
+    (setting) => setting && typeof setting.key === 'string' && typeof setting.value === 'string'
+  );
+}
+
+export async function setRoomSetting(code: string, key: string, value: string): Promise<void> {
+  await rpc<null>('rvai_set_room_setting', {
+    p_code: code,
+    p_key: key,
+    p_value: value,
+  });
 }
 
 export async function uploadPhoto(

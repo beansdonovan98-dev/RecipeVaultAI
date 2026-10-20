@@ -236,20 +236,6 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
         <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.statusButton}
-        onPress={() => openScreenOverlay('customize')}
-        activeOpacity={0.8}
-        accessibilityRole="button"
-        accessibilityLabel="Open appearance customization"
-      >
-        <View style={styles.statusTextBlock}>
-          <Text style={styles.sectionLabel}>Customize appearance</Text>
-          <Text style={styles.helperText}>Choose the app font and text color.</Text>
-        </View>
-        <Ionicons name="color-palette-outline" size={20} color={Colors.textMuted} />
-      </TouchableOpacity>
-
       <View style={styles.formCard}>
         <AuthorSelector value={member} onChange={chooseMember} />
       </View>
