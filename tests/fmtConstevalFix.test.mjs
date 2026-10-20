@@ -21,7 +21,7 @@ target 'RecipeVaultAI' do
 end
 `;
 
-test('appends a fmt C++17 post_install hook after Expo post-install hooks', () => {
+test('injects the fmt C++17 fix into the existing post_install hook', () => {
   const result = applyFmtConstevalFix(PODFILE);
 
   assert.ok(result.includes(FMT_FIX_MARKER));
@@ -31,13 +31,26 @@ test('appends a fmt C++17 post_install hook after Expo post-install hooks', () =
   assert.ok(result.includes('react_native_post_install('));
   assert.ok(
     result.indexOf(FMT_FIX_MARKER) > result.indexOf('react_native_post_install('),
-    'fmt hook should run after react_native_post_install'
+    'fmt fix should run after react_native_post_install'
   );
   assert.equal(
     result.match(/post_install do \|installer\|/g).length,
-    2,
-    'existing hook should be preserved and a new hook appended'
+    1,
+    'CocoaPods 1.17+ rejects multiple post_install hooks'
   );
+});
+
+test('injects at the start of the hook when react_native_post_install is absent', () => {
+  const podfile = `target 'RecipeVaultAI' do
+  post_install do |installer|
+    puts 'done'
+  end
+end
+`;
+  const result = applyFmtConstevalFix(podfile);
+
+  assert.equal(result.match(/post_install do \|installer\|/g).length, 1);
+  assert.ok(result.indexOf(FMT_FIX_MARKER) < result.indexOf("puts 'done'"));
 });
 
 test('does not add a duplicate workaround when applied twice', () => {
@@ -66,4 +79,5 @@ test('handles CRLF Podfiles', () => {
 
   assert.ok(result.includes(FMT_FIX_MARKER));
   assert.ok(result.includes("CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'"));
+  assert.ok(result.includes(`\r\n  ${FMT_FIX_MARKER}`));
 });

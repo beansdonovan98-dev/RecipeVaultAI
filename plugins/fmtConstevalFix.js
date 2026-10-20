@@ -32,16 +32,54 @@ const FMT_FIX_BLOCK = `  ${FMT_FIX_MARKER}
   end
 `;
 
+function findMatchingParen(contents, openIndex) {
+  let depth = 0;
+
+  for (let index = openIndex; index < contents.length; index += 1) {
+    if (contents[index] === '(') {
+      depth += 1;
+    } else if (contents[index] === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        return index;
+      }
+    }
+  }
+
+  return -1;
+}
+
 function applyFmtConstevalFix(contents) {
   if (contents.includes(FMT_FIX_MARKER)) {
     return contents;
   }
 
-  // Append a new hook instead of editing the existing one. CocoaPods runs
-  // post_install hooks in definition order, so this runs after Expo's
-  // react_native_post_install and our C++17 setting cannot be overwritten.
+  const eol = contents.includes('\r\n') ? '\r\n' : '\n';
+  const block = FMT_FIX_BLOCK.replace(/\n/g, eol);
   const trimmed = contents.replace(/\s*$/, '');
-  return `${trimmed}\n\npost_install do |installer|\n${FMT_FIX_BLOCK}end\n`;
+  const hookMatch = contents.match(/post_install do \|installer\|/);
+
+  if (!hookMatch) {
+    return `${trimmed}${eol}${eol}post_install do |installer|${eol}${block}end${eol}`;
+  }
+
+  // CocoaPods 1.17+ rejects multiple post_install hooks, so inject the fix
+  // into the existing hook. Inserting after react_native_post_install keeps
+  // our C++17 setting from being overwritten.
+  const hookStart = hookMatch.index + hookMatch[0].length;
+  const remaining = contents.slice(hookStart);
+  const rnMatch = /^[ \t]*react_native_post_install\(/m.exec(remaining);
+
+  if (rnMatch) {
+    const openParen = hookStart + rnMatch.index + rnMatch[0].indexOf('(');
+    const closeParen = findMatchingParen(contents, openParen);
+
+    if (closeParen !== -1) {
+      return `${contents.slice(0, closeParen + 1)}${eol}${block}${contents.slice(closeParen + 1)}`;
+    }
+  }
+
+  return `${contents.slice(0, hookStart)}${eol}${block}${contents.slice(hookStart)}`;
 }
 
 module.exports = {
