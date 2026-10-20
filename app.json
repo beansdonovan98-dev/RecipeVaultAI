@@ -46,7 +46,8 @@
           "photosPermission": "Recipe Vault AI needs access to your photos to add recipe images."
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "./plugins/withFmtConstevalFix"
     ],
     "scheme": "recipevaultai",
     "extra": {
