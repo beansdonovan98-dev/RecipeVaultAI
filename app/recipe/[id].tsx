@@ -33,7 +33,7 @@ export default function RecipeDetailScreen() {
   const handleDelete = useCallback(() => {
     Alert.alert(
       'Delete Recipe',
-      'Are you sure you want to delete this recipe? This action cannot be undone.',
+      'This deletes the recipe from your collection. If you share a room, it will be removed from both phones. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

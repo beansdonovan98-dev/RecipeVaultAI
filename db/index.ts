@@ -1,7 +1,8 @@
 import { getDatabase } from './schema';
-import { getRoomConfig } from './settings';
+import { getMember, getRoomConfig } from './settings';
 import { Recipe, RecipeInput, Ingredient, Instruction } from '@/types/recipe';
 import type { RecipeSyncRecord, RemoteRecipe } from '@/types/sync';
+import type { AuthorId } from '@/constants/authors';
 import { createRemoteId } from '@/services/syncHelpers';
 
 export * from './settings';
@@ -19,6 +20,7 @@ interface RecipeRow {
   instructions: string;
   image_uri: string | null;
   is_favorite: number;
+  author: string;
   dirty: number;
   deleted: number;
   local_revision: number;
@@ -48,6 +50,7 @@ function mapRowToRecipe(row: RecipeRow): Recipe {
     instructions: safeJsonParse<Instruction[]>(row.instructions, []),
     imageUri: row.image_uri,
     isFavorite: row.is_favorite === 1,
+    author: row.author ?? '',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -67,6 +70,7 @@ function mapRowToSyncRecord(row: RecipeRow): RecipeSyncRecord {
     instructions: row.instructions,
     imageUri: row.image_uri,
     isFavorite: row.is_favorite === 1,
+    author: row.author ?? '',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     dirty: row.dirty === 1,
@@ -147,8 +151,9 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
   return rows.map(mapRowToRecipe);
 }
 
-export async function addRecipe(input: RecipeInput): Promise<number> {
+export async function addRecipe(input: RecipeInput, authorOverride?: AuthorId): Promise<number> {
   const db = await getDatabase();
+  const author = authorOverride ?? (await getMember()) ?? '';
   const ingredients = input.ingredients.map((ing, i) => ({
     ...ing,
     id: `ing-${Date.now()}-${i}`,
@@ -160,8 +165,8 @@ export async function addRecipe(input: RecipeInput): Promise<number> {
   }));
 
   const result = await db.runAsync(
-    `INSERT INTO recipes (remote_id, title, description, category, prep_time, cook_time, servings, ingredients, instructions, image_uri, dirty)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+    `INSERT INTO recipes (remote_id, title, description, category, prep_time, cook_time, servings, ingredients, instructions, image_uri, author, dirty)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
     [
       createRemoteId(),
       input.title,
@@ -173,6 +178,7 @@ export async function addRecipe(input: RecipeInput): Promise<number> {
       JSON.stringify(ingredients),
       JSON.stringify(instructions),
       input.imageUri,
+      author,
     ]
   );
   return result.lastInsertRowId as number;
@@ -180,6 +186,7 @@ export async function addRecipe(input: RecipeInput): Promise<number> {
 
 export async function updateRecipe(id: number, input: RecipeInput): Promise<void> {
   const db = await getDatabase();
+  const member = await getMember();
   const ingredients = input.ingredients.map((ing, i) => ({
     ...ing,
     id: `ing-${Date.now()}-${i}`,
@@ -191,7 +198,7 @@ export async function updateRecipe(id: number, input: RecipeInput): Promise<void
   }));
 
   await db.runAsync(
-    `UPDATE recipes SET title = ?, description = ?, category = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, dirty = 1, local_revision = local_revision + 1, updated_at = datetime('now') WHERE id = ?`,
+    `UPDATE recipes SET title = ?, description = ?, category = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, author = CASE WHEN author = '' THEN ? ELSE author END, dirty = 1, local_revision = local_revision + 1, updated_at = datetime('now') WHERE id = ?`,
     [
       input.title,
       input.description,
@@ -202,6 +209,7 @@ export async function updateRecipe(id: number, input: RecipeInput): Promise<void
       JSON.stringify(ingredients),
       JSON.stringify(instructions),
       input.imageUri,
+      member ?? '',
       id,
     ]
   );
@@ -321,7 +329,7 @@ export async function upsertRemoteRecipe(remote: RemoteRecipe): Promise<void> {
 
   if (existing) {
     await db.runAsync(
-      `UPDATE recipes SET title = ?, description = ?, category = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, is_favorite = ?, dirty = 0, deleted = 0, created_at = ?, updated_at = ? WHERE id = ? AND dirty = 0`,
+      `UPDATE recipes SET title = ?, description = ?, category = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, is_favorite = ?, author = COALESCE(NULLIF(?, ''), author), dirty = 0, deleted = 0, created_at = ?, updated_at = ? WHERE id = ? AND dirty = 0`,
       [
         title,
         remote.description ?? '',
@@ -333,6 +341,7 @@ export async function upsertRemoteRecipe(remote: RemoteRecipe): Promise<void> {
         instructions,
         remote.image_url,
         remote.is_favorite ? 1 : 0,
+        remote.author ?? '',
         createdAt,
         updatedAt,
         existing.id,
@@ -342,8 +351,8 @@ export async function upsertRemoteRecipe(remote: RemoteRecipe): Promise<void> {
   }
 
   await db.runAsync(
-    `INSERT INTO recipes (remote_id, title, description, category, prep_time, cook_time, servings, ingredients, instructions, image_uri, is_favorite, dirty, deleted, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)`,
+    `INSERT INTO recipes (remote_id, title, description, category, prep_time, cook_time, servings, ingredients, instructions, image_uri, is_favorite, author, dirty, deleted, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)`,
     [
       remote.id,
       title,
@@ -356,6 +365,7 @@ export async function upsertRemoteRecipe(remote: RemoteRecipe): Promise<void> {
       instructions,
       remote.image_url,
       remote.is_favorite ? 1 : 0,
+      remote.author ?? '',
       createdAt,
       updatedAt,
     ]

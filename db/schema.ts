@@ -18,6 +18,7 @@ const SCHEMA = `
     instructions TEXT NOT NULL DEFAULT '[]',
     image_uri TEXT,
     is_favorite INTEGER DEFAULT 0,
+    author TEXT NOT NULL DEFAULT '',
     dirty INTEGER NOT NULL DEFAULT 0,
     deleted INTEGER NOT NULL DEFAULT 0,
     local_revision INTEGER NOT NULL DEFAULT 1,
@@ -47,6 +48,9 @@ async function migrateDatabase(database: SQLite.SQLiteDatabase): Promise<void> {
     await database.execAsync(
       'ALTER TABLE recipes ADD COLUMN local_revision INTEGER NOT NULL DEFAULT 1'
     );
+  }
+  if (!columnNames.has('author')) {
+    await database.execAsync("ALTER TABLE recipes ADD COLUMN author TEXT NOT NULL DEFAULT ''");
   }
 
   await database.execAsync(

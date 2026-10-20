@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Recipe } from '@/types/recipe';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';
+import { getAuthorLabel } from '@/constants/authors';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -14,6 +15,7 @@ interface RecipeCardProps {
 
 export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full' }: RecipeCardProps) {
   const categoryInfo = getCategoryInfo(recipe.category as any);
+  const authorLabel = getAuthorLabel(recipe.author);
 
   if (variant === 'compact') {
     return (
@@ -26,7 +28,10 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
           </View>
         )}
         <View style={styles.compactContent}>
-          <Text style={styles.compactCategory}>{recipe.category}</Text>
+          <Text style={styles.compactCategory} numberOfLines={1}>
+            {recipe.category}
+            {authorLabel ? ` · ${authorLabel}` : ''}
+          </Text>
           <Text style={styles.compactTitle} numberOfLines={2}>{recipe.title}</Text>
           <View style={styles.compactMeta}>
             <Ionicons name="time-outline" size={12} color={Colors.textMuted} />
@@ -77,6 +82,13 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
 
         {recipe.description ? (
           <Text style={styles.description} numberOfLines={2}>{recipe.description}</Text>
+        ) : null}
+
+        {authorLabel ? (
+          <View style={styles.authorRow}>
+            <Ionicons name="person-outline" size={12} color={Colors.textMuted} />
+            <Text style={styles.authorText}>Added by {authorLabel}</Text>
+          </View>
         ) : null}
 
         <View style={styles.metaRow}>
@@ -157,6 +169,17 @@ const styles = StyleSheet.create({
   description: {
     ...Typography.bodySmall,
     marginBottom: Spacing.md,
+  },
+  authorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: Spacing.sm,
+  },
+  authorText: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontWeight: '600',
   },
   metaRow: {
     flexDirection: 'row',

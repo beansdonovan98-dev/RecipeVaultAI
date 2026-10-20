@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/databaseInitializer.test.mjs tests/errorHandler.test.mjs tests/crashDiagnostics.test.mjs tests/screenOverlay.test.mjs tests/crashViewer.test.mjs tests/fmtConstevalFix.test.mjs tests/syncHelpers.test.mjs tests/dataEvents.test.mjs"
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/databaseInitializer.test.mjs tests/errorHandler.test.mjs tests/crashDiagnostics.test.mjs tests/screenOverlay.test.mjs tests/crashViewer.test.mjs tests/fmtConstevalFix.test.mjs tests/syncHelpers.test.mjs tests/dataEvents.test.mjs tests/authors.test.mjs tests/syncStatus.test.mjs tests/queryStringCompat.test.mjs"
   },
   "dependencies": {
     "@expo/vector-icons": "~14.0.4",
@@ -22,7 +22,7 @@
     "expo-router": "~4.0.0",
     "expo-sqlite": "~15.1.4",
     "expo-status-bar": "~2.0.0",
-    "query-string": "^9.5.1",
+    "query-string": "7.1.3",
     "react": "18.3.1",
     "react-native": "0.76.9",
     "react-native-safe-area-context": "4.12.0",

@@ -66,6 +66,7 @@ test('sync records become remote payloads with safe fallbacks', () => {
       instructions: 'not-json',
       imageUri: 'https://example.com/soup.jpg',
       isFavorite: true,
+      author: 'princess',
       createdAt: '2026-01-01',
       updatedAt: '2026-01-02',
       dirty: true,
@@ -81,4 +82,5 @@ test('sync records become remote payloads with safe fallbacks', () => {
   assert.deepEqual(payload.instructions, []);
   assert.equal(payload.imageUrl, 'https://example.com/soup.jpg');
   assert.equal(payload.isFavorite, true);
+  assert.equal(payload.author, 'princess');
 });

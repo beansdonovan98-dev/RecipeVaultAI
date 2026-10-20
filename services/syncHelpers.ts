@@ -98,5 +98,6 @@ export function toRemoteRecipeInput(
     instructions: safeJsonArray(record.instructions),
     imageUrl,
     isFavorite: record.isFavorite,
+    author: record.author ?? '',
   };
 }

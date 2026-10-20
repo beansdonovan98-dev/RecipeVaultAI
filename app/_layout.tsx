@@ -19,6 +19,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StartupErrorScreen } from '@/components/StartupErrorScreen';
 import { CrashReportsView } from '@/components/CrashReportsView';
 import { RoomSetupView } from '@/components/RoomSetupView';
+import { SyncStatusView } from '@/components/SyncStatusView';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import {
   acknowledgeCrash,
@@ -46,6 +47,7 @@ const OVERLAY_TITLES: Record<OverlayScreen, string> = {
   'ai-generate': 'AI Recipe Generator',
   'ai-substitute': 'Ingredient Substitutions',
   settings: 'Shared Room',
+  'sync-status': 'Connection Status',
 };
 
 function syncInBackground(source: string): void {
@@ -217,6 +219,10 @@ export default function RootLayout() {
               ) : screenOverlay === 'settings' ? (
                 <ErrorBoundary>
                   <RoomSetupView onClose={closeScreenOverlay} />
+                </ErrorBoundary>
+              ) : screenOverlay === 'sync-status' ? (
+                <ErrorBoundary>
+                  <SyncStatusView onClose={closeScreenOverlay} />
                 </ErrorBoundary>
               ) : (
                 <AISubstituteScreen />

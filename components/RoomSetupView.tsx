@@ -12,10 +12,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as db from '@/db';
+import { AuthorSelector } from '@/components/AuthorSelector';
+import type { AuthorId } from '@/constants/authors';
 import { useRoomConfig } from '@/hooks/useRoomConfig';
 import { createRoom, isRemoteConfigured } from '@/services/remote';
 import { syncRecipes } from '@/services/recipeSync';
 import { notifyDataChanged } from '@/services/dataEvents';
+import { openScreenOverlay } from '@/services/screenOverlay';
 import {
   generateRoomCode,
   isRoomCodeValid,
@@ -37,6 +40,7 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [joined, setJoined] = useState(false);
+  const [member, setMemberState] = useState<AuthorId | null>(null);
   const mountedRef = useRef(true);
   const joiningRef = useRef(false);
   const configured = isRemoteConfigured();
@@ -53,6 +57,33 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
       setCode(config.code);
     }
   }, [config?.code]);
+
+  useEffect(() => {
+    let active = true;
+    db.getMember()
+      .then((value) => {
+        if (active) {
+          setMemberState(value);
+        }
+      })
+      .catch(() => {
+        recordBreadcrumb('member:load-failed');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const chooseMember = async (next: AuthorId) => {
+    setMemberState(next);
+    try {
+      await db.setMember(next);
+      notifyDataChanged();
+      recordBreadcrumb(`member:${next}`);
+    } catch (error) {
+      captureException(error, { source: 'roomSetup.setMember' });
+    }
+  };
 
   const runFirstSync = async () => {
     if (mountedRef.current) {
@@ -191,6 +222,24 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
           </Text>
         </View>
       ) : null}
+
+      <TouchableOpacity
+        style={styles.statusButton}
+        onPress={() => openScreenOverlay('sync-status')}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Open connection status"
+      >
+        <View style={styles.statusTextBlock}>
+          <Text style={styles.sectionLabel}>Connection status</Text>
+          <Text style={styles.helperText}>Check sync state and the last successful sync.</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
+      </TouchableOpacity>
+
+      <View style={styles.formCard}>
+        <AuthorSelector value={member} onChange={chooseMember} />
+      </View>
 
       {!configured ? (
         <View style={styles.warningBox}>
@@ -351,6 +400,22 @@ const styles = StyleSheet.create({
   },
   shareText: {
     ...Typography.label,
+  },
+  statusButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    padding: Spacing.lg,
+    ...Shadows.card,
+  },
+  statusTextBlock: {
+    flex: 1,
+    gap: Spacing.xs,
   },
   formCard: {
     backgroundColor: Colors.card,

@@ -1,6 +1,7 @@
 -- Recipe Vault AI shared-room backend.
--- Run this once in the Supabase SQL editor, then create the public storage bucket
--- named "recipe-photos" if the storage statements below are denied.
+-- Run this in the Supabase SQL editor. It is safe to rerun after app updates.
+-- Then create the public storage bucket named "recipe-photos" if the storage
+-- statements below are denied.
 --
 -- The anon key is safe to ship in the app as long as all table access goes
 -- through the security-definer functions below. The room code is the shared
@@ -36,9 +37,12 @@ create table if not exists public.rvai_recipes (
   instructions jsonb not null default '[]'::jsonb,
   image_url text,
   is_favorite boolean not null default false,
+  author text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.rvai_recipes add column if not exists author text not null default '';
 
 create index if not exists rvai_recipes_room_id_idx on public.rvai_recipes(room_id);
 
@@ -133,7 +137,7 @@ begin
 
   insert into public.rvai_recipes (
     id, room_id, title, description, category, prep_time, cook_time, servings,
-    ingredients, instructions, image_url, is_favorite, updated_at
+    ingredients, instructions, image_url, is_favorite, author, updated_at
   ) values (
     v_id,
     v_room_id,
@@ -147,6 +151,7 @@ begin
     coalesce(p_recipe->'instructions', '[]'::jsonb),
     nullif(p_recipe->>'imageUrl', ''),
     coalesce((p_recipe->>'isFavorite')::boolean, false),
+    coalesce(nullif(trim(p_recipe->>'author'), ''), ''),
     now()
   )
   on conflict (id) do update set
@@ -160,6 +165,7 @@ begin
     instructions = excluded.instructions,
     image_url = excluded.image_url,
     is_favorite = excluded.is_favorite,
+    author = case when rvai_recipes.author = '' then excluded.author else rvai_recipes.author end,
     updated_at = now()
   returning * into v_recipe;
 

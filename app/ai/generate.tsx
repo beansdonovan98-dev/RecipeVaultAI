@@ -12,10 +12,13 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { generateRecipeFromIngredients } from '@/services/ai';
-import { addRecipe } from '@/db';
+import { addRecipe, getMember, setMember } from '@/db';
+import type { AuthorId } from '@/constants/authors';
 import { Ingredient, RecipeInput } from '@/types/recipe';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
+import { notifyDataChanged } from '@/services/dataEvents';
+import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 
 function isValidRecipe(obj: any): obj is RecipeInput {
@@ -88,13 +91,18 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
     }
   };
 
-  const handleSaveRecipe = async () => {
+  const saveGeneratedRecipe = async (author: AuthorId) => {
     if (!generatedRecipe || !isValidRecipe(generatedRecipe)) {
       Alert.alert('Error', 'Invalid recipe data. Please generate a new recipe.');
       return;
     }
     try {
-      await addRecipe(generatedRecipe);
+      await addRecipe(generatedRecipe, author);
+      notifyDataChanged();
+      syncRecipes().catch((syncError) => {
+        console.warn('[SYNC] AI recipe sync failed', syncError);
+        recordBreadcrumb('sync:ai-recipe-failed');
+      });
       Alert.alert('Success', 'Recipe saved to your collection!', [
         {
           text: 'OK',
@@ -111,6 +119,47 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
       captureException(e, { source: 'aiGenerate.saveRecipe' });
       Alert.alert('Error', 'Failed to save recipe.');
     }
+  };
+
+  const handleSaveRecipe = async () => {
+    if (!generatedRecipe || !isValidRecipe(generatedRecipe)) {
+      Alert.alert('Error', 'Invalid recipe data. Please generate a new recipe.');
+      return;
+    }
+
+    try {
+      const member = await getMember();
+      if (member) {
+        await saveGeneratedRecipe(member);
+        return;
+      }
+    } catch (e) {
+      captureException(e, { source: 'aiGenerate.getMember' });
+    }
+
+    Alert.alert(
+      'Who is posting?',
+      'Choose which person is using this phone so the recipe is labeled correctly.',
+      [
+        {
+          text: 'daddy 🍆',
+          onPress: () => {
+            void setMember('daddy')
+              .catch((error) => captureException(error, { source: 'aiGenerate.setMember' }))
+              .then(() => saveGeneratedRecipe('daddy'));
+          },
+        },
+        {
+          text: 'princess 🍑',
+          onPress: () => {
+            void setMember('princess')
+              .catch((error) => captureException(error, { source: 'aiGenerate.setMember' }))
+              .then(() => saveGeneratedRecipe('princess'));
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
   };
 
   return (

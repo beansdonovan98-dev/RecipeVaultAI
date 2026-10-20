@@ -14,6 +14,7 @@ import {
   uploadPhoto,
   upsertRecipe,
 } from './remote';
+import { updateSyncStatus } from './syncStatus';
 
 export interface SyncSummary {
   pushed: number;
@@ -46,9 +47,24 @@ async function assertSameRoom(config: RoomConfig): Promise<void> {
   }
 }
 
+function isNetworkError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === 'AbortError' ||
+      /could not reach|network request failed|failed to fetch|timed out|aborted/i.test(
+        error.message
+      ))
+  );
+}
+
 export async function syncRecipes(): Promise<SyncSummary> {
   const config = await db.getRoomConfig();
   const key = config ? `${config.code}:${config.roomId}` : null;
+
+  if (!config) {
+    updateSyncStatus({ state: 'idle', lastSyncedAt: null, message: null });
+    return { pushed: 0, pulled: 0, failed: 0, skipped: true };
+  }
 
   if (syncInFlight) {
     if (syncInFlightKey === key) {
@@ -63,10 +79,34 @@ export async function syncRecipes(): Promise<SyncSummary> {
   }
 
   syncInFlightKey = key;
-  syncInFlight = runSync().finally(() => {
-    syncInFlight = null;
-    syncInFlightKey = null;
-  });
+  updateSyncStatus({ state: 'syncing', message: null });
+  syncInFlight = runSync()
+    .then((summary) => {
+      if (summary.skipped) {
+        updateSyncStatus({ state: 'idle', message: null });
+      } else {
+        updateSyncStatus({
+          state: 'connected',
+          lastSyncedAt: Date.now(),
+          message:
+            summary.failed > 0
+              ? `${summary.failed} item${summary.failed === 1 ? '' : 's'} waiting to sync`
+              : null,
+        });
+      }
+      return summary;
+    })
+    .catch((error: unknown) => {
+      updateSyncStatus({
+        state: isNetworkError(error) ? 'offline' : 'error',
+        message: error instanceof Error ? error.message : 'Sync failed',
+      });
+      throw error;
+    })
+    .finally(() => {
+      syncInFlight = null;
+      syncInFlightKey = null;
+    });
   return syncInFlight;
 }
 

@@ -15,6 +15,9 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRecipes } from '@/hooks/useRecipes';
+import * as db from '@/db';
+import { AuthorSelector } from '@/components/AuthorSelector';
+import type { AuthorId } from '@/constants/authors';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
@@ -42,11 +45,37 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
     { id: `inst-initial-0`, text: '' },
   ]);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [member, setMemberState] = useState<AuthorId | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     recordBreadcrumb('screen-mount:add');
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    db.getMember()
+      .then((value) => {
+        if (active) {
+          setMemberState(value);
+        }
+      })
+      .catch(() => {
+        recordBreadcrumb('member:load-failed');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const chooseMember = async (next: AuthorId) => {
+    setMemberState(next);
+    try {
+      await db.setMember(next);
+    } catch {
+      recordBreadcrumb('member:save-failed');
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -125,9 +154,7 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
     return true;
   };
 
-  const handleSave = async () => {
-    if (!validate()) return;
-
+  const saveRecipe = async (authorOverride?: AuthorId) => {
     setSaving(true);
     try {
       await addRecipe({
@@ -140,7 +167,7 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
         ingredients: ingredients.filter(i => i.name.trim()),
         instructions: instructions.filter(i => i.text.trim()),
         imageUri,
-      });
+      }, authorOverride ?? member ?? undefined);
       if (onClose) {
         onClose();
       } else {
@@ -151,6 +178,35 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSave = () => {
+    if (saving || !validate()) return;
+
+    if (!member) {
+      Alert.alert(
+        'Who is posting?',
+        'Choose which person is using this phone so the recipe is labeled correctly.',
+        [
+          {
+            text: 'daddy 🍆',
+            onPress: () => {
+              void chooseMember('daddy').then(() => saveRecipe('daddy'));
+            },
+          },
+          {
+            text: 'princess 🍑',
+            onPress: () => {
+              void chooseMember('princess').then(() => saveRecipe('princess'));
+            },
+          },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+      return;
+    }
+
+    void saveRecipe();
   };
 
   return (
@@ -170,6 +226,10 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
             </View>
           )}
         </TouchableOpacity>
+
+        <View style={styles.section}>
+          <AuthorSelector value={member} onChange={chooseMember} disabled={saving} />
+        </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Title *</Text>

@@ -26,6 +26,7 @@ export interface Recipe {
   instructions: Instruction[];
   imageUri: string | null;
   isFavorite: boolean;
+  author: string;
   createdAt: string;
   updatedAt: string;
 }

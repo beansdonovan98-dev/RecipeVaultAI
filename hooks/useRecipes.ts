@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as db from '@/db';
 import { Recipe, RecipeInput } from '@/types/recipe';
+import type { AuthorId } from '@/constants/authors';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged, subscribeToDataChanges } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
@@ -55,9 +56,9 @@ export function useRecipes() {
     };
   }, [loadRecipes, syncInBackground]);
 
-  const addRecipe = useCallback(async (input: RecipeInput) => {
+  const addRecipe = useCallback(async (input: RecipeInput, author?: AuthorId) => {
     try {
-      const id = await db.addRecipe(input);
+      const id = await db.addRecipe(input, author);
       notifyDataChanged();
       syncInBackground();
       return id;

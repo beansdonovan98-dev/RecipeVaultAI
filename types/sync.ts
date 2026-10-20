@@ -10,6 +10,7 @@ export interface RemoteRecipe {
   instructions: unknown;
   image_url: string | null;
   is_favorite: boolean;
+  author: string;
   created_at: string;
   updated_at: string;
 }
@@ -26,6 +27,7 @@ export interface RemoteRecipeInput {
   instructions: unknown;
   imageUrl: string | null;
   isFavorite: boolean;
+  author: string;
 }
 
 export interface RecipeSyncRecord {
@@ -41,6 +43,7 @@ export interface RecipeSyncRecord {
   instructions: string;
   imageUri: string | null;
   isFavorite: boolean;
+  author: string;
   createdAt: string;
   updatedAt: string;
   dirty: boolean;

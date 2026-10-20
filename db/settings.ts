@@ -1,8 +1,10 @@
 import { getDatabase } from './schema';
 import type { RoomConfig } from '@/types/sync';
+import { isAuthorId, type AuthorId } from '@/constants/authors';
 
 const ROOM_CODE_KEY = 'room_code';
 const ROOM_ID_KEY = 'room_id';
+const MEMBER_KEY = 'room_member';
 
 export async function getSetting(key: string): Promise<string | null> {
   const db = await getDatabase();
@@ -21,6 +23,15 @@ export async function setSetting(key: string, value: string): Promise<void> {
 export async function deleteSetting(key: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM app_settings WHERE key = ?', [key]);
+}
+
+export async function getMember(): Promise<AuthorId | null> {
+  const value = await getSetting(MEMBER_KEY);
+  return isAuthorId(value) ? value : null;
+}
+
+export async function setMember(member: AuthorId): Promise<void> {
+  await setSetting(MEMBER_KEY, member);
 }
 
 export async function getRoomConfig(): Promise<RoomConfig | null> {
