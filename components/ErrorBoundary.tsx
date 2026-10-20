@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { captureException } from '@/services/crashTracker';
 
 interface Props {
   children: React.ReactNode;
   fallback?: React.ReactNode;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  onViewCrashReports?: () => void;
 }
 
 interface State {
@@ -28,10 +31,27 @@ export class ErrorBoundary extends React.Component<Props, State> {
     console.error(
       `[ERROR BOUNDARY] Caught render error\nStack trace:\n${stack}\nComponent stack:\n${errorInfo?.componentStack ?? 'N/A'}`
     );
+    captureException(error, {
+      source: 'react-error-boundary',
+      isFatal: true,
+      componentStack: errorInfo?.componentStack ?? null,
+    });
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
   }
+
+  openCrashReports = () => {
+    if (this.props.onViewCrashReports) {
+      this.props.onViewCrashReports();
+      return;
+    }
+    try {
+      router.push('/crashes');
+    } catch {
+      // Navigation is best-effort in the fallback UI.
+    }
+  };
 
   reset = () => {
     this.setState({ hasError: false, error: null });
@@ -52,6 +72,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
             </Text>
             <TouchableOpacity style={styles.button} onPress={this.reset} activeOpacity={0.8}>
               <Text style={styles.buttonText}>Try Again</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={this.openCrashReports}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.secondaryButtonText}>View crash reports</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -100,5 +127,14 @@ const styles = StyleSheet.create({
   buttonText: {
     ...Typography.label,
     color: Colors.white,
+  },
+  secondaryButton: {
+    marginTop: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xs,
+  },
+  secondaryButtonText: {
+    ...Typography.label,
+    color: Colors.primary,
   },
 });

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as db from '@/db';
 import { Recipe, RecipeInput } from '@/types/recipe';
+import { captureException } from '@/services/crashTracker';
 
 export function useRecipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -14,6 +15,7 @@ export function useRecipes() {
       const data = await db.getAllRecipes();
       setRecipes(data);
     } catch (e) {
+      captureException(e, { source: 'useRecipes.loadRecipes' });
       setError(e instanceof Error ? e.message : 'Failed to load recipes');
     } finally {
       setLoading(false);
@@ -30,6 +32,7 @@ export function useRecipes() {
       await loadRecipes();
       return id;
     } catch (e) {
+      captureException(e, { source: 'useRecipes.addRecipe' });
       setError(e instanceof Error ? e.message : 'Failed to add recipe');
       throw e;
     }
@@ -40,6 +43,7 @@ export function useRecipes() {
       await db.updateRecipe(id, input);
       await loadRecipes();
     } catch (e) {
+      captureException(e, { source: 'useRecipes.updateRecipe' });
       setError(e instanceof Error ? e.message : 'Failed to update recipe');
       throw e;
     }
@@ -50,6 +54,7 @@ export function useRecipes() {
       await db.deleteRecipe(id);
       await loadRecipes();
     } catch (e) {
+      captureException(e, { source: 'useRecipes.deleteRecipe' });
       setError(e instanceof Error ? e.message : 'Failed to delete recipe');
       throw e;
     }
@@ -60,6 +65,7 @@ export function useRecipes() {
       await db.toggleFavorite(id, isFavorite);
       setRecipes(prev => prev.map(r => r.id === id ? { ...r, isFavorite } : r));
     } catch (e) {
+      captureException(e, { source: 'useRecipes.toggleFavorite' });
       setError(e instanceof Error ? e.message : 'Failed to toggle favorite');
     }
   }, []);
@@ -96,6 +102,7 @@ export function useRecipe(id: number | null) {
       const data = await db.getRecipeById(id);
       setRecipe(data);
     } catch (e) {
+      captureException(e, { source: 'useRecipe.loadRecipe', extra: { recipeId: id } });
       setError(e instanceof Error ? e.message : 'Failed to load recipe');
     } finally {
       setLoading(false);
@@ -108,8 +115,13 @@ export function useRecipe(id: number | null) {
 
   const toggleFavorite = useCallback(async (isFavorite: boolean) => {
     if (!id) return;
-    await db.toggleFavorite(id, isFavorite);
-    setRecipe(prev => prev ? { ...prev, isFavorite } : null);
+    try {
+      await db.toggleFavorite(id, isFavorite);
+      setRecipe(prev => prev ? { ...prev, isFavorite } : null);
+    } catch (e) {
+      captureException(e, { source: 'useRecipe.toggleFavorite', extra: { recipeId: id } });
+      throw e;
+    }
   }, [id]);
 
   return { recipe, loading, error, toggleFavorite, refresh: loadRecipe };
@@ -129,6 +141,7 @@ export function useSearch() {
       const data = await db.searchRecipes(query);
       setResults(data);
     } catch (e) {
+      captureException(e, { source: 'useSearch.search', extra: { query } });
       setResults([]);
     } finally {
       setLoading(false);
@@ -148,6 +161,7 @@ export function useCategories() {
       const data = await db.getCategories();
       setCategories(data);
     } catch (e) {
+      captureException(e, { source: 'useCategories.loadCategories' });
       setCategories([]);
     } finally {
       setLoading(false);
@@ -162,6 +176,7 @@ export function useCategories() {
     try {
       return await db.getRecipesByCategory(category);
     } catch (e) {
+      captureException(e, { source: 'useCategories.getRecipesByCategory', extra: { category } });
       return [];
     }
   }, []);

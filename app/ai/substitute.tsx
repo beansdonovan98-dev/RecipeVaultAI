@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 
 export default function AISubstituteScreen() {
@@ -21,6 +22,7 @@ export default function AISubstituteScreen() {
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
+    recordBreadcrumb('screen-mount:ai-substitute');
     loadAllSubstitutions();
   }, []);
 
@@ -28,7 +30,9 @@ export default function AISubstituteScreen() {
     try {
       const data = await getAllSubstitutions();
       setAllSubs(data);
-    } catch (e) {}
+    } catch (e) {
+      captureException(e, { source: 'aiSubstitute.loadAllSubstitutions' });
+    }
   };
 
   const handleSearch = async () => {
@@ -38,6 +42,7 @@ export default function AISubstituteScreen() {
       const results = await getIngredientSubstitution(ingredient);
       setSubstitutions(results);
     } catch (e) {
+      captureException(e, { source: 'aiSubstitute.getIngredientSubstitution', extra: { ingredient } });
       setSubstitutions([]);
     } finally {
       setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function AddRecipeScreen() {
   const router = useRouter();
@@ -38,6 +39,10 @@ export default function AddRecipeScreen() {
   ]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    recordBreadcrumb('screen-mount:add');
+  }, []);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({

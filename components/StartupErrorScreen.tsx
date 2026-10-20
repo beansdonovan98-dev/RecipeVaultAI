@@ -6,9 +6,15 @@ interface Props {
   error: Error;
   onRetry: () => void;
   isRetrying?: boolean;
+  onViewCrashReports?: () => void;
 }
 
-export function StartupErrorScreen({ error, onRetry, isRetrying = false }: Props) {
+export function StartupErrorScreen({
+  error,
+  onRetry,
+  isRetrying = false,
+  onViewCrashReports,
+}: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -30,6 +36,15 @@ export function StartupErrorScreen({ error, onRetry, isRetrying = false }: Props
             <Text style={styles.buttonText}>Try Again</Text>
           )}
         </TouchableOpacity>
+        {onViewCrashReports ? (
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={onViewCrashReports}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.secondaryButtonText}>View crash reports</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );
@@ -84,5 +99,14 @@ const styles = StyleSheet.create({
   buttonText: {
     ...Typography.label,
     color: Colors.white,
+  },
+  secondaryButton: {
+    marginTop: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xs,
+  },
+  secondaryButtonText: {
+    ...Typography.label,
+    color: Colors.primary,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { generateRecipeFromIngredients } from '@/services/ai';
 import { addRecipe } from '@/db';
 import { Ingredient, RecipeInput } from '@/types/recipe';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 
 function isValidRecipe(obj: any): obj is RecipeInput {
@@ -38,6 +39,10 @@ export default function AIGenerateScreen() {
   const [ingredients, setIngredients] = useState<string>('');
   const [generating, setGenerating] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<RecipeInput | null>(null);
+
+  useEffect(() => {
+    recordBreadcrumb('screen-mount:ai-generate');
+  }, []);
 
   const handleGenerate = async () => {
     const lines = ingredients
@@ -72,6 +77,7 @@ export default function AIGenerateScreen() {
       }
       setGeneratedRecipe(recipe);
     } catch (e) {
+      captureException(e, { source: 'aiGenerate.generate' });
       Alert.alert('Error', 'Failed to generate recipe. Please try again.');
     } finally {
       setGenerating(false);
@@ -89,6 +95,7 @@ export default function AIGenerateScreen() {
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (e) {
+      captureException(e, { source: 'aiGenerate.saveRecipe' });
       Alert.alert('Error', 'Failed to save recipe.');
     }
   };

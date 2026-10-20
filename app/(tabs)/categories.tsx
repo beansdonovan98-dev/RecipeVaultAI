@@ -8,6 +8,7 @@ import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { captureException } from '@/services/crashTracker';
 import { Colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
@@ -33,6 +34,7 @@ export default function CategoriesScreen() {
       }
       setRecipesByCategory(result);
     } catch (e) {
+      captureException(e, { source: 'categories.loadCategories' });
       setRecipesByCategory({});
     } finally {
       setLoading(false);

@@ -77,6 +77,43 @@ test('chains to the original React Native global handler', () => {
   assert.deepEqual(calls, [{ error, isFatal: false }]);
 });
 
+test('reports global errors and unhandled rejections to the crash tracker', () => {
+  const reported = [];
+  let installedHandler;
+
+  installGlobalErrorHandlers(
+    {
+      getGlobalHandler: () => undefined,
+      setGlobalHandler: (handler) => {
+        installedHandler = handler;
+      },
+    },
+    {},
+    { error: () => {} },
+    (error, context) => reported.push({ message: error.message, context })
+  );
+
+  installedHandler(new Error('render boom'), true);
+  assert.deepEqual(reported[0], {
+    message: 'render boom',
+    context: { source: 'global-error', isFatal: true },
+  });
+
+  const target = {};
+  installGlobalErrorHandlers(
+    undefined,
+    target,
+    { error: () => {} },
+    (error, context) => reported.push({ message: error.message, context })
+  );
+  target.onunhandledrejection({ reason: new Error('promise boom') });
+
+  assert.deepEqual(reported[1], {
+    message: 'promise boom',
+    context: { source: 'unhandled-rejection', isFatal: false },
+  });
+});
+
 test('does not overwrite an existing unhandled rejection handler', () => {
   const { logger } = createLogger();
   const existingHandler = () => {};

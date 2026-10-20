@@ -21,6 +21,7 @@ import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { captureException } from '@/services/crashTracker';
 
 export default function EditRecipeScreen() {
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function EditRecipeScreen() {
         setImageUri(recipe.imageUri);
       }
     } catch (e) {
+      captureException(e, { source: 'editRecipe.loadRecipe', extra: { recipeId: parsedId } });
       Alert.alert('Error', 'Failed to load recipe');
     } finally {
       setLoading(false);

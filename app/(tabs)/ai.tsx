@@ -1,12 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { navigateSafely } from '@/utils/safeNavigation';
 
 export default function AIToolsScreen() {
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -17,7 +15,7 @@ export default function AIToolsScreen() {
       <View style={styles.toolsContainer}>
         <TouchableOpacity
           style={styles.toolCard}
-          onPress={() => router.push('/ai/generate')}
+          onPress={() => navigateSafely('/ai/generate', 'tap:ai-generator')}
           activeOpacity={0.8}
         >
           <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -35,7 +33,7 @@ export default function AIToolsScreen() {
 
         <TouchableOpacity
           style={styles.toolCard}
-          onPress={() => router.push('/ai/substitute')}
+          onPress={() => navigateSafely('/ai/substitute', 'tap:ai-substitute')}
           activeOpacity={0.8}
         >
           <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>

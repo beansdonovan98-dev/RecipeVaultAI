@@ -7,6 +7,7 @@ import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { captureException } from '@/services/crashTracker';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
 export default function FavoritesScreen() {
@@ -24,6 +25,7 @@ export default function FavoritesScreen() {
       const data = await db.getFavoriteRecipes();
       setFavorites(data);
     } catch (e) {
+      captureException(e, { source: 'favorites.loadFavorites' });
       setFavorites([]);
     } finally {
       setLoading(false);
@@ -59,7 +61,12 @@ export default function FavoritesScreen() {
             try {
               await db.toggleFavorite(item.id, false);
               loadFavorites();
-            } catch (e) {}
+            } catch (e) {
+              captureException(e, {
+                source: 'favorites.removeFavorite',
+                extra: { recipeId: item.id },
+              });
+            }
           }}
               />
             )}

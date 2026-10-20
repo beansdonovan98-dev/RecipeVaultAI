@@ -16,7 +16,9 @@ import { deleteRecipe } from '@/db';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { captureException } from '@/services/crashTracker';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+import { navigateSafely } from '@/utils/safeNavigation';
 import { getCategoryInfo } from '@/constants/categories';
 
 export default function RecipeDetailScreen() {
@@ -36,9 +38,17 @@ export default function RecipeDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-             if (parsedId !== null) await deleteRecipe(parsedId);
-             router.back();
-           },
+            try {
+              if (parsedId !== null) await deleteRecipe(parsedId);
+              router.back();
+            } catch (e) {
+              captureException(e, {
+                source: 'recipeDetail.deleteRecipe',
+                extra: { recipeId: parsedId },
+              });
+              Alert.alert('Error', 'Failed to delete recipe. Please try again.');
+            }
+          },
         },
       ]
     );
@@ -51,7 +61,9 @@ export default function RecipeDetailScreen() {
         message: `Check out this recipe: ${recipe.title}\n\n${recipe.description}`,
         title: recipe.title,
       });
-    } catch (e) {}
+    } catch (e) {
+      captureException(e, { source: 'recipeDetail.shareRecipe' });
+    }
   }, [recipe]);
 
   if (loading) return <LoadingSpinner />;
@@ -95,7 +107,7 @@ export default function RecipeDetailScreen() {
                 <TouchableOpacity onPress={handleShare} style={styles.actionButton}>
                   <Ionicons name="share-outline" size={22} color={Colors.textMuted} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push(`/edit?id=${recipe.id}`)} style={styles.actionButton}>
+                <TouchableOpacity onPress={() => navigateSafely(`/edit?id=${recipe.id}`, 'tap:edit-recipe')} style={styles.actionButton}>
                   <Ionicons name="create-outline" size={22} color={Colors.textMuted} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>

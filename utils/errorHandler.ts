@@ -7,6 +7,11 @@ export type ErrorUtilsLike = {
 
 type ErrorTarget = Record<string, unknown>;
 
+export type ErrorReporter = (
+  error: unknown,
+  context: { source: string; isFatal?: boolean }
+) => void;
+
 export function describeError(error: unknown): string {
   if (error instanceof Error) {
     return error.stack ?? error.message;
@@ -21,7 +26,8 @@ export function describeError(error: unknown): string {
 export function installGlobalErrorHandlers(
   errorUtils: ErrorUtilsLike | undefined,
   target: ErrorTarget = globalThis as unknown as ErrorTarget,
-  logger: Pick<Console, 'error'> = console
+  logger: Pick<Console, 'error'> = console,
+  reporter?: ErrorReporter
 ): void {
   if (
     errorUtils &&
@@ -42,6 +48,11 @@ export function installGlobalErrorHandlers(
         } catch {
           // Diagnostics must never throw.
         }
+        try {
+          reporter?.(error, { source: 'global-error', isFatal });
+        } catch {
+          // Diagnostics must never throw.
+        }
         if (typeof originalHandler === 'function') {
           originalHandler(error, isFatal);
         }
@@ -59,12 +70,11 @@ export function installGlobalErrorHandlers(
       } catch {
         // Diagnostics must never throw.
       }
+      try {
+        reporter?.(reason, { source: 'unhandled-rejection', isFatal: false });
+      } catch {
+        // Diagnostics must never throw.
+      }
     };
   }
 }
-
-console.log('[STARTUP] installing global error handlers');
-
-installGlobalErrorHandlers(
-  (globalThis as unknown as { ErrorUtils?: ErrorUtilsLike }).ErrorUtils
-);

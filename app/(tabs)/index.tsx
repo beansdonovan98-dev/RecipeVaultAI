@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useRecipes } from '@/hooks/useRecipes';
 import { RecipeCard } from '@/components/RecipeCard';
@@ -10,9 +9,9 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
+import { navigateSafely } from '@/utils/safeNavigation';
 
 export default function HomeScreen() {
-  const router = useRouter();
   const { recipes, loading, error, toggleFavorite, refresh } = useRecipes();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
@@ -37,8 +36,21 @@ export default function HomeScreen() {
     <ErrorBoundary>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Recipe Vault</Text>
-          <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+          <View style={styles.headerRow}>
+            <View>
+              <Text style={styles.headerTitle}>Recipe Vault</Text>
+              <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.crashButton}
+              onPress={() => navigateSafely('/crashes', 'tap:crash-reports')}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Open crash reports"
+            >
+              <Ionicons name="bug-outline" size={20} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.filterSection}>
@@ -75,7 +87,7 @@ export default function HomeScreen() {
             renderItem={({ item }) => (
               <RecipeCard
                 recipe={item}
-                onPress={() => router.push(`/recipe/${item.id}`)}
+                onPress={() => navigateSafely(`/recipe/${item.id}`, 'tap:recipe-detail')}
                 onToggleFavorite={() => toggleFavorite(item.id, !item.isFavorite)}
               />
             )}
@@ -84,7 +96,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => router.push('/add')}
+          onPress={() => navigateSafely('/add', 'tap:add-recipe')}
           activeOpacity={0.8}
         >
           <Ionicons name="add" size={28} color={Colors.white} />
@@ -103,6 +115,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.sm,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  crashButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.tipBackground,
   },
   headerTitle: {
     ...Typography.title,
