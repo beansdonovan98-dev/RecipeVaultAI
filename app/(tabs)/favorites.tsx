@@ -7,7 +7,9 @@ import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { captureException } from '@/services/crashTracker';
+import { captureException, recordBreadcrumb } from '@/services/crashTracker';
+import { notifyDataChanged, subscribeToDataChanges } from '@/services/dataEvents';
+import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 
 export default function FavoritesScreen() {
@@ -15,22 +17,27 @@ export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadFavorites();
-  }, []);
-
-  const loadFavorites = async () => {
+  const loadFavorites = async (showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       const data = await db.getFavoriteRecipes();
       setFavorites(data);
     } catch (e) {
       captureException(e, { source: 'favorites.loadFavorites' });
       setFavorites([]);
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
   };
+
+  useEffect(() => {
+    loadFavorites(true);
+    return subscribeToDataChanges(() => loadFavorites(false));
+  }, []);
 
   if (loading) return <LoadingSpinner />;
 
@@ -57,17 +64,21 @@ export default function FavoritesScreen() {
               <RecipeCard
                 recipe={item}
                 onPress={() => router.push(`/recipe/${item.id}`)}
-          onToggleFavorite={async () => {
-            try {
-              await db.toggleFavorite(item.id, false);
-              loadFavorites();
-            } catch (e) {
-              captureException(e, {
-                source: 'favorites.removeFavorite',
-                extra: { recipeId: item.id },
-              });
-            }
-          }}
+                onToggleFavorite={async () => {
+                  try {
+                    await db.toggleFavorite(item.id, false);
+                    notifyDataChanged();
+                    syncRecipes().catch((syncError) => {
+                      console.warn('[SYNC] favorite sync failed', syncError);
+                      recordBreadcrumb('sync:favorite-failed');
+                    });
+                  } catch (e) {
+                    captureException(e, {
+                      source: 'favorites.removeFavorite',
+                      extra: { recipeId: item.id },
+                    });
+                  }
+                }}
               />
             )}
           />

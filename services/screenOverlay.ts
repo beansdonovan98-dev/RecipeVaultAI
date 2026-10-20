@@ -1,4 +1,4 @@
-export type OverlayScreen = 'add' | 'ai-generate' | 'ai-substitute';
+export type OverlayScreen = 'add' | 'ai-generate' | 'ai-substitute' | 'settings';
 
 type OverlayListener = (screen: OverlayScreen | null) => void;
 

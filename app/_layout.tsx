@@ -2,6 +2,7 @@ import { Stack, usePathname } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
+  AppState,
   BackHandler,
   StyleSheet,
   Text,
@@ -17,6 +18,7 @@ import AISubstituteScreen from '@/app/ai/substitute';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StartupErrorScreen } from '@/components/StartupErrorScreen';
 import { CrashReportsView } from '@/components/CrashReportsView';
+import { RoomSetupView } from '@/components/RoomSetupView';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import {
   acknowledgeCrash,
@@ -27,6 +29,7 @@ import {
   setCurrentRoute,
 } from '@/services/crashTracker';
 import { subscribeToCrashViewer } from '@/services/crashViewer';
+import { syncRecipes } from '@/services/recipeSync';
 import {
   closeScreenOverlay,
   getScreenOverlay,
@@ -42,7 +45,15 @@ const OVERLAY_TITLES: Record<OverlayScreen, string> = {
   add: 'Add Recipe',
   'ai-generate': 'AI Recipe Generator',
   'ai-substitute': 'Ingredient Substitutions',
+  settings: 'Shared Room',
 };
+
+function syncInBackground(source: string): void {
+  syncRecipes().catch((error) => {
+    console.warn(`[SYNC] ${source} failed`, error);
+    recordBreadcrumb(`sync:${source}-failed`);
+  });
+}
 
 export default function RootLayout() {
   const [dbError, setDbError] = useState<Error | null>(null);
@@ -85,6 +96,7 @@ export default function RootLayout() {
         console.log('[STARTUP] database ready');
         recordBreadcrumb('database:ready');
         setDbError(null);
+        syncInBackground('startup');
       })
       .catch((error: unknown) => {
         const dbFailure = error instanceof Error ? error : new Error(String(error));
@@ -100,6 +112,15 @@ export default function RootLayout() {
   useEffect(() => {
     bootstrapDatabase();
   }, [bootstrapDatabase]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        syncInBackground('active');
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -193,6 +214,10 @@ export default function RootLayout() {
                 <AddRecipeScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'ai-generate' ? (
                 <AIGenerateScreen onClose={closeScreenOverlay} />
+              ) : screenOverlay === 'settings' ? (
+                <ErrorBoundary>
+                  <RoomSetupView onClose={closeScreenOverlay} />
+                </ErrorBoundary>
               ) : (
                 <AISubstituteScreen />
               )}

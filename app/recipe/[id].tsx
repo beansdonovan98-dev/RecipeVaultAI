@@ -16,7 +16,9 @@ import { deleteRecipe } from '@/db';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { captureException } from '@/services/crashTracker';
+import { captureException, recordBreadcrumb } from '@/services/crashTracker';
+import { notifyDataChanged } from '@/services/dataEvents';
+import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { navigateSafely } from '@/utils/safeNavigation';
 import { getCategoryInfo } from '@/constants/categories';
@@ -40,6 +42,11 @@ export default function RecipeDetailScreen() {
           onPress: async () => {
             try {
               if (parsedId !== null) await deleteRecipe(parsedId);
+              notifyDataChanged();
+              syncRecipes().catch((syncError) => {
+                console.warn('[SYNC] delete sync failed', syncError);
+                recordBreadcrumb('sync:delete-failed');
+              });
               router.back();
             } catch (e) {
               captureException(e, {

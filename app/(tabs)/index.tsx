@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRecipes } from '@/hooks/useRecipes';
+import { useRoomConfig } from '@/hooks/useRoomConfig';
 import { RecipeCard } from '@/components/RecipeCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -16,6 +17,7 @@ import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function HomeScreen() {
   const { recipes, loading, error, toggleFavorite, refresh } = useRecipes();
+  const { config: roomConfig } = useRoomConfig();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   const filteredRecipes = useMemo(() => {
@@ -39,20 +41,38 @@ export default function HomeScreen() {
     <ErrorBoundary>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <View>
-              <Text style={styles.headerTitle}>Recipe Vault</Text>
-              <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+          <View style={styles.statusRow}>
+            <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.roomChip}
+                onPress={() => {
+                  recordBreadcrumb('tap:room-settings');
+                  openScreenOverlay('settings');
+                }}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Open shared room settings"
+              >
+                <Ionicons
+                  name={roomConfig ? 'people' : 'people-outline'}
+                  size={14}
+                  color={Colors.primary}
+                />
+                <Text style={styles.roomChipText} numberOfLines={1}>
+                  {roomConfig ? roomConfig.code : 'Set up sharing'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.crashButton}
+                onPress={() => requestCrashViewer()}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Open crash reports"
+              >
+                <Ionicons name="bug-outline" size={18} color={Colors.primary} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.crashButton}
-              onPress={() => requestCrashViewer()}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Open crash reports"
-            >
-              <Ionicons name="bug-outline" size={20} color={Colors.primary} />
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -124,22 +144,39 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.sm,
   },
-  headerRow: {
+  statusRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  roomChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: 150,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: 999,
+    backgroundColor: Colors.tipBackground,
+  },
+  roomChipText: {
+    ...Typography.label,
+    fontSize: 11,
+    flexShrink: 1,
   },
   crashButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.tipBackground,
-  },
-  headerTitle: {
-    ...Typography.title,
-    fontSize: 32,
   },
   headerSubtitle: {
     ...Typography.bodySmall,

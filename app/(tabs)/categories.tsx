@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { captureException } from '@/services/crashTracker';
+import { subscribeToDataChanges } from '@/services/dataEvents';
 import { Colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
@@ -18,13 +19,11 @@ export default function CategoriesScreen() {
   const [recipesByCategory, setRecipesByCategory] = useState<Record<string, Recipe[]>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  const loadCategories = async () => {
+  const loadCategories = async (showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       const result: Record<string, Recipe[]> = {};
       for (const cat of ALL_CATEGORIES) {
         const recipes = await db.getRecipesByCategory(cat);
@@ -37,9 +36,16 @@ export default function CategoriesScreen() {
       captureException(e, { source: 'categories.loadCategories' });
       setRecipesByCategory({});
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
   };
+
+  useEffect(() => {
+    loadCategories(true);
+    return subscribeToDataChanges(() => loadCategories(false));
+  }, []);
 
   if (loading) return <LoadingSpinner />;
 

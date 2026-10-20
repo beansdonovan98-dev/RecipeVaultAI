@@ -15,6 +15,7 @@ export interface Instruction {
 
 export interface Recipe {
   id: number;
+  remoteId: string | null;
   title: string;
   description: string;
   category: string;

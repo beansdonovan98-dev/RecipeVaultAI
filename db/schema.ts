@@ -7,6 +7,7 @@ const SCHEMA = `
   PRAGMA journal_mode = WAL;
   CREATE TABLE IF NOT EXISTS recipes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    remote_id TEXT,
     title TEXT NOT NULL,
     description TEXT DEFAULT '',
     category TEXT NOT NULL,
@@ -17,10 +18,44 @@ const SCHEMA = `
     instructions TEXT NOT NULL DEFAULT '[]',
     image_uri TEXT,
     is_favorite INTEGER DEFAULT 0,
+    dirty INTEGER NOT NULL DEFAULT 0,
+    deleted INTEGER NOT NULL DEFAULT 0,
+    local_revision INTEGER NOT NULL DEFAULT 1,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
+  );
 `;
+
+async function migrateDatabase(database: SQLite.SQLiteDatabase): Promise<void> {
+  const columns = await database.getAllAsync<{ name: string }>('PRAGMA table_info(recipes)');
+  const columnNames = new Set(columns.map((column) => column.name));
+
+  if (!columnNames.has('remote_id')) {
+    await database.execAsync('ALTER TABLE recipes ADD COLUMN remote_id TEXT');
+  }
+  if (!columnNames.has('dirty')) {
+    await database.execAsync('ALTER TABLE recipes ADD COLUMN dirty INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!columnNames.has('deleted')) {
+    await database.execAsync('ALTER TABLE recipes ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!columnNames.has('local_revision')) {
+    await database.execAsync(
+      'ALTER TABLE recipes ADD COLUMN local_revision INTEGER NOT NULL DEFAULT 1'
+    );
+  }
+
+  await database.execAsync(
+    'CREATE UNIQUE INDEX IF NOT EXISTS recipes_remote_id_idx ON recipes(remote_id) WHERE remote_id IS NOT NULL'
+  );
+  await database.execAsync(
+    'CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)'
+  );
+}
 
 async function openAndInitializeDatabase(): Promise<SQLite.SQLiteDatabase> {
   try {
@@ -29,6 +64,7 @@ async function openAndInitializeDatabase(): Promise<SQLite.SQLiteDatabase> {
     console.log('[STARTUP] database open completed');
 
     await database.execAsync(SCHEMA);
+    await migrateDatabase(database);
     console.log('[STARTUP] schema initialization completed');
 
     return database;

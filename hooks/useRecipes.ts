@@ -1,16 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as db from '@/db';
 import { Recipe, RecipeInput } from '@/types/recipe';
-import { captureException } from '@/services/crashTracker';
+import { captureException, recordBreadcrumb } from '@/services/crashTracker';
+import { notifyDataChanged, subscribeToDataChanges } from '@/services/dataEvents';
+import { syncRecipes } from '@/services/recipeSync';
 
 export function useRecipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRecipes = useCallback(async () => {
+  const syncInBackground = useCallback(() => {
+    syncRecipes().catch((syncError) => {
+      console.warn('[SYNC] background sync failed', syncError);
+      recordBreadcrumb('sync:background-failed');
+    });
+  }, []);
+
+  const loadRecipes = useCallback(async (showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       setError(null);
       const data = await db.getAllRecipes();
       setRecipes(data);
@@ -18,60 +29,92 @@ export function useRecipes() {
       captureException(e, { source: 'useRecipes.loadRecipes' });
       setError(e instanceof Error ? e.message : 'Failed to load recipes');
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    loadRecipes();
-  }, [loadRecipes]);
+    let active = true;
+    loadRecipes().finally(() => {
+      if (active) {
+        syncInBackground();
+      }
+    });
+
+    const unsubscribe = subscribeToDataChanges(() => {
+      if (active) {
+        loadRecipes(false);
+      }
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [loadRecipes, syncInBackground]);
 
   const addRecipe = useCallback(async (input: RecipeInput) => {
     try {
       const id = await db.addRecipe(input);
-      await loadRecipes();
+      notifyDataChanged();
+      syncInBackground();
       return id;
     } catch (e) {
       captureException(e, { source: 'useRecipes.addRecipe' });
       setError(e instanceof Error ? e.message : 'Failed to add recipe');
       throw e;
     }
-  }, [loadRecipes]);
+  }, [syncInBackground]);
 
   const updateRecipe = useCallback(async (id: number, input: RecipeInput) => {
     try {
       await db.updateRecipe(id, input);
-      await loadRecipes();
+      notifyDataChanged();
+      syncInBackground();
     } catch (e) {
       captureException(e, { source: 'useRecipes.updateRecipe' });
       setError(e instanceof Error ? e.message : 'Failed to update recipe');
       throw e;
     }
-  }, [loadRecipes]);
+  }, [syncInBackground]);
 
   const deleteRecipe = useCallback(async (id: number) => {
     try {
       await db.deleteRecipe(id);
-      await loadRecipes();
+      notifyDataChanged();
+      syncInBackground();
     } catch (e) {
       captureException(e, { source: 'useRecipes.deleteRecipe' });
       setError(e instanceof Error ? e.message : 'Failed to delete recipe');
       throw e;
     }
-  }, [loadRecipes]);
+  }, [syncInBackground]);
 
   const toggleFavorite = useCallback(async (id: number, isFavorite: boolean) => {
     try {
       await db.toggleFavorite(id, isFavorite);
       setRecipes(prev => prev.map(r => r.id === id ? { ...r, isFavorite } : r));
+      notifyDataChanged();
+      syncInBackground();
     } catch (e) {
       captureException(e, { source: 'useRecipes.toggleFavorite' });
       setError(e instanceof Error ? e.message : 'Failed to toggle favorite');
     }
-  }, []);
+  }, [syncInBackground]);
 
-  const refresh = useCallback(() => {
-    loadRecipes();
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      await syncRecipes();
+    } catch (syncError) {
+      console.warn('[SYNC] refresh sync failed', syncError);
+      recordBreadcrumb('sync:refresh-failed');
+    } finally {
+      await loadRecipes(false);
+      setLoading(false);
+    }
   }, [loadRecipes]);
 
   return {
@@ -91,13 +134,15 @@ export function useRecipe(id: number | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRecipe = useCallback(async () => {
+  const loadRecipe = useCallback(async (showSpinner = true) => {
     if (!id) {
       setLoading(false);
       return;
     }
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       setError(null);
       const data = await db.getRecipeById(id);
       setRecipe(data);
@@ -105,12 +150,15 @@ export function useRecipe(id: number | null) {
       captureException(e, { source: 'useRecipe.loadRecipe', extra: { recipeId: id } });
       setError(e instanceof Error ? e.message : 'Failed to load recipe');
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
   }, [id]);
 
   useEffect(() => {
     loadRecipe();
+    return subscribeToDataChanges(() => loadRecipe(false));
   }, [loadRecipe]);
 
   const toggleFavorite = useCallback(async (isFavorite: boolean) => {
@@ -118,6 +166,11 @@ export function useRecipe(id: number | null) {
     try {
       await db.toggleFavorite(id, isFavorite);
       setRecipe(prev => prev ? { ...prev, isFavorite } : null);
+      notifyDataChanged();
+      syncRecipes().catch((syncError) => {
+        console.warn('[SYNC] favorite sync failed', syncError);
+        recordBreadcrumb('sync:favorite-failed');
+      });
     } catch (e) {
       captureException(e, { source: 'useRecipe.toggleFavorite', extra: { recipeId: id } });
       throw e;
@@ -155,21 +208,26 @@ export function useCategories() {
   const [categories, setCategories] = useState<{ category: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadCategories = useCallback(async () => {
+  const loadCategories = useCallback(async (showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       const data = await db.getCategories();
       setCategories(data);
     } catch (e) {
       captureException(e, { source: 'useCategories.loadCategories' });
       setCategories([]);
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     loadCategories();
+    return subscribeToDataChanges(() => loadCategories(false));
   }, [loadCategories]);
 
   const getRecipesByCategory = useCallback(async (category: string) => {
