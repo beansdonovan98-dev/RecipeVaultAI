@@ -21,7 +21,11 @@ import { CategoryBadge } from '@/components/CategoryBadge';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { recordBreadcrumb } from '@/services/crashTracker';
 
-export default function AddRecipeScreen() {
+interface AddRecipeScreenProps {
+  onClose?: () => void;
+}
+
+export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
   const router = useRouter();
   const { addRecipe } = useRecipes();
 
@@ -137,7 +141,11 @@ export default function AddRecipeScreen() {
         instructions: instructions.filter(i => i.text.trim()),
         imageUri,
       });
-      router.back();
+      if (onClose) {
+        onClose();
+      } else {
+        router.back();
+      }
     } catch (e) {
       Alert.alert('Error', 'Failed to save recipe. Please try again.');
     } finally {

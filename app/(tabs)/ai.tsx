@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
-import { navigateSafely } from '@/utils/safeNavigation';
+import { openScreenOverlay } from '@/services/screenOverlay';
+import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function AIToolsScreen() {
   return (
@@ -15,7 +16,10 @@ export default function AIToolsScreen() {
       <View style={styles.toolsContainer}>
         <TouchableOpacity
           style={styles.toolCard}
-          onPress={() => navigateSafely('/ai/generate', 'tap:ai-generator')}
+          onPress={() => {
+            recordBreadcrumb('tap:ai-generator');
+            openScreenOverlay('ai-generate');
+          }}
           activeOpacity={0.8}
         >
           <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -33,7 +37,10 @@ export default function AIToolsScreen() {
 
         <TouchableOpacity
           style={styles.toolCard}
-          onPress={() => navigateSafely('/ai/substitute', 'tap:ai-substitute')}
+          onPress={() => {
+            recordBreadcrumb('tap:ai-substitute');
+            openScreenOverlay('ai-substitute');
+          }}
           activeOpacity={0.8}
         >
           <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>

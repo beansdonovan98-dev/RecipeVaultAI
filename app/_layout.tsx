@@ -1,31 +1,82 @@
-import { Stack, router, usePathname } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  BackHandler,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { initializeDatabase } from '@/db/schema';
+import AddRecipeScreen from '@/app/add';
+import AIGenerateScreen from '@/app/ai/generate';
+import AISubstituteScreen from '@/app/ai/substitute';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StartupErrorScreen } from '@/components/StartupErrorScreen';
 import { CrashReportsView } from '@/components/CrashReportsView';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import {
+  acknowledgeCrash,
   captureException,
+  getLatestUnacknowledgedFatalCrash,
   initializeCrashTracker,
   recordBreadcrumb,
   setCurrentRoute,
 } from '@/services/crashTracker';
+import { subscribeToCrashViewer } from '@/services/crashViewer';
+import {
+  closeScreenOverlay,
+  getScreenOverlay,
+  subscribeToScreenOverlay,
+  type OverlayScreen,
+} from '@/services/screenOverlay';
 
 initializeCrashTracker();
 
 console.log('[STARTUP] JS startup');
 
+const OVERLAY_TITLES: Record<OverlayScreen, string> = {
+  add: 'Add Recipe',
+  'ai-generate': 'AI Recipe Generator',
+  'ai-substitute': 'Ingredient Substitutions',
+};
+
 export default function RootLayout() {
   const [dbError, setDbError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [showCrashViewer, setShowCrashViewer] = useState(false);
+  const [overlayScreen, setOverlayScreen] = useState<OverlayScreen | null>(() =>
+    getScreenOverlay()
+  );
   const pathname = usePathname();
 
   useEffect(() => {
     setCurrentRoute(pathname);
   }, [pathname]);
+
+  useEffect(() => subscribeToCrashViewer(() => setShowCrashViewer(true)), []);
+
+  useEffect(() => subscribeToScreenOverlay(setOverlayScreen), []);
+
+  useEffect(() => {
+    if (!overlayScreen && !showCrashViewer) {
+      return;
+    }
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showCrashViewer) {
+        setShowCrashViewer(false);
+      } else {
+        closeScreenOverlay();
+      }
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [overlayScreen, showCrashViewer]);
 
   const bootstrapDatabase = useCallback(() => {
     setIsRetrying(true);
@@ -50,12 +101,47 @@ export default function RootLayout() {
     bootstrapDatabase();
   }, [bootstrapDatabase]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    getLatestUnacknowledgedFatalCrash().then((report) => {
+      if (cancelled || !report) {
+        return;
+      }
+
+      Alert.alert(
+        'Recipe Vault AI closed unexpectedly',
+        `${report.name}: ${report.message}`,
+        [
+          {
+            text: 'View reports',
+            onPress: () => {
+              setShowCrashViewer(true);
+            },
+          },
+          {
+            text: 'Dismiss',
+            style: 'cancel',
+            onPress: () => acknowledgeCrash(report.fingerprint),
+          },
+        ]
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dbError]);
+
+  const failed = dbError;
+  const screenOverlay = overlayScreen;
+
   return (
-    <>
+    <View style={styles.root}>
       <ErrorBoundary onViewCrashReports={() => setShowCrashViewer(true)}>
-        {dbError ? (
+        {failed ? (
           <StartupErrorScreen
-            error={dbError}
+            error={failed}
             onRetry={bootstrapDatabase}
             isRetrying={isRetrying}
             onViewCrashReports={() => setShowCrashViewer(true)}
@@ -77,39 +163,48 @@ export default function RootLayout() {
             }}
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="add" options={{ title: 'Add Recipe', presentation: 'modal' }} />
-            <Stack.Screen name="edit" options={{ title: 'Edit Recipe', presentation: 'modal' }} />
+            <Stack.Screen name="add" options={{ title: 'Add Recipe' }} />
+            <Stack.Screen name="edit" options={{ title: 'Edit Recipe' }} />
             <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe Details' }} />
-            <Stack.Screen
-              name="ai/generate"
-              options={{ title: 'AI Recipe Generator', presentation: 'modal' }}
-            />
-            <Stack.Screen
-              name="ai/substitute"
-              options={{ title: 'Ingredient Substitutions', presentation: 'modal' }}
-            />
+            <Stack.Screen name="ai/generate" options={{ title: 'AI Recipe Generator' }} />
+            <Stack.Screen name="ai/substitute" options={{ title: 'Ingredient Substitutions' }} />
             <Stack.Screen name="crashes" options={{ title: 'Crash Reports' }} />
           </Stack>
         )}
       </ErrorBoundary>
+      {screenOverlay ? (
+        <View style={styles.overlay}>
+          <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+            <View style={styles.overlayHeader}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={closeScreenOverlay}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Close"
+              >
+                <Ionicons name="close" size={26} color={Colors.primary} />
+              </TouchableOpacity>
+              <Text style={styles.overlayTitle}>{OVERLAY_TITLES[screenOverlay]}</Text>
+              <View style={styles.headerSpacer} />
+            </View>
+            <View style={styles.overlayContent}>
+              {screenOverlay === 'add' ? (
+                <AddRecipeScreen onClose={closeScreenOverlay} />
+              ) : screenOverlay === 'ai-generate' ? (
+                <AIGenerateScreen onClose={closeScreenOverlay} />
+              ) : (
+                <AISubstituteScreen />
+              )}
+            </View>
+          </SafeAreaView>
+        </View>
+      ) : null}
       {showCrashViewer ? (
-        <Modal
-          visible
-          animationType="slide"
-          presentationStyle="fullScreen"
-          onRequestClose={() => setShowCrashViewer(false)}
-        >
+        <View style={styles.overlay}>
           <ErrorBoundary
             fallback={
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: Spacing.xxl,
-                  backgroundColor: Colors.background,
-                }}
-              >
+              <View style={styles.fallback}>
                 <Text style={{ ...Typography.subtitle, textAlign: 'center' }}>
                   Crash reports could not be displayed
                 </Text>
@@ -131,8 +226,51 @@ export default function RootLayout() {
           >
             <CrashReportsView onClose={() => setShowCrashViewer(false)} />
           </ErrorBoundary>
-        </Modal>
+        </View>
       ) : null}
-    </>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: Colors.background,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  overlayHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+    backgroundColor: Colors.background,
+  },
+  closeButton: {
+    padding: Spacing.xs,
+  },
+  overlayTitle: {
+    ...Typography.subtitle,
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 34,
+  },
+  overlayContent: {
+    flex: 1,
+  },
+  fallback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.xxl,
+    backgroundColor: Colors.background,
+  },
+});

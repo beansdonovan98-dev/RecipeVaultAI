@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
 import { captureException } from '@/services/crashTracker';
+import { requestCrashViewer } from '@/services/crashViewer';
 
 interface Props {
   children: React.ReactNode;
@@ -46,11 +46,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
       this.props.onViewCrashReports();
       return;
     }
-    try {
-      router.push('/crashes');
-    } catch {
-      // Navigation is best-effort in the fallback UI.
-    }
+    requestCrashViewer();
   };
 
   reset = () => {

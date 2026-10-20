@@ -42,6 +42,7 @@ interface CrashRow {
   first_seen: string;
   last_seen: string;
   resolved: number;
+  acknowledged: number;
 }
 
 const SCHEMA = `
@@ -64,10 +65,14 @@ const SCHEMA = `
     occurrences INTEGER NOT NULL DEFAULT 1,
     first_seen TEXT NOT NULL,
     last_seen TEXT NOT NULL,
-    resolved INTEGER NOT NULL DEFAULT 0
+    resolved INTEGER NOT NULL DEFAULT 0,
+    acknowledged INTEGER NOT NULL DEFAULT 0
   );
   CREATE INDEX IF NOT EXISTS idx_crash_reports_last_seen ON crash_reports(last_seen DESC);
 `;
+
+const MIGRATION_ACKNOWLEDGED =
+  'ALTER TABLE crash_reports ADD COLUMN acknowledged INTEGER NOT NULL DEFAULT 0';
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let syncDatabase: SQLite.SQLiteDatabase | null = null;
@@ -84,6 +89,11 @@ function getDatabase(): Promise<SQLite.SQLiteDatabase> {
     databasePromise = SQLite.openDatabaseAsync(DATABASE_NAME)
       .then(async (database) => {
         await database.execAsync(SCHEMA);
+        try {
+          await database.execAsync(MIGRATION_ACKNOWLEDGED);
+        } catch {
+          // Column already exists on databases created after this migration shipped.
+        }
         return database;
       })
       .catch((error: unknown) => {
@@ -98,6 +108,11 @@ function getSyncDatabase(): SQLite.SQLiteDatabase {
   if (syncDatabase === null) {
     const database = SQLite.openDatabaseSync(DATABASE_NAME);
     database.execSync(SCHEMA);
+    try {
+      database.execSync(MIGRATION_ACKNOWLEDGED);
+    } catch {
+      // Column already exists on databases created after this migration shipped.
+    }
     syncDatabase = database;
   }
   return syncDatabase;
@@ -420,6 +435,34 @@ export async function getCrashReports(): Promise<CrashReport[]> {
   } catch (error) {
     console.error('[CRASH TRACKER] failed to load crash reports', error);
     return mergeUnsavedReports([]);
+  }
+}
+
+export async function getLatestUnacknowledgedFatalCrash(): Promise<CrashReport | null> {
+  try {
+    const database = await getDatabase();
+    const rows = await database.getAllAsync<CrashRow>(
+      'SELECT * FROM crash_reports WHERE is_fatal = 1 AND acknowledged = 0 ORDER BY last_seen DESC LIMIT 1'
+    );
+    if (rows.length > 0) {
+      return mapRow(rows[0]);
+    }
+  } catch (error) {
+    console.error('[CRASH TRACKER] failed to load latest fatal crash', error);
+  }
+
+  return unsavedReports.find((report) => report.isFatal) ?? null;
+}
+
+export function acknowledgeCrash(fingerprint: string): void {
+  unsavedReports = unsavedReports.filter((report) => report.fingerprint !== fingerprint);
+
+  try {
+    getSyncDatabase().runSync('UPDATE crash_reports SET acknowledged = 1 WHERE fingerprint = ?', [
+      fingerprint,
+    ]);
+  } catch (error) {
+    console.error('[CRASH TRACKER] failed to acknowledge crash report', error);
   }
 }
 

@@ -10,6 +10,9 @@ import { Colors, Spacing, Typography } from '@/constants/theme';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
 import { navigateSafely } from '@/utils/safeNavigation';
+import { requestCrashViewer } from '@/services/crashViewer';
+import { openScreenOverlay } from '@/services/screenOverlay';
+import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function HomeScreen() {
   const { recipes, loading, error, toggleFavorite, refresh } = useRecipes();
@@ -43,7 +46,7 @@ export default function HomeScreen() {
             </View>
             <TouchableOpacity
               style={styles.crashButton}
-              onPress={() => navigateSafely('/crashes', 'tap:crash-reports')}
+              onPress={() => requestCrashViewer()}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel="Open crash reports"
@@ -96,8 +99,13 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigateSafely('/add', 'tap:add-recipe')}
+          onPress={() => {
+            recordBreadcrumb('tap:add-recipe');
+            openScreenOverlay('add');
+          }}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Add recipe"
         >
           <Ionicons name="add" size={28} color={Colors.white} />
         </TouchableOpacity>

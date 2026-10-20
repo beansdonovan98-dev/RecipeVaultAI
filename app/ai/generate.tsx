@@ -34,7 +34,11 @@ function isValidRecipe(obj: any): obj is RecipeInput {
   );
 }
 
-export default function AIGenerateScreen() {
+interface AIGenerateScreenProps {
+  onClose?: () => void;
+}
+
+export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
   const router = useRouter();
   const [ingredients, setIngredients] = useState<string>('');
   const [generating, setGenerating] = useState(false);
@@ -92,7 +96,16 @@ export default function AIGenerateScreen() {
     try {
       await addRecipe(generatedRecipe);
       Alert.alert('Success', 'Recipe saved to your collection!', [
-        { text: 'OK', onPress: () => router.back() },
+        {
+          text: 'OK',
+          onPress: () => {
+            if (onClose) {
+              onClose();
+            } else {
+              router.back();
+            }
+          },
+        },
       ]);
     } catch (e) {
       captureException(e, { source: 'aiGenerate.saveRecipe' });
