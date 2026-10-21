@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
 import { navigateSafely } from '@/utils/safeNavigation';
@@ -17,13 +18,16 @@ import { openScreenOverlay } from '@/services/screenOverlay';
 import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function HomeScreen() {
+  const { theme } = useAppearance();
   const { recipes, loading, error, toggleFavorite, refresh } = useRecipes();
   const { config: roomConfig } = useRoomConfig();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   const filteredRecipes = useMemo(() => {
     if (!selectedCategory) return recipes;
-    return recipes.filter(r => r.category === selectedCategory);
+    return recipes.filter(
+      (recipe) => recipe.category === selectedCategory || recipe.tags.includes(selectedCategory)
+    );
   }, [recipes, selectedCategory]);
 
   if (loading) return <LoadingSpinner />;
@@ -40,13 +44,13 @@ export default function HomeScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
           <View style={styles.statusRow}>
             <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
             <View style={styles.headerActions}>
               <TouchableOpacity
-                style={styles.roomChip}
+                style={[styles.roomChip, { backgroundColor: theme.tipBackground }]}
                 onPress={() => {
                   recordBreadcrumb('tap:room-settings');
                   openScreenOverlay('settings');
@@ -58,20 +62,20 @@ export default function HomeScreen() {
                 <Ionicons
                   name={roomConfig ? 'people' : 'people-outline'}
                   size={14}
-                  color={Colors.primary}
+                  color={theme.primary}
                 />
                 <Text style={styles.roomChipText} numberOfLines={1}>
                   {roomConfig ? roomConfig.code : 'Set up sharing'}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.crashButton}
+                style={[styles.crashButton, { backgroundColor: theme.tipBackground }]}
                 onPress={() => requestCrashViewer()}
                 activeOpacity={0.8}
                 accessibilityRole="button"
                 accessibilityLabel="Open crash reports"
               >
-                <Ionicons name="bug-outline" size={18} color={Colors.primary} />
+                <Ionicons name="bug-outline" size={18} color={theme.primary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -106,7 +110,7 @@ export default function HomeScreen() {
             keyExtractor={item => item.id.toString()}
             contentContainerStyle={styles.list}
             refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={Colors.primary} />
+              <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={theme.primary} />
             }
             renderItem={({ item }) => (
               <RecipeCard
@@ -119,7 +123,7 @@ export default function HomeScreen() {
         )}
 
         <TouchableOpacity
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
           onPress={() => {
             recordBreadcrumb('tap:add-recipe');
             openScreenOverlay('add');
@@ -128,7 +132,7 @@ export default function HomeScreen() {
           accessibilityRole="button"
           accessibilityLabel="Add recipe"
         >
-          <Ionicons name="add" size={28} color={Colors.white} />
+          <Ionicons name="add" size={28} color={theme.white} />
         </TouchableOpacity>
       </View>
     </ErrorBoundary>

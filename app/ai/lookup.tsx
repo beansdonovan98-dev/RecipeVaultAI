@@ -19,6 +19,7 @@ import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 function isValidRecipe(obj: any): obj is RecipeInput {
   return (
@@ -44,6 +45,7 @@ interface AIRecipeLookupScreenProps {
 }
 
 export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenProps) {
+  const { theme } = useAppearance();
   const router = useRouter();
   const [recipeName, setRecipeName] = useState('');
   const [lookingUp, setLookingUp] = useState(false);
@@ -158,27 +160,40 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
   return (
     <ErrorBoundary>
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: theme.background }]}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.introCard}>
-          <Ionicons name="search" size={28} color={Colors.primary} />
+        <View
+          style={[
+            styles.introCard,
+            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          ]}
+        >
+          <Ionicons name="search" size={28} color={theme.primary} />
           <Text style={styles.introTitle}>Recipe Name Lookup</Text>
-          <Text style={styles.introText}>
+          <Text style={[styles.introText, { color: theme.textSecondary }]}>
             Type the name of a recipe, like “Chicken stir fry” or “Pancakes,” and get a method with
             ingredients and steps you can save.
           </Text>
         </View>
 
-        <View style={styles.formCard}>
+        <View
+          style={[
+            styles.formCard,
+            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          ]}
+        >
           <Text style={styles.sectionLabel}>Recipe name</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+            ]}
             value={recipeName}
             onChangeText={setRecipeName}
             placeholder="e.g. Chicken stir fry"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={theme.textMuted}
             autoCapitalize="words"
             autoCorrect={false}
             returnKeyType="search"
@@ -186,44 +201,55 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
             editable={!lookingUp}
           />
           <TouchableOpacity
-            style={[styles.lookupButton, lookingUp && styles.disabledButton]}
+            style={[
+              styles.lookupButton,
+              { backgroundColor: theme.primary },
+              lookingUp && styles.disabledButton,
+            ]}
             onPress={handleLookup}
             disabled={lookingUp}
             activeOpacity={0.8}
           >
             {lookingUp ? (
-              <ActivityIndicator color={Colors.white} />
+              <ActivityIndicator color={theme.white} />
             ) : (
               <>
-                <Ionicons name="sparkles" size={18} color={Colors.white} />
-                <Text style={styles.lookupButtonText}>Look Up Recipe</Text>
+                <Ionicons name="sparkles" size={18} color={theme.white} />
+                <Text style={[styles.lookupButtonText, { color: theme.white }]}>Look Up Recipe</Text>
               </>
             )}
           </TouchableOpacity>
         </View>
 
         {generatedRecipe ? (
-          <View style={styles.previewCard}>
+          <View
+            style={[
+              styles.previewCard,
+              { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+            ]}
+          >
             <Text style={styles.recipeName}>{generatedRecipe.title}</Text>
-            <Text style={styles.recipeDescription}>{generatedRecipe.description}</Text>
+            <Text style={[styles.recipeDescription, { color: theme.textSecondary }]}>
+              {generatedRecipe.description}
+            </Text>
             <View style={styles.metaRow}>
               <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={14} color={Colors.accent} />
+                <Ionicons name="time-outline" size={14} color={theme.accent} />
                 <Text style={styles.metaText}>{generatedRecipe.prepTime} min</Text>
               </View>
-              <View style={styles.metaDivider} />
+              <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
               <View style={styles.metaItem}>
-                <Ionicons name="flame-outline" size={14} color={Colors.accent} />
+                <Ionicons name="flame-outline" size={14} color={theme.accent} />
                 <Text style={styles.metaText}>{generatedRecipe.cookTime} min</Text>
               </View>
-              <View style={styles.metaDivider} />
+              <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
               <View style={styles.metaItem}>
-                <Ionicons name="people-outline" size={14} color={Colors.accent} />
+                <Ionicons name="people-outline" size={14} color={theme.accent} />
                 <Text style={styles.metaText}>{generatedRecipe.servings} servings</Text>
               </View>
             </View>
 
-            <View style={styles.previewSection}>
+            <View style={[styles.previewSection, { borderTopColor: theme.borderLight }]}>
               <Text style={styles.previewLabel}>Ingredients:</Text>
               {generatedRecipe.ingredients.map((ingredient, index) => (
                 <Text key={`${ingredient.name}-${index}`} style={styles.previewIngredient}>
@@ -232,11 +258,11 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
               ))}
             </View>
 
-            <View style={styles.previewSection}>
+            <View style={[styles.previewSection, { borderTopColor: theme.borderLight }]}>
               <Text style={styles.previewLabel}>Instructions:</Text>
               {generatedRecipe.instructions.map((instruction, index) => (
                 <View key={`step-${index}`} style={styles.instructionRow}>
-                  <View style={styles.stepBadge}>
+                  <View style={[styles.stepBadge, { backgroundColor: theme.tipBackground }]}>
                     <Text style={styles.stepBadgeText}>{index + 1}</Text>
                   </View>
                   <Text style={styles.instructionText}>{instruction.text}</Text>
@@ -245,17 +271,21 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
             </View>
 
             <TouchableOpacity
-              style={[styles.saveButton, saving && styles.disabledButton]}
+              style={[
+                styles.saveButton,
+                { backgroundColor: theme.primary },
+                saving && styles.disabledButton,
+              ]}
               onPress={handleSave}
               disabled={saving}
               activeOpacity={0.8}
             >
               {saving ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={theme.white} />
               ) : (
                 <>
-                  <Ionicons name="bookmark-outline" size={18} color={Colors.white} />
-                  <Text style={styles.saveButtonText}>Save Recipe</Text>
+                  <Ionicons name="bookmark-outline" size={18} color={theme.white} />
+                  <Text style={[styles.saveButtonText, { color: theme.white }]}>Save Recipe</Text>
                 </>
               )}
             </TouchableOpacity>

@@ -19,6 +19,7 @@ export interface Recipe {
   title: string;
   description: string;
   category: string;
+  tags: string[];
   prepTime: number;
   cookTime: number;
   servings: number;
@@ -35,6 +36,7 @@ export interface RecipeInput {
   title: string;
   description: string;
   category: string;
+  tags: string[];
   prepTime: number;
   cookTime: number;
   servings: number;

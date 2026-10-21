@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface EmptyStateProps {
   icon?: string;
@@ -11,9 +12,11 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ icon = 'restaurant-outline', title, message }: EmptyStateProps) {
+  const { theme } = useAppearance();
+
   return (
     <View style={styles.container}>
-      <Ionicons name={icon as any} size={48} color={Colors.textMuted} />
+      <Ionicons name={icon as any} size={48} color={theme.textMuted} />
       <Text style={styles.title}>{title}</Text>
       {message && <Text style={styles.message}>{message}</Text>}
     </View>

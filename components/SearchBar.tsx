@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppTextInput as TextInput } from '@/components/AppText';
 import { Colors, Spacing, BorderRadius, Typography } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface SearchBarProps {
   value: string;
@@ -13,21 +14,28 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ value, onChangeText, placeholder = 'Search recipes...', onClear, autoFocus }: SearchBarProps) {
+  const { theme } = useAppearance();
+
   return (
-    <View style={styles.container}>
-      <Ionicons name="search" size={18} color={Colors.textMuted} style={styles.icon} />
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+      ]}
+    >
+      <Ionicons name="search" size={18} color={theme.textMuted} style={styles.icon} />
       <TextInput
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={Colors.textMuted}
+        placeholderTextColor={theme.textMuted}
         autoFocus={autoFocus}
         returnKeyType="search"
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={onClear} style={styles.clearButton}>
-          <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+          <Ionicons name="close-circle" size={18} color={theme.textMuted} />
         </TouchableOpacity>
       )}
     </View>

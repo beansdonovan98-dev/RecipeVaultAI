@@ -22,6 +22,7 @@ import {
   Spacing,
   Typography,
 } from '@/constants/theme';
+import { THEME_OPTIONS } from '@/constants/themes';
 import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface CustomizeAppearanceViewProps {
@@ -29,8 +30,17 @@ interface CustomizeAppearanceViewProps {
 }
 
 export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProps) {
-  const { fontKey, fontFamily, fontColor, setFontKey, setFontColor, resetAppearance } =
-    useAppearance();
+  const {
+    fontKey,
+    fontFamily,
+    fontColor,
+    themeKey,
+    theme,
+    setFontKey,
+    setFontColor,
+    setThemeKey,
+    resetAppearance,
+  } = useAppearance();
   const [customColor, setCustomColor] = useState(fontColor);
   const [colorError, setColorError] = useState<string | null>(null);
 
@@ -49,20 +59,56 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.introCard}>
-        <Ionicons name="color-palette-outline" size={28} color={Colors.primary} />
+      <View style={[styles.introCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
+        <Ionicons name="color-palette-outline" size={28} color={theme.accent} />
         <Text style={styles.introTitle}>Make it yours</Text>
         <Text style={styles.introText}>
-          Choose a font and text color for recipe titles, headings, labels, and form fields. Your
-          choice is saved for both phones in your shared room.
+          Choose a theme, font, and text color for the whole app. Your choices are saved for both
+          phones in your shared room.
         </Text>
       </View>
 
-      <View style={styles.sectionCard}>
+      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
+        <Text style={styles.sectionLabel}>Theme</Text>
+        <View style={styles.themeGrid}>
+          {THEME_OPTIONS.map((option) => {
+            const selected = option.id === themeKey;
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.themeCard,
+                  { backgroundColor: option.colors.inputBackground, borderColor: option.colors.borderLight },
+                  selected && { borderColor: option.colors.accent },
+                ]}
+                onPress={() => void setThemeKey(option.id)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`Use ${option.label} theme`}
+              >
+                <View style={[styles.themePreview, { backgroundColor: option.colors.background }]}>
+                  <View style={[styles.themePreviewCard, { backgroundColor: option.colors.card }]}>
+                    <View style={[styles.themePreviewLine, { backgroundColor: option.colors.primary }]} />
+                    <View style={[styles.themePreviewLineShort, { backgroundColor: option.colors.accent }]} />
+                  </View>
+                </View>
+                <View style={styles.themeCardText}>
+                  <Text style={styles.themeLabel}>{option.label}</Text>
+                  <Text style={styles.themeDescription}>{option.description}</Text>
+                </View>
+                {selected ? <Ionicons name="checkmark-circle" size={20} color={option.colors.accent} /> : null}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
         <Text style={styles.sectionLabel}>Font</Text>
         <View style={styles.fontGrid}>
           {FONT_OPTIONS.map((option) => {
@@ -70,7 +116,11 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
             return (
               <TouchableOpacity
                 key={option.id}
-                style={[styles.fontCard, selected && styles.fontCardSelected]}
+                style={[
+                  styles.fontCard,
+                  { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+                  selected && { borderColor: theme.accent, backgroundColor: theme.tipBackground },
+                ]}
                 onPress={() => void setFontKey(option.id)}
                 activeOpacity={0.8}
                 accessibilityRole="button"
@@ -91,7 +141,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
                   <Text style={styles.fontDescription}>{option.description}</Text>
                 </View>
                 {selected ? (
-                  <Ionicons name="checkmark-circle" size={20} color={Colors.primary} />
+                  <Ionicons name="checkmark-circle" size={20} color={theme.accent} />
                 ) : null}
               </TouchableOpacity>
             );
@@ -99,7 +149,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         </View>
       </View>
 
-      <View style={styles.sectionCard}>
+      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
         <Text style={styles.sectionLabel}>Font color</Text>
         <View style={styles.swatchGrid}>
           {FONT_COLORS.map((option) => {
@@ -121,7 +171,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
                     selected && styles.swatchSelected,
                   ]}
                 >
-                  {selected ? <Ionicons name="checkmark" size={18} color={Colors.white} /> : null}
+                  {selected ?               <Ionicons name="checkmark" size={18} color={theme.white} /> : null}
                 </View>
                 <Text style={styles.swatchLabel}>{option.label}</Text>
               </TouchableOpacity>
@@ -133,7 +183,10 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
           <View style={styles.customColorInput}>
             <Text style={styles.customColorLabel}>Custom hex</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                { backgroundColor: theme.inputBackground, borderColor: theme.borderLight, color: theme.text },
+              ]}
               value={customColor}
               onChangeText={(value) => {
                 setCustomColor(value);
@@ -143,13 +196,13 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
               autoCorrect={false}
               maxLength={7}
               placeholder="#1B2A4A"
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={theme.textMuted}
               returnKeyType="done"
               onSubmitEditing={applyCustomColor}
             />
           </View>
           <TouchableOpacity
-            style={styles.applyButton}
+            style={[styles.applyButton, { backgroundColor: theme.primary }]}
             onPress={applyCustomColor}
             activeOpacity={0.8}
           >
@@ -159,7 +212,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         {colorError ? <Text style={styles.errorText}>{colorError}</Text> : null}
       </View>
 
-      <View style={styles.previewCard}>
+      <View style={[styles.previewCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
         <Text style={styles.sectionLabel}>Preview</Text>
         <RNText style={[styles.previewTitle, { fontFamily, color: fontColor }]}>
           Sunday Pot Roast
@@ -174,12 +227,16 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         onPress={() => void resetAppearance()}
         activeOpacity={0.7}
       >
-        <Ionicons name="refresh-outline" size={16} color={Colors.textSecondary} />
+        <Ionicons name="refresh-outline" size={16} color={theme.textSecondary} />
         <Text style={styles.resetText}>Reset to defaults</Text>
       </TouchableOpacity>
 
       {onClose ? (
-        <TouchableOpacity style={styles.doneButton} onPress={onClose} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[styles.doneButton, { backgroundColor: theme.primary }]}
+          onPress={onClose}
+          activeOpacity={0.8}
+        >
           <Text style={styles.doneButtonText}>Done</Text>
         </TouchableOpacity>
       ) : null}
@@ -225,6 +282,52 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     ...Typography.sectionLabel,
+  },
+  themeGrid: {
+    gap: Spacing.sm,
+  },
+  themeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 2,
+    padding: Spacing.sm,
+  },
+  themePreview: {
+    width: 74,
+    height: 52,
+    borderRadius: BorderRadius.sm,
+    padding: 6,
+    justifyContent: 'center',
+  },
+  themePreviewCard: {
+    flex: 1,
+    borderRadius: 4,
+    padding: 6,
+    justifyContent: 'center',
+    gap: 4,
+  },
+  themePreviewLine: {
+    height: 4,
+    width: '80%',
+    borderRadius: 2,
+  },
+  themePreviewLineShort: {
+    height: 3,
+    width: '55%',
+    borderRadius: 2,
+  },
+  themeCardText: {
+    flex: 1,
+    gap: 2,
+  },
+  themeLabel: {
+    ...Typography.label,
+    fontSize: 14,
+  },
+  themeDescription: {
+    ...Typography.caption,
   },
   fontGrid: {
     gap: Spacing.sm,

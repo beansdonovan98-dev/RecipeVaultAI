@@ -26,12 +26,14 @@ import {
 } from '@/services/syncHelpers';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface RoomSetupViewProps {
   onClose: () => void;
 }
 
 export function RoomSetupView({ onClose }: RoomSetupViewProps) {
+  const { theme } = useAppearance();
   const { config, reload: reloadRoomConfig } = useRoomConfig();
   const [code, setCode] = useState('');
   const [joining, setJoining] = useState(false);
@@ -190,25 +192,30 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.introCard}>
-        <Ionicons name="people-outline" size={28} color={Colors.primary} />
+      <View
+        style={[
+          styles.introCard,
+          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        ]}
+      >
+        <Ionicons name="people-outline" size={28} color={theme.primary} />
         <Text style={styles.introTitle}>One room, both phones</Text>
-        <Text style={styles.introText}>
+        <Text style={[styles.introText, { color: theme.textSecondary }]}>
           Enter the same room code on both phones. There are no accounts and no sign-in. Recipe
           changes and photos sync automatically when both phones are online.
         </Text>
       </View>
 
       {config ? (
-        <View style={styles.currentCard}>
+        <View style={[styles.currentCard, { backgroundColor: theme.tipBackground }]}>
           <View style={styles.currentHeader}>
             <Text style={styles.sectionLabel}>Current room</Text>
             <TouchableOpacity onPress={handleShare} style={styles.shareButton} activeOpacity={0.7}>
-              <Ionicons name="share-outline" size={16} color={Colors.primary} />
+              <Ionicons name="share-outline" size={16} color={theme.primary} />
               <Text style={styles.shareText}>Share code</Text>
             </TouchableOpacity>
           </View>
@@ -223,7 +230,10 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
       ) : null}
 
       <TouchableOpacity
-        style={styles.statusButton}
+        style={[
+          styles.statusButton,
+          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        ]}
         onPress={() => openScreenOverlay('sync-status')}
         activeOpacity={0.8}
         accessibilityRole="button"
@@ -233,17 +243,24 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
           <Text style={styles.sectionLabel}>Connection status</Text>
           <Text style={styles.helperText}>Check sync state and the last successful sync.</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
+        <Ionicons name="chevron-forward" size={20} color={theme.textMuted} />
       </TouchableOpacity>
 
-      <View style={styles.formCard}>
+      <View
+        style={[
+          styles.formCard,
+          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        ]}
+      >
         <AuthorSelector value={member} onChange={chooseMember} />
       </View>
 
       {!configured ? (
-        <View style={styles.warningBox}>
-          <Ionicons name="warning-outline" size={18} color={Colors.warning} />
-          <Text style={styles.warningText}>
+        <View
+          style={[styles.warningBox, { backgroundColor: theme.card, borderColor: theme.warning }]}
+        >
+          <Ionicons name="warning-outline" size={18} color={theme.warning} />
+          <Text style={[styles.warningText, { color: theme.warning }]}>
             This build does not have sharing configured yet. Add
             {' '}
             EXPO_PUBLIC_SUPABASE_URL
@@ -253,10 +270,22 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
         </View>
       ) : null}
 
-      <View style={styles.formCard}>
+      <View
+        style={[
+          styles.formCard,
+          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        ]}
+      >
         <Text style={styles.sectionLabel}>Room code</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.inputBackground,
+              borderColor: theme.borderLight,
+              color: theme.primary,
+            },
+          ]}
           value={code}
           onChangeText={(value) => {
             setCode(value);
@@ -268,7 +297,7 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
           spellCheck={false}
           maxLength={MAX_ROOM_CODE_LENGTH}
           placeholder="e.g. FAMILY7X2K"
-          placeholderTextColor={Colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           editable={!joining}
           onSubmitEditing={handleJoin}
           returnKeyType="done"
@@ -288,49 +317,59 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
           disabled={joining}
           activeOpacity={0.7}
         >
-          <Ionicons name="dice-outline" size={16} color={Colors.primary} />
+          <Ionicons name="dice-outline" size={16} color={theme.primary} />
           <Text style={styles.generateText}>Generate a code</Text>
         </TouchableOpacity>
 
         {error ? (
-          <View style={styles.errorBox}>
-            <Ionicons name="alert-circle-outline" size={16} color={Colors.error} />
-            <Text style={styles.errorText}>{error}</Text>
+          <View style={[styles.errorBox, { backgroundColor: theme.card, borderColor: theme.error }]}>
+            <Ionicons name="alert-circle-outline" size={16} color={theme.error} />
+            <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
           </View>
         ) : null}
 
         {warning ? (
-          <View style={styles.warningBox}>
-            <Ionicons name="cloud-offline-outline" size={16} color={Colors.warning} />
-            <Text style={styles.warningText}>{warning}</Text>
+          <View
+            style={[styles.warningBox, { backgroundColor: theme.card, borderColor: theme.warning }]}
+          >
+            <Ionicons name="cloud-offline-outline" size={16} color={theme.warning} />
+            <Text style={[styles.warningText, { color: theme.warning }]}>{warning}</Text>
           </View>
         ) : null}
 
         {joined ? (
-          <View style={styles.successBox}>
-            <Ionicons name="checkmark-circle-outline" size={18} color={Colors.success} />
-            <Text style={styles.successText}>
+          <View
+            style={[styles.successBox, { backgroundColor: theme.card, borderColor: theme.success }]}
+          >
+            <Ionicons name="checkmark-circle-outline" size={18} color={theme.success} />
+            <Text style={[styles.successText, { color: theme.success }]}>
               Room saved. {syncing ? 'Syncing recipes now...' : 'You are ready to share.'}
             </Text>
           </View>
         ) : null}
 
         <TouchableOpacity
-          style={[styles.joinButton, (!configured || joining) && styles.disabledButton]}
+          style={[
+            styles.joinButton,
+            { backgroundColor: theme.primary, shadowColor: theme.shadow },
+            (!configured || joining) && styles.disabledButton,
+          ]}
           onPress={handleJoin}
           disabled={joining || !configured}
           activeOpacity={0.8}
         >
           {joining ? (
-            <ActivityIndicator color={Colors.white} />
+            <ActivityIndicator color={theme.white} />
           ) : (
-            <Text style={styles.joinButtonText}>{config ? 'Use this code' : 'Join room'}</Text>
+            <Text style={[styles.joinButtonText, { color: theme.white }]}>
+              {config ? 'Use this code' : 'Join room'}
+            </Text>
           )}
         </TouchableOpacity>
 
         {joined ? (
           <TouchableOpacity style={styles.doneButton} onPress={onClose} activeOpacity={0.7}>
-            <Text style={styles.doneButtonText}>Done</Text>
+            <Text style={[styles.doneButtonText, { color: theme.primary }]}>Done</Text>
           </TouchableOpacity>
         ) : null}
       </View>

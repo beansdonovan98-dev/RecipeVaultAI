@@ -12,8 +12,10 @@ import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged, subscribeToDataChanges } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function FavoritesScreen() {
+  const { theme } = useAppearance();
   const router = useRouter();
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export default function FavoritesScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Favorites</Text>
           <Text style={styles.headerSubtitle}>{favorites.length} saved</Text>

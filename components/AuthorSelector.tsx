@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import { AUTHOR_IDS, AUTHORS, type AuthorId } from '@/constants/authors';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface AuthorSelectorProps {
   value: AuthorId | null;
@@ -11,6 +12,8 @@ interface AuthorSelectorProps {
 }
 
 export function AuthorSelector({ value, onChange, disabled = false }: AuthorSelectorProps) {
+  const { theme } = useAppearance();
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Posting as</Text>
@@ -20,7 +23,12 @@ export function AuthorSelector({ value, onChange, disabled = false }: AuthorSele
           return (
             <TouchableOpacity
               key={author}
-              style={[styles.chip, selected && styles.chipSelected, disabled && styles.disabled]}
+              style={[
+                styles.chip,
+                { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+                selected && { backgroundColor: theme.tipBackground, borderColor: theme.primary },
+                disabled && styles.disabled,
+              ]}
               onPress={() => onChange(author)}
               disabled={disabled}
               activeOpacity={0.8}
@@ -31,7 +39,13 @@ export function AuthorSelector({ value, onChange, disabled = false }: AuthorSele
               <Text style={[styles.emoji, selected && styles.emojiSelected]}>
                 {AUTHORS[author].emoji}
               </Text>
-              <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+              <Text
+                style={[
+                  styles.chipText,
+                  { color: selected ? theme.primary : theme.textSecondary },
+                  selected && styles.chipTextSelected,
+                ]}
+              >
                 {AUTHORS[author].name}
               </Text>
             </TouchableOpacity>

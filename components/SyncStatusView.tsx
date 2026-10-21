@@ -23,17 +23,11 @@ import {
   Spacing,
   Typography,
 } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 interface SyncStatusViewProps {
   onClose: () => void;
 }
-
-const TONE_COLORS: Record<SyncTone, string> = {
-  muted: Colors.textMuted,
-  warning: Colors.warning,
-  success: Colors.success,
-  error: Colors.error,
-};
 
 function getToneIcon(tone: SyncTone): 'cloud-outline' | 'cloud-done-outline' | 'cloud-offline-outline' | 'alert-circle-outline' {
   switch (tone) {
@@ -77,12 +71,19 @@ function formatLastSynced(value: number | null): string {
 }
 
 export function SyncStatusView({ onClose }: SyncStatusViewProps) {
+  const { theme } = useAppearance();
   const { config } = useRoomConfig();
   const status = useSyncStatus();
   const [checking, setChecking] = useState(false);
   const hasRoom = Boolean(config);
   const display = getSyncStatusDisplay(status.state, hasRoom);
-  const toneColor = TONE_COLORS[display.tone];
+  const toneColors: Record<SyncTone, string> = {
+    muted: theme.textMuted,
+    warning: theme.warning,
+    success: theme.success,
+    error: theme.error,
+  };
+  const toneColor = toneColors[display.tone];
 
   const handleCheck = useCallback(async () => {
     if (checking) return;
@@ -100,32 +101,42 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
     >
-      <View style={styles.statusCard}>
+      <View
+        style={[
+          styles.statusCard,
+          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        ]}
+      >
         <View style={[styles.iconCircle, { backgroundColor: `${toneColor}18` }]}>
           <Ionicons name={getToneIcon(display.tone)} size={36} color={toneColor} />
         </View>
         <Text style={[styles.statusLabel, { color: toneColor }]}>{display.label}</Text>
-        <Text style={styles.description}>
+        <Text style={[styles.description, { color: theme.textSecondary }]}>
           {getStatusDescription(status.state, hasRoom)}
         </Text>
       </View>
 
-      <View style={styles.detailsCard}>
+      <View
+        style={[
+          styles.detailsCard,
+          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        ]}
+      >
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Room</Text>
           <Text style={styles.detailValue}>{config ? config.code : 'Not set up'}</Text>
         </View>
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: theme.borderLight }]} />
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Last successful sync</Text>
           <Text style={styles.detailValue}>{formatLastSynced(status.lastSyncedAt)}</Text>
         </View>
         {status.message ? (
           <>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: theme.borderLight }]} />
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Details</Text>
               <Text style={[styles.detailValue, styles.detailMessage]}>{status.message}</Text>
@@ -135,7 +146,11 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
       </View>
 
       <TouchableOpacity
-        style={[styles.checkButton, (checking || !hasRoom) && styles.disabledButton]}
+        style={[
+          styles.checkButton,
+          { backgroundColor: theme.primary },
+          (checking || !hasRoom) && styles.disabledButton,
+        ]}
         onPress={handleCheck}
         disabled={checking || !hasRoom}
         activeOpacity={0.8}
@@ -143,11 +158,11 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
         accessibilityLabel="Check shared room connection"
       >
         {checking ? (
-          <ActivityIndicator color={Colors.white} />
+          <ActivityIndicator color={theme.white} />
         ) : (
           <>
-            <Ionicons name="refresh-outline" size={18} color={Colors.white} />
-            <Text style={styles.checkButtonText}>Check now</Text>
+            <Ionicons name="refresh-outline" size={18} color={theme.white} />
+            <Text style={[styles.checkButtonText, { color: theme.white }]}>Check now</Text>
           </>
         )}
       </TouchableOpacity>
@@ -158,7 +173,7 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
       </Text>
 
       <TouchableOpacity style={styles.doneButton} onPress={onClose} activeOpacity={0.7}>
-        <Text style={styles.doneButtonText}>Done</Text>
+        <Text style={[styles.doneButtonText, { color: theme.primary }]}>Done</Text>
       </TouchableOpacity>
     </ScrollView>
   );

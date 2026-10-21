@@ -3,12 +3,18 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 import { openScreenOverlay } from '@/services/screenOverlay';
 import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function AIToolsScreen() {
+  const { theme } = useAppearance();
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>AI Tools</Text>
         <Text style={styles.headerSubtitle}>Powered by smart recipe intelligence</Text>
@@ -16,7 +22,10 @@ export default function AIToolsScreen() {
 
       <View style={styles.toolsContainer}>
         <TouchableOpacity
-          style={styles.toolCard}
+          style={[
+            styles.toolCard,
+            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          ]}
           onPress={() => {
             recordBreadcrumb('tap:ai-generator');
             openScreenOverlay('ai-generate');
@@ -31,13 +40,16 @@ export default function AIToolsScreen() {
             Enter your available ingredients and AI will create a custom recipe for you
           </Text>
           <View style={styles.toolAction}>
-            <Text style={styles.toolActionText}>Generate Recipe</Text>
-            <Ionicons name="arrow-forward" size={16} color={Colors.primary} />
+            <Text style={[styles.toolActionText, { color: theme.primary }]}>Generate Recipe</Text>
+            <Ionicons name="arrow-forward" size={16} color={theme.primary} />
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.toolCard}
+          style={[
+            styles.toolCard,
+            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          ]}
           onPress={() => {
             recordBreadcrumb('tap:ai-lookup');
             openScreenOverlay('ai-lookup');
@@ -52,13 +64,16 @@ export default function AIToolsScreen() {
             Enter a recipe name and get a method, ingredients, and steps you can save
           </Text>
           <View style={styles.toolAction}>
-            <Text style={styles.toolActionText}>Look Up Recipe</Text>
-            <Ionicons name="arrow-forward" size={16} color={Colors.primary} />
+            <Text style={[styles.toolActionText, { color: theme.primary }]}>Look Up Recipe</Text>
+            <Ionicons name="arrow-forward" size={16} color={theme.primary} />
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.toolCard}
+          style={[
+            styles.toolCard,
+            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          ]}
           onPress={() => {
             recordBreadcrumb('tap:ai-substitute');
             openScreenOverlay('ai-substitute');
@@ -73,8 +88,8 @@ export default function AIToolsScreen() {
             Find smart alternatives for ingredients you don't have or can't eat
           </Text>
           <View style={styles.toolAction}>
-            <Text style={styles.toolActionText}>Find Substitutes</Text>
-            <Ionicons name="arrow-forward" size={16} color={Colors.primary} />
+            <Text style={[styles.toolActionText, { color: theme.primary }]}>Find Substitutes</Text>
+            <Ionicons name="arrow-forward" size={16} color={theme.primary} />
           </View>
         </TouchableOpacity>
       </View>

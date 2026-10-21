@@ -11,6 +11,7 @@ const SCHEMA = `
     title TEXT NOT NULL,
     description TEXT DEFAULT '',
     category TEXT NOT NULL,
+    tags TEXT NOT NULL DEFAULT '[]',
     prep_time INTEGER DEFAULT 0,
     cook_time INTEGER DEFAULT 0,
     servings INTEGER DEFAULT 1,
@@ -51,6 +52,9 @@ async function migrateDatabase(database: SQLite.SQLiteDatabase): Promise<void> {
   }
   if (!columnNames.has('author')) {
     await database.execAsync("ALTER TABLE recipes ADD COLUMN author TEXT NOT NULL DEFAULT ''");
+  }
+  if (!columnNames.has('tags')) {
+    await database.execAsync("ALTER TABLE recipes ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'");
   }
 
   await database.execAsync(

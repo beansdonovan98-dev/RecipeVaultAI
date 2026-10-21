@@ -77,6 +77,12 @@ function safeJsonArray(raw: string): unknown[] {
   return Array.isArray(parsed) ? parsed : [];
 }
 
+function safeStringArray(raw: string): string[] {
+  return safeJsonArray(raw).filter(
+    (item): item is string => typeof item === 'string' && item.trim().length > 0
+  );
+}
+
 function safeNumber(value: number, fallback: number): number {
   return Number.isFinite(value) ? value : fallback;
 }
@@ -91,6 +97,10 @@ export function toRemoteRecipeInput(
     title: record.title.trim() || 'Untitled',
     description: record.description ?? '',
     category: record.category || 'Dinner',
+    tags: (() => {
+      const tags = safeStringArray(record.tags);
+      return tags.length > 0 ? tags : [record.category || 'Dinner'];
+    })(),
     prepTime: safeNumber(record.prepTime, 0),
     cookTime: safeNumber(record.cookTime, 0),
     servings: safeNumber(record.servings, 1),

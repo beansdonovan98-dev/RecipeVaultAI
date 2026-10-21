@@ -12,8 +12,10 @@ import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function AISubstituteScreen() {
+  const { theme } = useAppearance();
   const [ingredient, setIngredient] = useState('');
   const [substitutions, setSubstitutions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,7 +52,10 @@ export default function AISubstituteScreen() {
 
   return (
     <ErrorBoundary>
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.searchSection}>
         <Text style={styles.sectionTitle}>Find Substitutions</Text>
         <Text style={styles.sectionSubtitle}>
@@ -58,24 +63,27 @@ export default function AISubstituteScreen() {
         </Text>
         <View style={styles.searchRow}>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+            ]}
             value={ingredient}
             onChangeText={setIngredient}
             placeholder="e.g., butter, milk, eggs..."
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={theme.textMuted}
             returnKeyType="search"
             onSubmitEditing={handleSearch}
           />
           <TouchableOpacity
-            style={styles.searchButton}
+            style={[styles.searchButton, { backgroundColor: theme.primary }]}
             onPress={handleSearch}
             disabled={loading}
             activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color={Colors.white} size="small" />
+              <ActivityIndicator color={theme.white} size="small" />
             ) : (
-              <Ionicons name="search" size={20} color={Colors.white} />
+              <Ionicons name="search" size={20} color={theme.white} />
             )}
           </TouchableOpacity>
         </View>
@@ -84,16 +92,24 @@ export default function AISubstituteScreen() {
       {substitutions.length > 0 && (
         <View style={styles.resultSection}>
           <View style={styles.resultHeader}>
-            <Ionicons name="swap-horizontal" size={24} color={Colors.accent} />
+            <Ionicons name="swap-horizontal" size={24} color={theme.accent} />
             <Text style={styles.resultTitle}>
               Substitutes for "{ingredient}"
             </Text>
           </View>
-          <View style={styles.substitutionsList}>
+          <View
+            style={[
+              styles.substitutionsList,
+              { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+            ]}
+          >
             {substitutions.map((sub, index) => (
-              <View key={index} style={styles.substitutionItem}>
-                <View style={styles.substitutionIcon}>
-                  <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
+              <View
+                key={index}
+                style={[styles.substitutionItem, { borderBottomColor: theme.borderLight }]}
+              >
+                <View style={[styles.substitutionIcon, { backgroundColor: theme.inputBackground }]}>
+                  <Ionicons name="arrow-forward" size={14} color={theme.primary} />
                 </View>
                 <Text style={styles.substitutionText}>{sub}</Text>
               </View>
@@ -108,25 +124,34 @@ export default function AISubstituteScreen() {
           onPress={() => setShowAll(!showAll)}
           activeOpacity={0.8}
         >
-          <Text style={styles.toggleButtonText}>
+          <Text style={[styles.toggleButtonText, { color: theme.primary }]}>
             {showAll ? 'Hide' : 'Browse'} All Substitutions
           </Text>
           <Ionicons
             name={showAll ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={Colors.primary}
+            color={theme.primary}
           />
         </TouchableOpacity>
 
         {showAll && (
           <View style={styles.allSubsList}>
             {Object.entries(allSubs).map(([key, values]) => (
-              <View key={key} style={styles.allSubsItem}>
+              <View
+                key={key}
+                style={[
+                  styles.allSubsItem,
+                  { backgroundColor: theme.card, borderColor: theme.borderLight },
+                ]}
+              >
                 <Text style={styles.allSubsIngredient}>{key}</Text>
                 <View style={styles.allSubsValues}>
                   {values.map((v, i) => (
-                    <View key={i} style={styles.allSubsValue}>
-                      <Text style={styles.allSubsValueText}>{v}</Text>
+                    <View
+                      key={i}
+                      style={[styles.allSubsValue, { backgroundColor: theme.inputBackground }]}
+                    >
+                      <Text style={[styles.allSubsValueText, { color: theme.primary }]}>{v}</Text>
                     </View>
                   ))}
                 </View>

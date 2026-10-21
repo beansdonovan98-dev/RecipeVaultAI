@@ -21,6 +21,8 @@ import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/
 import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { InstructionEditor } from '@/components/InstructionEditor';
+import { useAppearance } from '@/contexts/AppearanceContext';
 import { recordBreadcrumb } from '@/services/crashTracker';
 
 interface AddRecipeScreenProps {
@@ -28,12 +30,17 @@ interface AddRecipeScreenProps {
 }
 
 export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
+  const { theme } = useAppearance();
   const router = useRouter();
   const { addRecipe } = useRecipes();
+  const themedInput = [
+    styles.input,
+    { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+  ];
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<Category>('Dinner');
+  const [tags, setTags] = useState<Category[]>(['Dinner']);
   const [prepTime, setPrepTime] = useState('15');
   const [cookTime, setCookTime] = useState('30');
   const [servings, setServings] = useState('4');
@@ -46,6 +53,7 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [member, setMemberState] = useState<AuthorId | null>(null);
   const [saving, setSaving] = useState(false);
+  const category = tags[0] ?? 'Dinner';
 
   useEffect(() => {
     recordBreadcrumb('screen-mount:add');
@@ -137,6 +145,12 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
     setInstructions(instructions.filter((_, i) => i !== index));
   };
 
+  const toggleTag = (tag: Category) => {
+    setTags((current) =>
+      current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]
+    );
+  };
+
   const validate = (): boolean => {
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter a recipe title');
@@ -160,6 +174,7 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
         title: title.trim(),
         description: description.trim(),
         category,
+        tags,
         prepTime: parseInt(prepTime) || 0,
         cookTime: parseInt(cookTime) || 0,
         servings: parseInt(servings) || 1,
@@ -211,16 +226,19 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
   return (
     <ErrorBoundary>
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity style={styles.imageSection} onPress={showImagePicker}>
+        <TouchableOpacity
+          style={[styles.imageSection, { backgroundColor: theme.inputBackground }]}
+          onPress={showImagePicker}
+        >
           {imageUri ? (
             <Image source={{ uri: imageUri }} style={styles.imagePreview} />
           ) : (
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="camera" size={32} color={Colors.textMuted} />
+            <View style={[styles.imagePlaceholder, { borderColor: theme.borderLight }]}>
+              <Ionicons name="camera" size={32} color={theme.textMuted} />
               <Text style={styles.imagePlaceholderText}>Add Photo</Text>
             </View>
           )}
@@ -233,36 +251,36 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Title *</Text>
           <TextInput
-            style={styles.input}
+            style={themedInput}
             value={title}
             onChangeText={setTitle}
             placeholder="e.g., Grandma's Apple Pie"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={theme.textMuted}
           />
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Description</Text>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[themedInput, styles.textArea]}
             value={description}
             onChangeText={setDescription}
             placeholder="Brief description of the recipe..."
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={theme.textMuted}
             multiline
             numberOfLines={3}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Category</Text>
+          <Text style={styles.sectionLabel}>Tags * (select all that apply)</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
             {ALL_CATEGORIES.map(cat => (
               <CategoryBadge
                 key={cat}
                 category={cat}
-                selected={category === cat}
-                onPress={() => setCategory(cat)}
+                selected={tags.includes(cat)}
+                onPress={() => toggleTag(cat)}
               />
             ))}
           </ScrollView>
@@ -272,34 +290,34 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
           <View style={[styles.section, styles.flex1]}>
             <Text style={styles.sectionLabel}>Prep Time (min)</Text>
             <TextInput
-              style={styles.input}
+              style={themedInput}
               value={prepTime}
               onChangeText={setPrepTime}
               keyboardType="numeric"
               placeholder="15"
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={theme.textMuted}
             />
           </View>
           <View style={[styles.section, styles.flex1]}>
             <Text style={styles.sectionLabel}>Cook Time (min)</Text>
             <TextInput
-              style={styles.input}
+              style={themedInput}
               value={cookTime}
               onChangeText={setCookTime}
               keyboardType="numeric"
               placeholder="30"
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={theme.textMuted}
             />
           </View>
           <View style={[styles.section, styles.flex1]}>
             <Text style={styles.sectionLabel}>Servings</Text>
             <TextInput
-              style={styles.input}
+              style={themedInput}
               value={servings}
               onChangeText={setServings}
               keyboardType="numeric"
               placeholder="4"
-              placeholderTextColor={Colors.textMuted}
+              placeholderTextColor={theme.textMuted}
             />
           </View>
         </View>
@@ -308,34 +326,34 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionLabel}>Ingredients *</Text>
             <TouchableOpacity onPress={addIngredient} style={styles.addButton}>
-              <Ionicons name="add-circle" size={24} color={Colors.primary} />
+              <Ionicons name="add-circle" size={24} color={theme.primary} />
             </TouchableOpacity>
           </View>
           {ingredients.map((ing, index) => (
             <View key={ing.id} style={styles.ingredientRow}>
               <TextInput
-                style={[styles.input, styles.ingredientName]}
+                style={[themedInput, styles.ingredientName]}
                 value={ing.name}
                 onChangeText={v => updateIngredient(index, 'name', v)}
                 placeholder="Ingredient"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={theme.textMuted}
               />
               <TextInput
-                style={[styles.input, styles.ingredientAmount]}
+                style={[themedInput, styles.ingredientAmount]}
                 value={ing.amount}
                 onChangeText={v => updateIngredient(index, 'amount', v)}
                 placeholder="Amt"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={theme.textMuted}
               />
               <TextInput
-                style={[styles.input, styles.ingredientUnit]}
+                style={[themedInput, styles.ingredientUnit]}
                 value={ing.unit}
                 onChangeText={v => updateIngredient(index, 'unit', v)}
                 placeholder="Unit"
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={theme.textMuted}
               />
               <TouchableOpacity onPress={() => removeIngredient(index)} style={styles.removeButton}>
-                <Ionicons name="close-circle" size={20} color={Colors.error} />
+                <Ionicons name="close-circle" size={20} color={theme.error} />
               </TouchableOpacity>
             </View>
           ))}
@@ -345,38 +363,34 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionLabel}>Instructions *</Text>
             <TouchableOpacity onPress={addInstruction} style={styles.addButton}>
-              <Ionicons name="add-circle" size={24} color={Colors.primary} />
+              <Ionicons name="add-circle" size={24} color={theme.primary} />
             </TouchableOpacity>
           </View>
           {instructions.map((inst, index) => (
-            <View key={inst.id} style={styles.instructionRow}>
-              <Text style={styles.stepNumber}>{index + 1}</Text>
-              <TextInput
-                style={[styles.input, styles.instructionInput]}
-                value={inst.text}
-                onChangeText={v => updateInstruction(index, v)}
-                placeholder={`Step ${index + 1}...`}
-                placeholderTextColor={Colors.textMuted}
-                multiline
-              />
-              <TouchableOpacity onPress={() => removeInstruction(index)} style={styles.removeButton}>
-                <Ionicons name="close-circle" size={20} color={Colors.error} />
-              </TouchableOpacity>
-            </View>
+            <InstructionEditor
+              key={inst.id}
+              index={index}
+              value={inst.text}
+              onChangeText={v => updateInstruction(index, v)}
+              onRemove={() => removeInstruction(index)}
+              placeholder={`Step ${index + 1}...`}
+            />
           ))}
         </View>
 
         <View style={styles.bottomPadding} />
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View
+        style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.borderLight }]}
+      >
         <TouchableOpacity
-          style={styles.saveButton}
+          style={[styles.saveButton, { backgroundColor: theme.primary, shadowColor: theme.shadow }]}
           onPress={handleSave}
           disabled={saving}
           activeOpacity={0.8}
         >
-          <Text style={styles.saveButtonText}>
+          <Text style={[styles.saveButtonText, { color: theme.white }]}>
             {saving ? 'Saving...' : 'Save Recipe'}
           </Text>
         </TouchableOpacity>

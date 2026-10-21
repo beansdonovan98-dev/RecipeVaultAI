@@ -19,6 +19,7 @@ import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 function isValidRecipe(obj: any): obj is RecipeInput {
   return (
@@ -41,6 +42,7 @@ interface AIGenerateScreenProps {
 }
 
 export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
+  const { theme } = useAppearance();
   const router = useRouter();
   const [ingredients, setIngredients] = useState<string>('');
   const [generating, setGenerating] = useState(false);
@@ -165,18 +167,24 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
 
   return (
     <ErrorBoundary>
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Enter Your Ingredients</Text>
         <Text style={styles.sectionSubtitle}>
           List the ingredients you have, one per line. Include amounts if possible.
         </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+          ]}
           value={ingredients}
           onChangeText={setIngredients}
           placeholder="e.g.,&#10;2 cups flour&#10;3 eggs&#10;1 cup sugar&#10;1/2 cup butter"
-          placeholderTextColor={Colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           multiline
           numberOfLines={6}
           textAlignVertical="top"
@@ -184,17 +192,17 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
       </View>
 
       <TouchableOpacity
-        style={styles.generateButton}
+        style={[styles.generateButton, { backgroundColor: theme.primary, shadowColor: theme.shadow }]}
         onPress={handleGenerate}
         disabled={generating}
         activeOpacity={0.8}
       >
         {generating ? (
-          <ActivityIndicator color={Colors.white} />
+          <ActivityIndicator color={theme.white} />
         ) : (
           <>
-            <Ionicons name="sparkles" size={20} color={Colors.white} />
-            <Text style={styles.generateButtonText}>Generate Recipe</Text>
+            <Ionicons name="sparkles" size={20} color={theme.white} />
+            <Text style={[styles.generateButtonText, { color: theme.white }]}>Generate Recipe</Text>
           </>
         )}
       </TouchableOpacity>
@@ -202,25 +210,30 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
       {generatedRecipe && (
         <View style={styles.resultSection}>
           <View style={styles.resultHeader}>
-            <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
+            <Ionicons name="checkmark-circle" size={24} color={theme.success} />
             <Text style={styles.resultTitle}>Recipe Generated!</Text>
           </View>
 
-          <View style={styles.recipePreview}>
+          <View
+            style={[
+              styles.recipePreview,
+              { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+            ]}
+          >
             <Text style={styles.recipeName}>{generatedRecipe.title}</Text>
             <Text style={styles.recipeDescription}>{generatedRecipe.description}</Text>
 
-            <View style={styles.metaRow}>
+            <View style={[styles.metaRow, { borderColor: theme.borderLight }]}>
               <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={14} color={Colors.accent} />
+                <Ionicons name="time-outline" size={14} color={theme.accent} />
                 <Text style={styles.metaText}>{generatedRecipe.prepTime} min</Text>
               </View>
               <View style={styles.metaItem}>
-                <Ionicons name="flame-outline" size={14} color={Colors.accent} />
+                <Ionicons name="flame-outline" size={14} color={theme.accent} />
                 <Text style={styles.metaText}>{generatedRecipe.cookTime} min</Text>
               </View>
               <View style={styles.metaItem}>
-                <Ionicons name="people-outline" size={14} color={Colors.accent} />
+                <Ionicons name="people-outline" size={14} color={theme.accent} />
                 <Text style={styles.metaText}>{generatedRecipe.servings} servings</Text>
               </View>
             </View>
@@ -241,12 +254,12 @@ export default function AIGenerateScreen({ onClose }: AIGenerateScreenProps) {
           </View>
 
           <TouchableOpacity
-            style={styles.saveButton}
+            style={[styles.saveButton, { backgroundColor: theme.success, shadowColor: theme.shadow }]}
             onPress={handleSaveRecipe}
             activeOpacity={0.8}
           >
-            <Ionicons name="save-outline" size={20} color={Colors.white} />
-            <Text style={styles.saveButtonText}>Save to Collection</Text>
+            <Ionicons name="save-outline" size={20} color={theme.white} />
+            <Text style={[styles.saveButtonText, { color: theme.white }]}>Save to Collection</Text>
           </TouchableOpacity>
         </View>
       )}

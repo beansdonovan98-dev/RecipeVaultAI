@@ -13,6 +13,7 @@ interface RecipeRow {
   title: string;
   description: string;
   category: string;
+  tags: string;
   prep_time: number;
   cook_time: number;
   servings: number;
@@ -36,6 +37,19 @@ function safeJsonParse<T>(raw: string, fallback: T): T {
   }
 }
 
+function safeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+}
+
+function resolveTags(rawTags: string | undefined, category: string): string[] {
+  const parsed = safeJsonParse<string[]>(rawTags ?? '[]', []);
+  const tags = safeStringArray(parsed);
+  return tags.length > 0 ? tags : category ? [category] : [];
+}
+
 function mapRowToRecipe(row: RecipeRow): Recipe {
   return {
     id: row.id,
@@ -43,6 +57,7 @@ function mapRowToRecipe(row: RecipeRow): Recipe {
     title: row.title,
     description: row.description,
     category: row.category,
+    tags: resolveTags(row.tags, row.category),
     prepTime: row.prep_time,
     cookTime: row.cook_time,
     servings: row.servings,
@@ -63,6 +78,7 @@ function mapRowToSyncRecord(row: RecipeRow): RecipeSyncRecord {
     title: row.title,
     description: row.description,
     category: row.category,
+    tags: row.tags ?? '[]',
     prepTime: row.prep_time,
     cookTime: row.cook_time,
     servings: row.servings,
@@ -136,17 +152,18 @@ export async function getFavoriteRecipes(): Promise<Recipe[]> {
 export async function getRecipesByCategory(category: string): Promise<Recipe[]> {
   const db = await getDatabase();
   const rows = await db.getAllAsync<RecipeRow>(
-    'SELECT * FROM recipes WHERE category = ? AND deleted = 0 ORDER BY created_at DESC',
-    [category]
+    'SELECT * FROM recipes WHERE deleted = 0 ORDER BY created_at DESC'
   );
-  return rows.map(mapRowToRecipe);
+  return rows
+    .map(mapRowToRecipe)
+    .filter((recipe) => recipe.category === category || recipe.tags.includes(category));
 }
 
 export async function searchRecipes(query: string): Promise<Recipe[]> {
   const db = await getDatabase();
   const rows = await db.getAllAsync<RecipeRow>(
-    'SELECT * FROM recipes WHERE (title LIKE ? OR description LIKE ? OR category LIKE ?) AND deleted = 0 ORDER BY created_at DESC',
-    [`%${query}%`, `%${query}%`, `%${query}%`]
+    'SELECT * FROM recipes WHERE (title LIKE ? OR description LIKE ? OR category LIKE ? OR tags LIKE ?) AND deleted = 0 ORDER BY created_at DESC',
+    [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]
   );
   return rows.map(mapRowToRecipe);
 }
@@ -164,14 +181,17 @@ export async function addRecipe(input: RecipeInput, authorOverride?: AuthorId): 
     step: i + 1,
   }));
 
+  const tags = input.tags.length > 0 ? input.tags : [input.category];
+
   const result = await db.runAsync(
-    `INSERT INTO recipes (remote_id, title, description, category, prep_time, cook_time, servings, ingredients, instructions, image_uri, author, dirty)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+    `INSERT INTO recipes (remote_id, title, description, category, tags, prep_time, cook_time, servings, ingredients, instructions, image_uri, author, dirty)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
     [
       createRemoteId(),
       input.title,
       input.description,
       input.category,
+      JSON.stringify(tags),
       input.prepTime,
       input.cookTime,
       input.servings,
@@ -197,12 +217,15 @@ export async function updateRecipe(id: number, input: RecipeInput): Promise<void
     step: i + 1,
   }));
 
+  const tags = input.tags.length > 0 ? input.tags : [input.category];
+
   await db.runAsync(
-    `UPDATE recipes SET title = ?, description = ?, category = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, author = CASE WHEN author = '' THEN ? ELSE author END, dirty = 1, local_revision = local_revision + 1, updated_at = datetime('now') WHERE id = ?`,
+    `UPDATE recipes SET title = ?, description = ?, category = ?, tags = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, author = CASE WHEN author = '' THEN ? ELSE author END, dirty = 1, local_revision = local_revision + 1, updated_at = datetime('now') WHERE id = ?`,
     [
       input.title,
       input.description,
       input.category,
+      JSON.stringify(tags),
       input.prepTime,
       input.cookTime,
       input.servings,
@@ -244,10 +267,19 @@ export async function toggleFavorite(id: number, isFavorite: boolean): Promise<v
 
 export async function getCategories(): Promise<{ category: string; count: number }[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ category: string; count: number }>(
-    'SELECT category, COUNT(*) as count FROM recipes WHERE deleted = 0 GROUP BY category ORDER BY category'
+  const rows = await db.getAllAsync<RecipeRow>(
+    'SELECT * FROM recipes WHERE deleted = 0'
   );
-  return rows;
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const recipe = mapRowToRecipe(row);
+    for (const tag of new Set(recipe.tags)) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => a.category.localeCompare(b.category));
 }
 
 export async function getRecipeCount(): Promise<number> {
@@ -323,17 +355,20 @@ export async function upsertRemoteRecipe(remote: RemoteRecipe): Promise<void> {
   const instructions = JSON.stringify(Array.isArray(remote.instructions) ? remote.instructions : []);
   const title = remote.title?.trim() || 'Untitled';
   const category = remote.category || 'Dinner';
+  const remoteTags = safeStringArray(remote.tags);
+  const tags = remoteTags.length > 0 ? remoteTags : [category];
   const fallbackTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const createdAt = toSqliteTimestamp(remote.created_at) ?? fallbackTimestamp;
   const updatedAt = toSqliteTimestamp(remote.updated_at) ?? createdAt;
 
   if (existing) {
     await db.runAsync(
-      `UPDATE recipes SET title = ?, description = ?, category = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, is_favorite = ?, author = COALESCE(NULLIF(?, ''), author), dirty = 0, deleted = 0, created_at = ?, updated_at = ? WHERE id = ? AND dirty = 0`,
+      `UPDATE recipes SET title = ?, description = ?, category = ?, tags = ?, prep_time = ?, cook_time = ?, servings = ?, ingredients = ?, instructions = ?, image_uri = ?, is_favorite = ?, author = COALESCE(NULLIF(?, ''), author), dirty = 0, deleted = 0, created_at = ?, updated_at = ? WHERE id = ? AND dirty = 0`,
       [
         title,
         remote.description ?? '',
         category,
+        JSON.stringify(tags),
         remote.prep_time ?? 0,
         remote.cook_time ?? 0,
         remote.servings ?? 1,
@@ -351,13 +386,14 @@ export async function upsertRemoteRecipe(remote: RemoteRecipe): Promise<void> {
   }
 
   await db.runAsync(
-    `INSERT INTO recipes (remote_id, title, description, category, prep_time, cook_time, servings, ingredients, instructions, image_uri, is_favorite, author, dirty, deleted, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)`,
+    `INSERT INTO recipes (remote_id, title, description, category, tags, prep_time, cook_time, servings, ingredients, instructions, image_uri, is_favorite, author, dirty, deleted, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)`,
     [
       remote.id,
       title,
       remote.description ?? '',
       category,
+      JSON.stringify(tags),
       remote.prep_time ?? 0,
       remote.cook_time ?? 0,
       remote.servings ?? 1,

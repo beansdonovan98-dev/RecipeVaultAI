@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { Colors, Spacing, BorderRadius, Typography } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';
+import { useAppearance } from '@/contexts/AppearanceContext';
 import { Category } from '@/types/recipe';
 
 interface CategoryBadgeProps {
@@ -15,14 +16,23 @@ interface CategoryBadgeProps {
 }
 
 export function CategoryBadge({ category, onPress, selected, showCount, count }: CategoryBadgeProps) {
+  const { theme } = useAppearance();
   const info = getCategoryInfo(category);
 
   const content = (
-    <View style={[styles.container, selected && styles.selected]}>
-      <Ionicons name={info.icon as any} size={14} color={selected ? Colors.white : info.color} />
-      <Text style={[styles.text, selected && styles.selectedText]}>{category}</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+        selected && { backgroundColor: theme.primary, borderColor: theme.primary },
+      ]}
+    >
+      <Ionicons name={info.icon as any} size={14} color={selected ? theme.white : info.color} />
+      <Text style={[styles.text, { color: selected ? theme.white : theme.text }]}>{category}</Text>
       {showCount && count !== undefined && (
-        <Text style={[styles.count, selected && styles.selectedText]}>({count})</Text>
+        <Text style={[styles.count, { color: selected ? theme.white : theme.textMuted }]}>
+          ({count})
+        </Text>
       )}
     </View>
   );

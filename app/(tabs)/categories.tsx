@@ -14,8 +14,10 @@ import { subscribeToDataChanges } from '@/services/dataEvents';
 import { Colors, Spacing, Typography, BorderRadius } from '@/constants/theme';
 import { getCategoryInfo } from '@/constants/categories';
 import { ALL_CATEGORIES, Category } from '@/types/recipe';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function CategoriesScreen() {
+  const { theme } = useAppearance();
   const router = useRouter();
   const [recipesByCategory, setRecipesByCategory] = useState<Record<string, Recipe[]>>({});
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ export default function CategoriesScreen() {
 
   if (categoriesWithRecipes.length === 0) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <EmptyState
           icon="grid-outline"
           title="No categories yet"
@@ -65,7 +67,7 @@ export default function CategoriesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <FlatList
         data={categoriesWithRecipes}
         keyExtractor={item => item}
@@ -75,11 +77,11 @@ export default function CategoriesScreen() {
           const recipes = recipesByCategory[category] || [];
           return (
             <View style={styles.categorySection}>
-              <View style={styles.categoryHeader}>
+              <View style={[styles.categoryHeader, { borderBottomColor: theme.borderLight }]}>
                 <View style={styles.categoryTitleRow}>
                   <Ionicons name={info.icon as any} size={20} color={info.color} />
                   <Text style={styles.categoryTitle}>{category}</Text>
-                  <Text style={styles.categoryCount}>({recipes.length})</Text>
+                  <Text style={[styles.categoryCount, { color: theme.textMuted }]}>({recipes.length})</Text>
                 </View>
               </View>
               {recipes.map(recipe => (

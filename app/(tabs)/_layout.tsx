@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 export default function TabLayout() {
-  const { fontFamily, fontColor } = useAppearance();
+  const { fontFamily, fontColor, theme } = useAppearance();
   const member = useMember();
   const { config } = useRoomConfig();
   const partner = usePartnerPresence(config, member);
@@ -30,10 +30,10 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: fontColor,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarInactiveTintColor: theme.textMuted,
         tabBarStyle: {
-          backgroundColor: Colors.card,
-          borderTopColor: Colors.borderLight,
+          backgroundColor: theme.card,
+          borderTopColor: theme.borderLight,
           borderTopWidth: 1,
           height: 60,
           paddingBottom: 8,
@@ -45,7 +45,7 @@ export default function TabLayout() {
           fontFamily,
         },
         headerStyle: {
-          backgroundColor: Colors.background,
+          backgroundColor: theme.background,
         },
         headerTintColor: fontColor,
         headerTitleAlign: 'center',

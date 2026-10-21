@@ -16,14 +16,17 @@ import { deleteRecipe } from '@/db';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { RichText } from '@/components/RichText';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { navigateSafely } from '@/utils/safeNavigation';
 import { getCategoryInfo } from '@/constants/categories';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function RecipeDetailScreen() {
+  const { theme } = useAppearance();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const idStr = Array.isArray(id) ? id[0] : id;
@@ -83,80 +86,98 @@ export default function RecipeDetailScreen() {
     return <EmptyState icon="alert-circle-outline" title="Recipe not found" message={error || undefined} />;
   }
 
-  const categoryInfo = getCategoryInfo(recipe.category as any);
+  const tags = recipe.tags.length > 0 ? recipe.tags : [recipe.category];
 
   return (
     <ErrorBoundary>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           {recipe.imageUri ? (
             <Image source={{ uri: recipe.imageUri }} style={styles.image} />
           ) : (
-            <View style={[styles.image, styles.placeholderImage]}>
-              <Ionicons name="restaurant" size={48} color={Colors.textMuted} />
+            <View style={[styles.image, styles.placeholderImage, { backgroundColor: theme.inputBackground }]}>
+              <Ionicons name="restaurant" size={48} color={theme.textMuted} />
             </View>
           )}
 
           <View style={styles.content}>
             <View style={styles.header}>
-              <View style={styles.categoryBadge}>
-                <Ionicons name={categoryInfo.icon as any} size={14} color={categoryInfo.color} />
-                <Text style={styles.categoryText}>{recipe.category}</Text>
+              <View style={styles.tagRow}>
+                {tags.map((tag) => {
+                  const info = getCategoryInfo(tag as any);
+                  return (
+                    <View key={tag} style={[styles.categoryBadge, { backgroundColor: theme.inputBackground }]}>
+                      <Ionicons name={info.icon as any} size={14} color={info.color} />
+                      <Text style={styles.categoryText}>{tag}</Text>
+                    </View>
+                  );
+                })}
               </View>
               <View style={styles.headerActions}>
                 <TouchableOpacity onPress={() => toggleFavorite(!recipe.isFavorite)} style={styles.actionButton}>
                   <Ionicons
                     name={recipe.isFavorite ? 'heart' : 'heart-outline'}
                     size={24}
-                    color={recipe.isFavorite ? Colors.heart : Colors.textMuted}
+                    color={recipe.isFavorite ? theme.heart : theme.textMuted}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleShare} style={styles.actionButton}>
-                  <Ionicons name="share-outline" size={22} color={Colors.textMuted} />
+                  <Ionicons name="share-outline" size={22} color={theme.textMuted} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigateSafely(`/edit?id=${recipe.id}`, 'tap:edit-recipe')} style={styles.actionButton}>
-                  <Ionicons name="create-outline" size={22} color={Colors.textMuted} />
+                  <Ionicons name="create-outline" size={22} color={theme.textMuted} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                  <Ionicons name="trash-outline" size={22} color={Colors.error} />
+                  <Ionicons name="trash-outline" size={22} color={theme.error} />
                 </TouchableOpacity>
               </View>
             </View>
 
             <Text style={styles.title}>{recipe.title}</Text>
-            {recipe.description ? <Text style={styles.description}>{recipe.description}</Text> : null}
+            {recipe.description ? (
+              <Text style={[styles.description, { color: theme.textSecondary }]}>{recipe.description}</Text>
+            ) : null}
 
-            <View style={styles.metaRow}>
+            <View
+              style={[
+                styles.metaRow,
+                { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+              ]}
+            >
               <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={16} color={Colors.accent} />
+                <Ionicons name="time-outline" size={16} color={theme.accent} />
                 <Text style={styles.metaLabel}>Prep Time</Text>
                 <Text style={styles.metaValue}>{String(recipe.prepTime ?? '')} min</Text>
               </View>
-              <View style={styles.metaDivider} />
+              <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
               <View style={styles.metaItem}>
-                <Ionicons name="flame-outline" size={16} color={Colors.accent} />
+                <Ionicons name="flame-outline" size={16} color={theme.accent} />
                 <Text style={styles.metaLabel}>Cook Time</Text>
                 <Text style={styles.metaValue}>{String(recipe.cookTime ?? '')} min</Text>
               </View>
-              <View style={styles.metaDivider} />
+              <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
               <View style={styles.metaItem}>
-                <Ionicons name="people-outline" size={16} color={Colors.accent} />
+                <Ionicons name="people-outline" size={16} color={theme.accent} />
                 <Text style={styles.metaLabel}>Servings</Text>
                 <Text style={styles.metaValue}>{String(recipe.servings ?? '')}</Text>
               </View>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Ingredients</Text>
+              <Text style={[styles.sectionTitle, { borderBottomColor: theme.borderLight }]}>Ingredients</Text>
               <View style={styles.ingredientsList}>
                 {recipe.ingredients.map((ing, index) => (
                   <View key={index} style={styles.ingredientItem}>
-                    <View style={styles.bullet} />
+                    <View style={[styles.bullet, { backgroundColor: theme.accent }]} />
                     <Text style={styles.ingredientText}>
                       <Text style={styles.ingredientAmount}>{String(ing.amount ?? '')} {String(ing.unit ?? '')}</Text>
                       {' '}
                       <Text style={styles.ingredientName}>{String(ing.name ?? '')}</Text>
-                      {ing.notes ? <Text style={styles.ingredientNotes}> ({String(ing.notes ?? '')})</Text> : null}
+                      {ing.notes ? (
+                        <Text style={[styles.ingredientNotes, { color: theme.textMuted }]}>
+                          {' '}({String(ing.notes ?? '')})
+                        </Text>
+                      ) : null}
                     </Text>
                   </View>
                 ))}
@@ -164,18 +185,20 @@ export default function RecipeDetailScreen() {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Instructions</Text>
+              <Text style={[styles.sectionTitle, { borderBottomColor: theme.borderLight }]}>Instructions</Text>
               <View style={styles.instructionsList}>
                 {recipe.instructions.map((inst, index) => (
                   <View key={index} style={styles.instructionItem}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>{String(inst.step ?? '')}</Text>
+                    <View style={[styles.stepNumber, { backgroundColor: theme.primary }]}>
+                      <Text style={[styles.stepNumberText, { color: theme.white }]}>
+                        {String(inst.step ?? '')}
+                      </Text>
                     </View>
                     <View style={styles.instructionContent}>
-                      <Text style={styles.instructionText}>{inst.text}</Text>
+                      <RichText text={inst.text} style={styles.instructionText} />
                       {inst.tip ? (
-                        <View style={styles.tipBox}>
-                          <Ionicons name="bulb-outline" size={14} color={Colors.accent} />
+                        <View style={[styles.tipBox, { backgroundColor: theme.tipBackground }]}>
+                          <Ionicons name="bulb-outline" size={14} color={theme.accent} />
                           <Text style={styles.tipText}>{String(inst.tip ?? '')}</Text>
                         </View>
                       ) : null}
@@ -219,6 +242,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.md,
+  },
+  tagRow: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
   },
   categoryBadge: {
     flexDirection: 'row',

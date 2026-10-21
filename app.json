@@ -14,6 +14,15 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 30000,
+      "url": "https://u.expo.dev/4d0e04d6-06b6-45fd-9213-c25deea7d036"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.beans.recipevaultai",

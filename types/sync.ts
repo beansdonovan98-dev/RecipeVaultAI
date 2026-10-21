@@ -3,6 +3,7 @@ export interface RemoteRecipe {
   title: string;
   description: string;
   category: string;
+  tags: unknown;
   prep_time: number;
   cook_time: number;
   servings: number;
@@ -20,6 +21,7 @@ export interface RemoteRecipeInput {
   title: string;
   description: string;
   category: string;
+  tags: string[];
   prepTime: number;
   cookTime: number;
   servings: number;
@@ -36,6 +38,7 @@ export interface RecipeSyncRecord {
   title: string;
   description: string;
   category: string;
+  tags: string;
   prepTime: number;
   cookTime: number;
   servings: number;

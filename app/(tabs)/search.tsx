@@ -8,8 +8,10 @@ import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing } from '@/constants/theme';
+import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function SearchScreen() {
+  const { theme } = useAppearance();
   const router = useRouter();
   const { results, loading, search } = useSearch();
   const [query, setQuery] = useState('');
@@ -27,7 +29,7 @@ export default function SearchScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.searchContainer}>
           <SearchBar
             value={query}

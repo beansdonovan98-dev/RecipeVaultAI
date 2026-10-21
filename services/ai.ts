@@ -207,11 +207,13 @@ export async function generateRecipeFromIngredients(ingredients: Ingredient[]): 
   const type = detectRecipeType(ingredients);
   const template = RECIPE_TEMPLATES[type];
   const name = generateRecipeName(ingredients, type);
+  const category = type === 'smoothie' ? 'Drink' : type === 'salad' ? 'Salad' : type === 'soup' ? 'Soup' : 'Quick & Easy';
 
   return {
     title: name,
     description: `A delicious ${template.name.toLowerCase()} recipe generated from your ingredients: ${ingredients.map(i => i.name).join(', ')}.`,
-    category: type === 'smoothie' ? 'Drink' : type === 'salad' ? 'Salad' : type === 'soup' ? 'Soup' : 'Quick & Easy',
+    category,
+    tags: [category],
     prepTime: template.prepTime,
     cookTime: template.cookTime,
     servings: 2,

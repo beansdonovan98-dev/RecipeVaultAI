@@ -69,7 +69,7 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  const { fontFamily, fontColor } = useAppearance();
+  const { fontFamily, fontColor, theme } = useAppearance();
   const [dbError, setDbError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [showCrashViewer, setShowCrashViewer] = useState(false);
@@ -172,7 +172,7 @@ function RootLayoutContent() {
   const screenOverlay = overlayScreen;
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       <ErrorBoundary onViewCrashReports={() => setShowCrashViewer(true)}>
         {failed ? (
           <StartupErrorScreen
@@ -185,7 +185,7 @@ function RootLayoutContent() {
           <Stack
             screenOptions={{
               headerStyle: {
-                backgroundColor: Colors.background,
+                backgroundColor: theme.background,
               },
               headerTintColor: fontColor,
               headerTitleStyle: {
@@ -195,7 +195,7 @@ function RootLayoutContent() {
               },
               headerShadowVisible: false,
               contentStyle: {
-                backgroundColor: Colors.background,
+                backgroundColor: theme.background,
               },
             }}
           >
@@ -210,9 +210,14 @@ function RootLayoutContent() {
         )}
       </ErrorBoundary>
       {screenOverlay ? (
-        <View style={styles.overlay}>
+        <View style={[styles.overlay, { backgroundColor: theme.background }]}>
           <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
-            <View style={styles.overlayHeader}>
+            <View
+              style={[
+                styles.overlayHeader,
+                { backgroundColor: theme.background, borderBottomColor: theme.borderLight },
+              ]}
+            >
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={closeScreenOverlay}
@@ -220,7 +225,7 @@ function RootLayoutContent() {
                 accessibilityRole="button"
                 accessibilityLabel="Close"
               >
-                <Ionicons name="close" size={26} color={Colors.primary} />
+                <Ionicons name="close" size={26} color={theme.primary} />
               </TouchableOpacity>
               <Text style={styles.overlayTitle}>{OVERLAY_TITLES[screenOverlay]}</Text>
               <View style={styles.headerSpacer} />
@@ -248,10 +253,10 @@ function RootLayoutContent() {
         </View>
       ) : null}
       {showCrashViewer ? (
-        <View style={styles.overlay}>
+        <View style={[styles.overlay, { backgroundColor: theme.background }]}>
           <ErrorBoundary
             fallback={
-              <View style={styles.fallback}>
+              <View style={[styles.fallback, { backgroundColor: theme.background }]}>
                 <Text style={{ ...Typography.subtitle, textAlign: 'center' }}>
                   Crash reports could not be displayed
                 </Text>
@@ -266,7 +271,7 @@ function RootLayoutContent() {
                   The failure was recorded. Close this screen and try again.
                 </Text>
                 <TouchableOpacity onPress={() => setShowCrashViewer(false)} activeOpacity={0.8}>
-                  <Text style={{ ...Typography.label, color: Colors.primary }}>Close</Text>
+                  <Text style={{ ...Typography.label, color: theme.primary }}>Close</Text>
                 </TouchableOpacity>
               </View>
             }

@@ -21,7 +21,7 @@ declare
   v_key text := lower(trim(p_key));
   v_value text := trim(p_value);
 begin
-  if v_key not in ('app_font_key', 'app_font_color') then
+  if v_key not in ('app_font_key', 'app_font_color', 'app_theme_key') then
     raise exception 'Unknown setting';
   end if;
 
@@ -31,6 +31,10 @@ begin
 
   if v_key = 'app_font_color' and v_value !~ '^#[0-9A-Fa-f]{6}$' then
     raise exception 'Invalid font color';
+  end if;
+
+  if v_key = 'app_theme_key' and v_value not in ('warm', 'bistro', 'paper', 'coastal', 'date-night') then
+    raise exception 'Invalid theme key';
   end if;
 
   select id into v_room_id

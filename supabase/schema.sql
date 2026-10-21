@@ -30,6 +30,7 @@ create table if not exists public.rvai_recipes (
   title text not null,
   description text not null default '',
   category text not null,
+  tags jsonb not null default '[]'::jsonb,
   prep_time integer not null default 0,
   cook_time integer not null default 0,
   servings integer not null default 1,
@@ -43,6 +44,7 @@ create table if not exists public.rvai_recipes (
 );
 
 alter table public.rvai_recipes add column if not exists author text not null default '';
+alter table public.rvai_recipes add column if not exists tags jsonb not null default '[]'::jsonb;
 
 create index if not exists rvai_recipes_room_id_idx on public.rvai_recipes(room_id);
 
@@ -155,7 +157,7 @@ begin
   end if;
 
   insert into public.rvai_recipes (
-    id, room_id, title, description, category, prep_time, cook_time, servings,
+    id, room_id, title, description, category, tags, prep_time, cook_time, servings,
     ingredients, instructions, image_url, is_favorite, author, updated_at
   ) values (
     v_id,
@@ -163,6 +165,7 @@ begin
     coalesce(nullif(trim(p_recipe->>'title'), ''), 'Untitled'),
     coalesce(p_recipe->>'description', ''),
     coalesce(nullif(trim(p_recipe->>'category'), ''), 'Dinner'),
+    coalesce(p_recipe->'tags', '[]'::jsonb),
     coalesce((p_recipe->>'prepTime')::integer, 0),
     coalesce((p_recipe->>'cookTime')::integer, 0),
     coalesce((p_recipe->>'servings')::integer, 1),
@@ -177,6 +180,7 @@ begin
     title = excluded.title,
     description = excluded.description,
     category = excluded.category,
+    tags = excluded.tags,
     prep_time = excluded.prep_time,
     cook_time = excluded.cook_time,
     servings = excluded.servings,
@@ -266,7 +270,7 @@ declare
   v_key text := lower(trim(p_key));
   v_value text := trim(p_value);
 begin
-  if v_key not in ('app_font_key', 'app_font_color') then
+  if v_key not in ('app_font_key', 'app_font_color', 'app_theme_key') then
     raise exception 'Unknown setting';
   end if;
 
@@ -276,6 +280,10 @@ begin
 
   if v_key = 'app_font_color' and v_value !~ '^#[0-9A-Fa-f]{6}$' then
     raise exception 'Invalid font color';
+  end if;
+
+  if v_key = 'app_theme_key' and v_value not in ('warm', 'bistro', 'paper', 'coastal', 'date-night') then
+    raise exception 'Invalid theme key';
   end if;
 
   select id into v_room_id

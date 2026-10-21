@@ -17,20 +17,31 @@ import {
   normalizeHexColor,
   type FontKey,
 } from '@/constants/appearance';
+import {
+  DEFAULT_THEME_KEY,
+  getThemePalette,
+  isThemeKey,
+  type ThemeKey,
+  type ThemePalette,
+} from '@/constants/themes';
 import { useRoomConfig } from '@/hooks/useRoomConfig';
 import { getRoomSettings, isRemoteConfigured, setRoomSetting } from '@/services/remote';
 import { captureException } from '@/services/crashTracker';
 
 const FONT_KEY_SETTING = 'app_font_key';
 const FONT_COLOR_SETTING = 'app_font_color';
+const THEME_KEY_SETTING = 'app_theme_key';
 const SHARED_SETTINGS_REFRESH_MS = 15000;
 
 interface AppearanceContextValue {
   fontKey: FontKey;
   fontFamily: string | undefined;
   fontColor: string;
+  themeKey: ThemeKey;
+  theme: ThemePalette;
   setFontKey: (next: FontKey) => Promise<void>;
   setFontColor: (next: string) => Promise<void>;
+  setThemeKey: (next: ThemeKey) => Promise<void>;
   resetAppearance: () => Promise<void>;
 }
 
@@ -38,8 +49,11 @@ const AppearanceContext = createContext<AppearanceContextValue>({
   fontKey: DEFAULT_FONT_KEY,
   fontFamily: undefined,
   fontColor: DEFAULT_FONT_COLOR,
+  themeKey: DEFAULT_THEME_KEY,
+  theme: getThemePalette(DEFAULT_THEME_KEY),
   setFontKey: async () => {},
   setFontColor: async () => {},
+  setThemeKey: async () => {},
   resetAppearance: async () => {},
 });
 
@@ -52,6 +66,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   const { config } = useRoomConfig();
   const [fontKey, setFontKeyState] = useState<FontKey>(DEFAULT_FONT_KEY);
   const [fontColor, setFontColorState] = useState(DEFAULT_FONT_COLOR);
+  const [themeKey, setThemeKeyState] = useState<ThemeKey>(DEFAULT_THEME_KEY);
   const roomCode = config?.code ?? null;
   const roomId = config?.roomId ?? null;
   const hasRemoteRoom = Boolean(roomCode && roomId && isRemoteConfigured());
@@ -62,8 +77,12 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     }
 
     let active = true;
-    Promise.all([getSetting(FONT_KEY_SETTING), getSetting(FONT_COLOR_SETTING)])
-      .then(([savedFontKey, savedFontColor]) => {
+    Promise.all([
+      getSetting(FONT_KEY_SETTING),
+      getSetting(FONT_COLOR_SETTING),
+      getSetting(THEME_KEY_SETTING),
+    ])
+      .then(([savedFontKey, savedFontColor, savedThemeKey]) => {
         if (!active) {
           return;
         }
@@ -72,6 +91,9 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
         }
         if (savedFontColor && isHexColor(savedFontColor)) {
           setFontColorState(normalizeHexColor(savedFontColor));
+        }
+        if (isThemeKey(savedThemeKey)) {
+          setThemeKeyState(savedThemeKey);
         }
       })
       .catch((error) => {
@@ -104,21 +126,39 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
 
         const savedFontKey = settings.find((setting) => setting.key === FONT_KEY_SETTING)?.value;
         const savedFontColor = settings.find((setting) => setting.key === FONT_COLOR_SETTING)?.value;
-
-        let nextFontKey = isFontKey(savedFontKey) ? savedFontKey : DEFAULT_FONT_KEY;
-        let nextFontColor =
-          savedFontColor && isHexColor(savedFontColor)
-            ? normalizeHexColor(savedFontColor)
-            : DEFAULT_FONT_COLOR;
+        const savedThemeKey = settings.find((setting) => setting.key === THEME_KEY_SETTING)?.value;
 
         const localFontKey = await getSetting(FONT_KEY_SETTING);
         const localFontColor = await getSetting(FONT_COLOR_SETTING);
+        const localThemeKey = await getSetting(THEME_KEY_SETTING);
+
+        let nextFontKey = isFontKey(savedFontKey) ? savedFontKey : DEFAULT_FONT_KEY;
+        let nextThemeKey = isThemeKey(savedThemeKey)
+          ? savedThemeKey
+          : isThemeKey(localThemeKey)
+            ? localThemeKey
+            : DEFAULT_THEME_KEY;
+        let nextFontColor =
+          savedFontColor && isHexColor(savedFontColor)
+            ? normalizeHexColor(savedFontColor)
+            : isHexColor(localFontColor ?? '')
+              ? normalizeHexColor(localFontColor as string)
+              : getThemePalette(nextThemeKey).text;
+
         if (!isFontKey(savedFontKey) && isFontKey(localFontKey)) {
           nextFontKey = localFontKey;
           try {
             await setRoomSetting(roomCode, FONT_KEY_SETTING, localFontKey);
           } catch (error) {
             captureException(error, { source: 'appearance.seedFontShared' });
+          }
+        }
+        if (!isThemeKey(savedThemeKey) && isThemeKey(localThemeKey)) {
+          nextThemeKey = localThemeKey;
+          try {
+            await setRoomSetting(roomCode, THEME_KEY_SETTING, localThemeKey);
+          } catch (error) {
+            captureException(error, { source: 'appearance.seedThemeShared' });
           }
         }
         if (!(savedFontColor && isHexColor(savedFontColor)) && isHexColor(localFontColor ?? '')) {
@@ -135,6 +175,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
         }
         setFontKeyState(nextFontKey);
         setFontColorState(nextFontColor);
+        setThemeKeyState(nextThemeKey);
       } catch (error) {
         captureException(error, { source: 'appearance.loadShared' });
       } finally {
@@ -201,14 +242,44 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     [hasRemoteRoom, roomCode, roomId]
   );
 
+  const setThemeKey = useCallback(
+    async (next: ThemeKey) => {
+      const palette = getThemePalette(next);
+      setThemeKeyState(next);
+      setFontColorState(palette.text);
+      if (hasRemoteRoom && roomCode && roomId) {
+        try {
+          await Promise.all([
+            setRoomSetting(roomCode, THEME_KEY_SETTING, next),
+            setRoomSetting(roomCode, FONT_COLOR_SETTING, palette.text),
+          ]);
+          return;
+        } catch (error) {
+          captureException(error, { source: 'appearance.setThemeShared' });
+        }
+      }
+      try {
+        await Promise.all([
+          setSetting(THEME_KEY_SETTING, next),
+          setSetting(FONT_COLOR_SETTING, palette.text),
+        ]);
+      } catch (error) {
+        captureException(error, { source: 'appearance.setThemeLocal' });
+      }
+    },
+    [hasRemoteRoom, roomCode, roomId]
+  );
+
   const resetAppearance = useCallback(async () => {
     setFontKeyState(DEFAULT_FONT_KEY);
     setFontColorState(DEFAULT_FONT_COLOR);
+    setThemeKeyState(DEFAULT_THEME_KEY);
     if (hasRemoteRoom && roomCode && roomId) {
       try {
         await Promise.all([
           setRoomSetting(roomCode, FONT_KEY_SETTING, DEFAULT_FONT_KEY),
           setRoomSetting(roomCode, FONT_COLOR_SETTING, DEFAULT_FONT_COLOR),
+          setRoomSetting(roomCode, THEME_KEY_SETTING, DEFAULT_THEME_KEY),
         ]);
         return;
       } catch (error) {
@@ -219,6 +290,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
       await Promise.all([
         setSetting(FONT_KEY_SETTING, DEFAULT_FONT_KEY),
         setSetting(FONT_COLOR_SETTING, DEFAULT_FONT_COLOR),
+        setSetting(THEME_KEY_SETTING, DEFAULT_THEME_KEY),
       ]);
     } catch (error) {
       captureException(error, { source: 'appearance.resetLocal' });
@@ -230,11 +302,14 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
       fontKey,
       fontFamily: resolveFontFamily(fontKey),
       fontColor,
+      themeKey,
+      theme: getThemePalette(themeKey),
       setFontKey,
       setFontColor,
+      setThemeKey,
       resetAppearance,
     }),
-    [fontKey, fontColor, setFontKey, setFontColor, resetAppearance]
+    [fontKey, fontColor, themeKey, setFontKey, setFontColor, setThemeKey, resetAppearance]
   );
 
   return <AppearanceContext.Provider value={value}>{children}</AppearanceContext.Provider>;
