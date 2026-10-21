@@ -1,8 +1,8 @@
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 /**
- * Free-tier Gemini model. The Gemini 3.x Flash line is the part of the free
- * tier that is available to brand new Google AI Studio accounts, and it is the
+ * Preferred Gemini model. The Gemini Flash line is the part of the free tier
+ * that is available to brand new Google AI Studio accounts, and it is the
  * strongest option for strict JSON output. Override at build time with
  * EXPO_PUBLIC_GEMINI_MODEL if you want to try another model.
  */
@@ -56,6 +56,74 @@ interface GeminiCandidate {
 
 interface GeminiErrorPayload {
   error?: { message?: string };
+}
+
+interface GeminiModelInfo {
+  name?: string;
+  supportedGenerationMethods?: string[];
+}
+
+/**
+ * Asks the API which models this key can actually use. AI Studio no longer
+ * advertises a single "current" model per key, so this is the reliable way to
+ * find one that works instead of guessing model IDs.
+ */
+export async function listGeminiModels(): Promise<string[]> {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    return [];
+  }
+  try {
+    const response = await fetch(
+      `${GEMINI_BASE}/models?pageSize=100&key=${encodeURIComponent(apiKey)}`,
+    );
+    if (!response.ok) {
+      return [];
+    }
+    const payload = (await response.json().catch(() => null)) as
+      | { models?: GeminiModelInfo[] }
+      | null;
+    return (payload?.models ?? [])
+      .filter((model) => (model.supportedGenerationMethods ?? []).includes('generateContent'))
+      .map((model) => (model.name ?? '').replace(/^models\//, ''))
+      .filter((name) => name.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Orders the models a key exposes by how well they suit recipe generation:
+ * Flash models first, newest version first, general-purpose before lite or
+ * preview variants. Pure helper, exported for testing.
+ */
+export function rankGeminiModels(models: string[]): string[] {
+  const usable = models.filter(
+    (name) => /flash/i.test(name) && !/image|audio|tts|live|embedding|vision|veo/i.test(name),
+  );
+
+  const score = (name: string) => {
+    const version = Number((name.match(/gemini-(\d+(?:\.\d+)?)/) ?? [])[1] ?? 0);
+    const litePenalty = /lite/i.test(name) ? 0.4 : 0;
+    const previewPenalty = /preview|exp|experimental/i.test(name) ? 0.2 : 0;
+    return version - litePenalty - previewPenalty;
+  };
+
+  return [...usable].sort((a, b) => score(b) - score(a));
+}
+
+function isModelError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : '';
+  return /not found|not supported|does not exist|unsupported|invalid model|not available|permission/i.test(
+    message,
+  );
+}
+
+function shouldRetry(error: unknown, signal?: AbortSignal): boolean {
+  if (signal?.aborted) {
+    return false;
+  }
+  return !(error instanceof Error && error.name === 'AbortError');
 }
 
 export async function geminiGenerateText(
@@ -120,8 +188,9 @@ export async function geminiGenerateText(
 }
 
 /**
- * Tries the configured model first, then the known-good free-tier fallbacks.
- * Aborts and missing-key errors are not retried.
+ * Tries the configured model, then the known-good free-tier fallbacks. If those
+ * all fail because the key does not expose them, it asks the API for the model
+ * list and retries with the best Flash models it finds. Aborts are never retried.
  */
 export async function geminiGenerateTextWithFallback(
   messages: GeminiChatMessage[],
@@ -131,18 +200,35 @@ export async function geminiGenerateTextWithFallback(
     throw new Error('Gemini API key is not configured.');
   }
 
+  const tried: string[] = [];
   let lastError: unknown = null;
+
   for (const model of getGeminiModels()) {
+    tried.push(model);
     try {
       return await geminiGenerateText(messages, { ...options, model });
     } catch (error) {
-      if (options.signal?.aborted) {
-        throw error;
-      }
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (!shouldRetry(error, options.signal)) {
         throw error;
       }
       lastError = error;
+    }
+  }
+
+  // Last resort: discover what this key can actually use.
+  if (isModelError(lastError)) {
+    const discovered = rankGeminiModels(await listGeminiModels()).filter(
+      (model) => !tried.includes(model),
+    );
+    for (const model of discovered.slice(0, 3)) {
+      try {
+        return await geminiGenerateText(messages, { ...options, model });
+      } catch (error) {
+        if (!shouldRetry(error, options.signal)) {
+          throw error;
+        }
+        lastError = error;
+      }
     }
   }
 

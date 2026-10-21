@@ -22,6 +22,7 @@ import { CrashReportsView } from '@/components/CrashReportsView';
 import { RoomSetupView } from '@/components/RoomSetupView';
 import { SyncStatusView } from '@/components/SyncStatusView';
 import { AppearanceProvider, useAppearance } from '@/contexts/AppearanceContext';
+import { AssistantProvider } from '@/contexts/AssistantContext';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import {
   acknowledgeCrash,
@@ -63,7 +64,9 @@ function syncInBackground(source: string): void {
 export default function RootLayout() {
   return (
     <AppearanceProvider>
-      <RootLayoutContent />
+      <AssistantProvider>
+        <RootLayoutContent />
+      </AssistantProvider>
     </AppearanceProvider>
   );
 }

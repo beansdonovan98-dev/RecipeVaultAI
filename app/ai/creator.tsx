@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -13,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { useAssistant } from '@/contexts/AssistantContext';
 import { createRecipeFromChat, type CreatorMessage } from '@/services/recipeCreator';
 import { isGeminiConfigured } from '@/services/gemini';
 import { addRecipe, getMember, setMember } from '@/db';
@@ -27,6 +29,7 @@ interface CreatorTurn {
   id: string;
   role: 'user' | 'assistant';
   text?: string;
+  reply?: string;
   recipe?: RecipeInput;
   error?: string;
   loading?: boolean;
@@ -42,8 +45,22 @@ function nextTurnId(): string {
   return `turn-${turnCounter}`;
 }
 
+// Soft "pixel confetti" used behind the chat when no photo has been chosen.
+const BACKDROP_BLOCKS = [
+  { left: 6, top: 8, size: 34, round: false, rotate: 12 },
+  { left: 74, top: 4, size: 22, round: true, rotate: 0 },
+  { left: 52, top: 22, size: 14, round: true, rotate: 0 },
+  { left: 12, top: 34, size: 26, round: false, rotate: -18 },
+  { left: 82, top: 40, size: 18, round: false, rotate: 24 },
+  { left: 28, top: 58, size: 12, round: true, rotate: 0 },
+  { left: 66, top: 66, size: 30, round: false, rotate: -8 },
+  { left: 8, top: 80, size: 20, round: true, rotate: 0 },
+  { left: 44, top: 88, size: 16, round: false, rotate: 30 },
+];
+
 export default function AICreatorScreen(_props: CreatorScreenProps) {
   const { theme } = useAppearance();
+  const { name: assistantName, persona, backgroundUri } = useAssistant();
   const [turns, setTurns] = useState<CreatorTurn[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -87,9 +104,14 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
     setBusy(true);
 
     try {
-      const recipe = await createRecipeFromChat(history);
+      const { reply, recipe } = await createRecipeFromChat(history, {
+        name: assistantName,
+        instructions: persona.instructions,
+      });
       setTurns((prev) =>
-        prev.map((turn) => (turn.id === assistantTurn.id ? { ...turn, loading: false, recipe } : turn))
+        prev.map((turn) =>
+          turn.id === assistantTurn.id ? { ...turn, loading: false, reply, recipe } : turn
+        )
       );
     } catch (error) {
       const aborted = error instanceof Error && error.name === 'AbortError';
@@ -110,7 +132,7 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
     } finally {
       setBusy(false);
     }
-  }, [buildHistory, busy, input, turns]);
+  }, [assistantName, buildHistory, busy, input, persona, turns]);
 
   const saveAs = useCallback(async (turnId: string, recipe: RecipeInput, author: AuthorId) => {
     try {
@@ -190,7 +212,9 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
         <View key={turn.id} style={styles.assistantRow}>
           <View style={[styles.assistantBubble, { backgroundColor: theme.inputBackground }]}>
             <ActivityIndicator size="small" color={theme.primary} />
-            <Text style={[styles.thinkingText, { color: theme.textMuted }]}>Creating your recipe…</Text>
+            <Text style={[styles.thinkingText, { color: theme.textMuted }]}>
+              {assistantName} is cooking…
+            </Text>
           </View>
         </View>
       );
@@ -210,7 +234,12 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
     if (turn.recipe) {
       const recipe = turn.recipe;
       return (
-        <View key={turn.id} style={styles.assistantRow}>
+        <View key={turn.id} style={styles.assistantGroup}>
+          {turn.reply ? (
+            <View style={[styles.replyBubble, { backgroundColor: theme.inputBackground }]}>
+              <Text style={[styles.replyText, { color: theme.text }]}>{turn.reply}</Text>
+            </View>
+          ) : null}
           <View
             style={[
               styles.recipeCard,
@@ -290,6 +319,40 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
         style={[styles.container, { backgroundColor: theme.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          {backgroundUri ? (
+            <>
+              <Image
+                source={{ uri: backgroundUri }}
+                style={StyleSheet.absoluteFill}
+                resizeMode="cover"
+              />
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: theme.background, opacity: 0.62 },
+                ]}
+              />
+            </>
+          ) : (
+            BACKDROP_BLOCKS.map((block, index) => (
+              <View
+                key={`backdrop-${index}`}
+                style={{
+                  position: 'absolute',
+                  left: `${block.left}%`,
+                  top: `${block.top}%`,
+                  width: block.size,
+                  height: block.size,
+                  borderRadius: block.round ? block.size / 2 : 4,
+                  backgroundColor: index % 2 === 0 ? theme.primary : theme.accent,
+                  opacity: 0.16,
+                  transform: [{ rotate: `${block.rotate}deg` }],
+                }}
+              />
+            ))
+          )}
+        </View>
         <ScrollView
           ref={scrollRef}
           style={styles.messagesScroll}
@@ -304,11 +367,11 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
               ]}
             >
               <Ionicons name="sparkles" size={28} color={theme.accent} />
-              <Text style={styles.introTitle}>Recipe Creator</Text>
+              <Text style={styles.introTitle}>{assistantName}</Text>
               <Text style={[styles.introText, { color: theme.textSecondary }]}>
-                Tell me what you want to make in plain words, for example “baked chicken over rice recipe”,
-                “chicken marsala recipe”, or “healthy milkshake recipe”. Then ask me to change it — “make it
-                without curry”, “make it vegan”, “spicier”.
+                Tell me what you want to make in plain words — “baked chicken over rice recipe”, “chicken
+                marsala recipe”, “healthy milkshake recipe”. Then ask me to change it: “make it without
+                curry”, “make it vegan”, “spicier”. You can rename me in the Customize tab.
               </Text>
             </View>
           ) : null}
@@ -330,7 +393,7 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
                 ]}
                 value={input}
                 onChangeText={setInput}
-                placeholder="Describe a recipe or ask for a change…"
+                placeholder={`Ask ${assistantName} for a recipe…`}
                 placeholderTextColor={theme.textMuted}
                 multiline
                 editable={!busy}
@@ -405,6 +468,21 @@ const styles = StyleSheet.create({
   assistantRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
+  },
+  assistantGroup: {
+    gap: Spacing.sm,
+  },
+  replyBubble: {
+    alignSelf: 'flex-start',
+    maxWidth: '88%',
+    borderRadius: BorderRadius.lg,
+    borderBottomLeftRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  replyText: {
+    ...Typography.body,
+    lineHeight: 20,
   },
   assistantBubble: {
     flexDirection: 'row',

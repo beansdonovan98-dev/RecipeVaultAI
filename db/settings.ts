@@ -1,10 +1,18 @@
 import { getDatabase } from './schema';
 import type { RoomConfig } from '@/types/sync';
 import { isAuthorId, type AuthorId } from '@/constants/authors';
+import {
+  DEFAULT_ASSISTANT_PERSONA_ID,
+  isAssistantPersonaId,
+  normalizeAssistantName,
+  type AssistantPersonaId,
+} from '@/constants/assistant';
 
 const ROOM_CODE_KEY = 'room_code';
 const ROOM_ID_KEY = 'room_id';
 const MEMBER_KEY = 'room_member';
+const ASSISTANT_NAME_KEY = 'app_assistant_name';
+const ASSISTANT_PERSONA_KEY = 'app_assistant_persona';
 
 export async function getSetting(key: string): Promise<string | null> {
   const db = await getDatabase();
@@ -32,6 +40,35 @@ export async function getMember(): Promise<AuthorId | null> {
 
 export async function setMember(member: AuthorId): Promise<void> {
   await setSetting(MEMBER_KEY, member);
+}
+
+/**
+ * Display name for the AI recipe assistant. Stored on this phone only, so each
+ * person can name it whatever they like.
+ */
+export async function getAssistantName(): Promise<string> {
+  return normalizeAssistantName(await getSetting(ASSISTANT_NAME_KEY));
+}
+
+export async function setAssistantName(name: string): Promise<void> {
+  await setSetting(ASSISTANT_NAME_KEY, normalizeAssistantName(name));
+}
+
+export async function resetAssistantName(): Promise<void> {
+  await deleteSetting(ASSISTANT_NAME_KEY);
+}
+
+export async function getAssistantPersonaId(): Promise<AssistantPersonaId> {
+  const value = await getSetting(ASSISTANT_PERSONA_KEY);
+  return isAssistantPersonaId(value) ? value : DEFAULT_ASSISTANT_PERSONA_ID;
+}
+
+export async function setAssistantPersonaId(personaId: AssistantPersonaId): Promise<void> {
+  await setSetting(ASSISTANT_PERSONA_KEY, personaId);
+}
+
+export async function resetAssistantPersonaId(): Promise<void> {
+  await deleteSetting(ASSISTANT_PERSONA_KEY);
 }
 
 export async function getRoomConfig(): Promise<RoomConfig | null> {

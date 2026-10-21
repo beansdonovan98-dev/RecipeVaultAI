@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -8,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import {
   FONT_COLORS,
@@ -24,6 +28,12 @@ import {
 } from '@/constants/theme';
 import { THEME_OPTIONS } from '@/constants/themes';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { useAssistant } from '@/contexts/AssistantContext';
+import {
+  ASSISTANT_NAME_MAX_LENGTH,
+  ASSISTANT_PERSONAS,
+  normalizeAssistantName,
+} from '@/constants/assistant';
 
 interface CustomizeAppearanceViewProps {
   onClose?: () => void;
@@ -44,9 +54,53 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
   const [customColor, setCustomColor] = useState(fontColor);
   const [colorError, setColorError] = useState<string | null>(null);
 
+  const {
+    name: assistantName,
+    persona,
+    personaId,
+    isShared,
+    sharedError,
+    backgroundUri,
+    setBackground,
+    setName,
+    setPersona,
+  } = useAssistant();
+  const [nameDraft, setNameDraft] = useState(assistantName);
+  const [nameSaved, setNameSaved] = useState(false);
+  const [pickingBackground, setPickingBackground] = useState(false);
+
   useEffect(() => {
     setCustomColor(fontColor);
   }, [fontColor]);
+
+  useEffect(() => {
+    setNameDraft(assistantName);
+    setNameSaved(false);
+  }, [assistantName]);
+
+  const applyAssistantName = () => {
+    const next = normalizeAssistantName(nameDraft, persona.defaultName);
+    setNameDraft(next);
+    setNameSaved(true);
+    void setName(next);
+  };
+
+  const pickBackground = async () => {
+    setPickingBackground(true);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets[0]) {
+        await setBackground(result.assets[0].uri);
+      }
+    } catch {
+      Alert.alert('Could not use that photo', 'Try choosing a different image.');
+    } finally {
+      setPickingBackground(false);
+    }
+  };
 
   const applyCustomColor = () => {
     if (!isHexColor(customColor)) {
@@ -67,8 +121,8 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         <Ionicons name="color-palette-outline" size={28} color={theme.accent} />
         <Text style={styles.introTitle}>Make it yours</Text>
         <Text style={styles.introText}>
-          Choose a theme, font, and text color for the whole app. Your choices are saved for both
-          phones in your shared room.
+          Choose a theme, font, and text color, and name the recipe assistant. Your choices are saved
+          for both phones in your shared room.
         </Text>
       </View>
 
@@ -212,6 +266,145 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         {colorError ? <Text style={styles.errorText}>{colorError}</Text> : null}
       </View>
 
+      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
+        <Text style={styles.sectionLabel}>Recipe assistant</Text>
+        <Text style={[styles.sectionHint, { color: theme.textSecondary }]}>
+          {isShared
+            ? 'The name and personality are shared, so you both talk to the same assistant.'
+            : 'Saved on this phone. Join a shared room to use the same assistant on both phones.'}
+        </Text>
+
+        <View style={styles.nameRow}>
+          <View style={styles.nameInput}>
+            <Text style={styles.customColorLabel}>Name</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.borderLight,
+                  color: theme.text,
+                },
+              ]}
+              value={nameDraft}
+              onChangeText={(value) => {
+                setNameDraft(value);
+                setNameSaved(false);
+              }}
+              autoCapitalize="words"
+              autoCorrect={false}
+              maxLength={ASSISTANT_NAME_MAX_LENGTH}
+              placeholder={persona.defaultName}
+              placeholderTextColor={theme.textMuted}
+              returnKeyType="done"
+              onSubmitEditing={applyAssistantName}
+            />
+          </View>
+          <TouchableOpacity
+            style={[styles.applyButton, { backgroundColor: theme.primary }]}
+            onPress={applyAssistantName}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.applyButtonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+        {nameSaved ? (
+          <Text style={[styles.savedText, { color: theme.success }]}>Saved</Text>
+        ) : null}
+        {sharedError ? (
+          <Text style={[styles.errorText, { color: theme.error }]}>
+            Saved on this phone only. The shared room rejected it — re-run supabase/settings.sql in
+            Supabase so both phones can share it.
+          </Text>
+        ) : null}
+
+        <View style={styles.personaGrid}>
+          {ASSISTANT_PERSONAS.map((option) => {
+            const selected = option.id === personaId;
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.personaCard,
+                  { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+                  selected && { borderColor: theme.accent, backgroundColor: theme.tipBackground },
+                ]}
+                onPress={() => {
+                  setNameSaved(false);
+                  void setPersona(option.id).then(() => setNameDraft(option.defaultName));
+                }}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`Use the ${option.label} personality`}
+              >
+                <View style={styles.personaText}>
+                  <Text style={styles.personaLabel}>{option.label}</Text>
+                  <Text style={[styles.personaTagline, { color: theme.textSecondary }]}>
+                    {option.tagline}
+                  </Text>
+                </View>
+                {selected ? (
+                  <Ionicons name="checkmark-circle" size={20} color={theme.accent} />
+                ) : null}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <View style={styles.backgroundBlock}>
+          <Text style={styles.customColorLabel}>Chat background</Text>
+          <Text style={[styles.sectionHint, { color: theme.textSecondary }]}>
+            Shown behind your conversation. Save a picture of your assistant to your photos, then
+            choose it here.
+          </Text>
+          <View style={styles.backgroundRow}>
+            <View
+              style={[
+                styles.backgroundPreview,
+                { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
+              ]}
+            >
+              {backgroundUri ? (
+                <Image
+                  source={{ uri: backgroundUri }}
+                  style={styles.backgroundImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Ionicons name="image-outline" size={22} color={theme.textMuted} />
+              )}
+            </View>
+            <View style={styles.backgroundActions}>
+              <TouchableOpacity
+                style={[styles.applyButton, { backgroundColor: theme.primary }]}
+                onPress={() => void pickBackground()}
+                activeOpacity={0.8}
+                disabled={pickingBackground}
+              >
+                {pickingBackground ? (
+                  <ActivityIndicator size="small" color={theme.white} />
+                ) : (
+                  <Text style={styles.applyButtonText}>
+                    {backgroundUri ? 'Change photo' : 'Choose photo'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+              {backgroundUri ? (
+                <TouchableOpacity
+                  onPress={() => void setBackground(null)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel="Remove chat background"
+                >
+                  <Text style={[styles.removeText, { color: theme.error }]}>Remove</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </View>
+        </View>
+      </View>
+
       <View style={[styles.previewCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
         <Text style={styles.sectionLabel}>Preview</Text>
         <RNText style={[styles.previewTitle, { fontFamily, color: fontColor }]}>
@@ -282,6 +475,78 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     ...Typography.sectionLabel,
+  },
+  sectionHint: {
+    ...Typography.caption,
+    lineHeight: 17,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Spacing.sm,
+  },
+  nameInput: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  savedText: {
+    ...Typography.caption,
+    fontWeight: '600',
+  },
+  personaGrid: {
+    gap: Spacing.sm,
+  },
+  personaCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  personaText: {
+    flex: 1,
+    gap: 2,
+  },
+  personaLabel: {
+    ...Typography.label,
+    fontSize: 14,
+  },
+  personaTagline: {
+    ...Typography.caption,
+    lineHeight: 16,
+  },
+  backgroundBlock: {
+    gap: Spacing.xs,
+  },
+  backgroundRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginTop: Spacing.xs,
+  },
+  backgroundPreview: {
+    width: 64,
+    height: 84,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+  },
+  backgroundActions: {
+    flex: 1,
+    gap: Spacing.sm,
+    alignItems: 'flex-start',
+  },
+  removeText: {
+    ...Typography.caption,
+    fontWeight: '600',
   },
   themeGrid: {
     gap: Spacing.sm,

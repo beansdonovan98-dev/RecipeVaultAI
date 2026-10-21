@@ -270,7 +270,14 @@ declare
   v_key text := lower(trim(p_key));
   v_value text := trim(p_value);
 begin
-  if v_key not in ('app_font_key', 'app_font_color', 'app_theme_key') then
+  if v_key not in (
+    'app_font_key',
+    'app_font_color',
+    'app_theme_key',
+    'app_assistant_name',
+    'app_assistant_persona',
+    'app_assistant_background'
+  ) then
     raise exception 'Unknown setting';
   end if;
 
@@ -284,6 +291,20 @@ begin
 
   if v_key = 'app_theme_key' and v_value not in ('warm', 'bistro', 'paper', 'coastal', 'date-night') then
     raise exception 'Invalid theme key';
+  end if;
+
+  if v_key = 'app_assistant_name' and (char_length(v_value) < 1 or char_length(v_value) > 24) then
+    raise exception 'Invalid assistant name';
+  end if;
+
+  if v_key = 'app_assistant_persona' and v_value not in ('bmo', 'sous-chef', 'nana') then
+    raise exception 'Invalid assistant persona';
+  end if;
+
+  if v_key = 'app_assistant_background'
+     and v_value <> ''
+     and v_value !~ '^https://[^[:space:]]{1,400}$' then
+    raise exception 'Invalid assistant background';
   end if;
 
   select id into v_room_id
