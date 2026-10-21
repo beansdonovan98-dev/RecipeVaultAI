@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { generateRecipeFromName } from '@/services/recipeLookup';
+import { searchRecipes, getRecipeById, type RecipeSearchResult } from '@/services/recipeSearch';
 import { addRecipe, getMember, setMember } from '@/db';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { AUTHORS, type AuthorId } from '@/constants/authors';
@@ -20,6 +22,8 @@ import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+
+const SEARCH_DEBOUNCE_MS = 320;
 
 function isValidRecipe(obj: any): obj is RecipeInput {
   return (
@@ -48,13 +52,93 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
   const { theme } = useAppearance();
   const router = useRouter();
   const [recipeName, setRecipeName] = useState('');
-  const [lookingUp, setLookingUp] = useState(false);
+  const [results, setResults] = useState<RecipeSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<RecipeInput | null>(null);
+  const requestRef = useRef(0);
 
   useEffect(() => {
     recordBreadcrumb('screen-mount:ai-lookup');
   }, []);
+
+  useEffect(() => {
+    const query = recipeName.trim();
+    setGeneratedRecipe(null);
+    setSelectedId(null);
+    setSearchError(null);
+
+    if (!query) {
+      setResults([]);
+      setSearching(false);
+      return undefined;
+    }
+
+    const requestId = ++requestRef.current;
+    const controller = new AbortController();
+    setSearching(true);
+
+    const timer = setTimeout(async () => {
+      try {
+        const matches = await searchRecipes(query, controller.signal);
+        if (requestId !== requestRef.current) {
+          return;
+        }
+        setResults(matches);
+        setSearchError(matches.length === 0 ? 'No recipes matched that name.' : null);
+      } catch (error) {
+        if (controller.signal.aborted || requestId !== requestRef.current) {
+          return;
+        }
+        setResults([]);
+        setSearchError(null);
+        recordBreadcrumb('ai-lookup:search-failed');
+      } finally {
+        if (requestId === requestRef.current) {
+          setSearching(false);
+        }
+      }
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [recipeName]);
+
+  const handleSelectResult = async (result: RecipeSearchResult) => {
+    if (selectedId === result.id) {
+      return;
+    }
+    setSelectedId(result.id);
+    setGeneratedRecipe(null);
+    setSearchError(null);
+
+    try {
+      const recipe = await getRecipeById(result.id);
+      if (recipe && isValidRecipe(recipe)) {
+        setGeneratedRecipe(recipe);
+      } else {
+        throw new Error('invalid recipe shape');
+      }
+    } catch (error) {
+      captureException(error, { source: 'aiLookup.selectResult' });
+      setSelectedId(null);
+      try {
+        const fallback = await generateRecipeFromName(result.title);
+        if (isValidRecipe(fallback)) {
+          setGeneratedRecipe(fallback);
+        } else {
+          setSearchError('Could not load that recipe. Please try another.');
+        }
+      } catch (fallbackError) {
+        captureException(fallbackError, { source: 'aiLookup.selectFallback' });
+        setSearchError('Could not load that recipe. Please try another.');
+      }
+    }
+  };
 
   const saveGeneratedRecipe = async (author: AuthorId) => {
     if (!generatedRecipe || !isValidRecipe(generatedRecipe)) {
@@ -87,29 +171,6 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
       Alert.alert('Error', 'Failed to save recipe.');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleLookup = async () => {
-    const name = recipeName.trim();
-    if (!name) {
-      Alert.alert('Error', 'Please enter a recipe name.');
-      return;
-    }
-
-    setLookingUp(true);
-    try {
-      const recipe = await generateRecipeFromName(name);
-      if (!isValidRecipe(recipe)) {
-        Alert.alert('Error', 'AI returned an invalid recipe format. Please try again.');
-        return;
-      }
-      setGeneratedRecipe(recipe);
-    } catch (e) {
-      captureException(e, { source: 'aiLookup.lookup' });
-      Alert.alert('Error', 'Failed to look up that recipe. Please try again.');
-    } finally {
-      setLookingUp(false);
     }
   };
 
@@ -173,8 +234,8 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
           <Ionicons name="search" size={28} color={theme.primary} />
           <Text style={styles.introTitle}>Recipe Name Lookup</Text>
           <Text style={[styles.introText, { color: theme.textSecondary }]}>
-            Type the name of a recipe, like “Chicken stir fry” or “Pancakes,” and get a method with
-            ingredients and steps you can save.
+            Start typing a recipe name and real matches appear as you go. Tap one to see its
+            ingredients and steps, then save it.
           </Text>
         </View>
 
@@ -185,40 +246,76 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
           ]}
         >
           <Text style={styles.sectionLabel}>Recipe name</Text>
-          <TextInput
+          <View
             style={[
-              styles.input,
+              styles.searchRow,
               { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
             ]}
-            value={recipeName}
-            onChangeText={setRecipeName}
-            placeholder="e.g. Chicken stir fry"
-            placeholderTextColor={theme.textMuted}
-            autoCapitalize="words"
-            autoCorrect={false}
-            returnKeyType="search"
-            onSubmitEditing={handleLookup}
-            editable={!lookingUp}
-          />
-          <TouchableOpacity
-            style={[
-              styles.lookupButton,
-              { backgroundColor: theme.primary },
-              lookingUp && styles.disabledButton,
-            ]}
-            onPress={handleLookup}
-            disabled={lookingUp}
-            activeOpacity={0.8}
           >
-            {lookingUp ? (
-              <ActivityIndicator color={theme.white} />
-            ) : (
-              <>
-                <Ionicons name="sparkles" size={18} color={theme.white} />
-                <Text style={[styles.lookupButtonText, { color: theme.white }]}>Look Up Recipe</Text>
-              </>
-            )}
-          </TouchableOpacity>
+            <Ionicons name="search" size={18} color={theme.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              value={recipeName}
+              onChangeText={setRecipeName}
+              placeholder="Start typing a recipe name…"
+              placeholderTextColor={theme.textMuted}
+              autoCapitalize="words"
+              autoCorrect={false}
+              returnKeyType="search"
+            />
+            {searching ? <ActivityIndicator size="small" color={theme.primary} /> : null}
+          </View>
+
+          {searchError ? (
+            <Text style={[styles.searchNote, { color: theme.textMuted }]}>{searchError}</Text>
+          ) : null}
+
+          {results.length > 0 ? (
+            <View style={styles.resultsList}>
+              {results.slice(0, 12).map((result) => {
+                const active = result.id === selectedId;
+                return (
+                  <TouchableOpacity
+                    key={result.id}
+                    style={[
+                      styles.resultRow,
+                      {
+                        backgroundColor: active ? theme.tipBackground : theme.inputBackground,
+                        borderColor: active ? theme.primary : theme.borderLight,
+                      },
+                    ]}
+                    onPress={() => void handleSelectResult(result)}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Open ${result.title}`}
+                  >
+                    {result.thumbnail ? (
+                      <Image source={{ uri: result.thumbnail }} style={styles.resultThumb} />
+                    ) : (
+                      <View
+                        style={[styles.resultThumb, styles.resultThumbFallback, { backgroundColor: theme.tipBackground }]}
+                      >
+                        <Ionicons name="restaurant-outline" size={18} color={theme.primary} />
+                      </View>
+                    )}
+                    <View style={styles.resultText}>
+                      <Text style={styles.resultTitle} numberOfLines={1}>
+                        {result.title}
+                      </Text>
+                      <Text style={[styles.resultMeta, { color: theme.textMuted }]} numberOfLines={1}>
+                        {[result.category, result.area].filter(Boolean).join(' · ') || 'Recipe'}
+                      </Text>
+                    </View>
+                    {active && selectedId === result.id ? (
+                      <ActivityIndicator size="small" color={theme.primary} />
+                    ) : (
+                      <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : null}
         </View>
 
         {generatedRecipe ? (
@@ -335,29 +432,55 @@ const styles = StyleSheet.create({
   sectionLabel: {
     ...Typography.sectionLabel,
   },
-  input: {
-    backgroundColor: Colors.inputBackground,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    fontSize: 16,
-    color: Colors.text,
-  },
-  lookupButton: {
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: Spacing.sm,
-    minHeight: 50,
-    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.md,
+    minHeight: 48,
   },
-  lookupButtonText: {
-    ...Typography.label,
-    color: Colors.white,
+  searchInput: {
+    flex: 1,
     fontSize: 16,
+    color: Colors.text,
+    paddingVertical: Spacing.sm,
+  },
+  searchNote: {
+    ...Typography.caption,
+  },
+  resultsList: {
+    gap: Spacing.sm,
+  },
+  resultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    padding: Spacing.sm,
+  },
+  resultThumb: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.sm,
+  },
+  resultThumbFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resultText: {
+    flex: 1,
+    gap: 2,
+  },
+  resultTitle: {
+    ...Typography.label,
+    fontSize: 14,
+    color: Colors.text,
+  },
+  resultMeta: {
+    ...Typography.caption,
   },
   disabledButton: {
     opacity: 0.55,

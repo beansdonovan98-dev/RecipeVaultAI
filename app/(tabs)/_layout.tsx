@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 export default function TabLayout() {
-  const { fontFamily, fontColor, theme } = useAppearance();
+  const { fontFamily, theme } = useAppearance();
   const member = useMember();
   const { config } = useRoomConfig();
   const partner = usePartnerPresence(config, member);
@@ -29,7 +29,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: fontColor,
+        tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
         tabBarStyle: {
           backgroundColor: theme.card,
@@ -47,13 +47,13 @@ export default function TabLayout() {
         headerStyle: {
           backgroundColor: theme.background,
         },
-        headerTintColor: fontColor,
+        headerTintColor: theme.primary,
         headerTitleAlign: 'center',
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 20,
           fontFamily,
-          color: fontColor,
+          color: theme.text,
         },
         headerShadowVisible: false,
       }}

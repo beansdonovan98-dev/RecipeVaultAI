@@ -31,7 +31,10 @@ export function AppText({ style, ...props }: TextProps) {
   );
 }
 
-export function AppTextInput({ style, ...props }: TextInputProps) {
+export const AppTextInput = React.forwardRef<RNTextInput, TextInputProps>(function AppTextInput(
+  { style, ...props },
+  ref
+) {
   const { fontFamily, fontColor } = useAppearance();
   const flattened = StyleSheet.flatten(style);
   const useCustomColor = shouldUseCustomColor(flattened?.color);
@@ -39,6 +42,7 @@ export function AppTextInput({ style, ...props }: TextInputProps) {
 
   return (
     <RNTextInput
+      ref={ref}
       {...props}
       style={[
         style,
@@ -47,4 +51,4 @@ export function AppTextInput({ style, ...props }: TextInputProps) {
       ]}
     />
   );
-}
+});

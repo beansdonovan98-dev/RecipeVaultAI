@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useRef } from 'react';
+import { StyleSheet, TouchableOpacity, View, type TextInput as RNTextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/theme';
@@ -27,11 +27,16 @@ export function InstructionEditor({
   placeholder,
 }: InstructionEditorProps) {
   const { theme } = useAppearance();
-  const [selection, setSelection] = useState<TextSelection>({ start: 0, end: 0 });
+  const inputRef = useRef<RNTextInput>(null);
+  const selectionRef = useRef<TextSelection>({ start: 0, end: 0 });
 
   const applyFormat = (result: FormatResult) => {
     onChangeText(result.text);
-    setSelection(result.selection);
+    selectionRef.current = result.selection;
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.setNativeProps({ selection: result.selection });
+    });
   };
 
   return (
@@ -41,14 +46,16 @@ export function InstructionEditor({
           {index + 1}
         </Text>
         <TextInput
+          ref={inputRef}
           style={[
             styles.input,
             { backgroundColor: theme.inputBackground, borderColor: theme.borderLight },
           ]}
           value={value}
           onChangeText={onChangeText}
-          onSelectionChange={(event) => setSelection(event.nativeEvent.selection)}
-          selection={selection}
+          onSelectionChange={(event) => {
+            selectionRef.current = event.nativeEvent.selection;
+          }}
           placeholder={placeholder}
           placeholderTextColor={theme.textMuted}
           multiline
@@ -60,7 +67,7 @@ export function InstructionEditor({
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={styles.toolButton}
-          onPress={() => applyFormat(applyBullet(value, selection))}
+          onPressIn={() => applyFormat(applyBullet(value, selectionRef.current))}
           accessibilityRole="button"
           accessibilityLabel="Toggle bullet point"
         >
@@ -68,7 +75,7 @@ export function InstructionEditor({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.toolButton}
-          onPress={() => applyFormat(wrapSelection(value, selection, '**', 'bold'))}
+          onPressIn={() => applyFormat(wrapSelection(value, selectionRef.current, '**', 'bold'))}
           accessibilityRole="button"
           accessibilityLabel="Bold selected text"
         >
@@ -76,7 +83,7 @@ export function InstructionEditor({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.toolButton}
-          onPress={() => applyFormat(wrapSelection(value, selection, '__', 'underline'))}
+          onPressIn={() => applyFormat(wrapSelection(value, selectionRef.current, '__', 'underline'))}
           accessibilityRole="button"
           accessibilityLabel="Underline selected text"
         >
