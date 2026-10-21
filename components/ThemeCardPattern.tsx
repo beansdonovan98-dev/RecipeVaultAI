@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, type DimensionValue, type ViewStyle } from 'react-native';
+import { Image, StyleSheet, View, type DimensionValue, type ViewStyle } from 'react-native';
 import type { CardPattern, ThemePalette } from '@/constants/themes';
 
 export type ThemeCardPatternKind = CardPattern;
@@ -11,13 +11,6 @@ interface ThemeCardPatternProps {
 
 interface PatternProps {
   palette: ThemePalette;
-}
-
-interface CloudProps {
-  color: string;
-  width: number;
-  height: number;
-  style?: ViewStyle;
 }
 
 function parseHex(hex: string): [number, number, number] {
@@ -43,97 +36,6 @@ function mixHex(color: string, base: string, weight: number): string {
 /** Softens a palette color toward the card so text stays readable on top. */
 function tint(palette: ThemePalette, color: string, weight: number): string {
   return mixHex(color, palette.card, weight);
-}
-
-/* ------------------------------------------------------------------ */
-/* Shapes                                                              */
-/* ------------------------------------------------------------------ */
-
-/**
- * A wide three-lobed cloud built from circles and a rounded base. Drawn twice
- * (larger ink layer behind a color fill) to read as a screen-printed outline.
- */
-function Cloud({ color, width, height, style }: CloudProps) {
-  const baseHeight = height * 0.52;
-  const leftSize = width * 0.34;
-  const middleSize = width * 0.44;
-  const rightSize = width * 0.3;
-
-  return (
-    <View style={[{ width, height }, style]}>
-      <View
-        style={{
-          position: 'absolute',
-          left: width * 0.08,
-          top: Math.max(height - baseHeight - leftSize * 0.5, 0),
-          width: leftSize,
-          height: leftSize,
-          borderRadius: leftSize / 2,
-          backgroundColor: color,
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          left: width * 0.29,
-          top: Math.max(height - baseHeight - middleSize * 0.55, 0),
-          width: middleSize,
-          height: middleSize,
-          borderRadius: middleSize / 2,
-          backgroundColor: color,
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          left: width * 0.64,
-          top: Math.max(height - baseHeight - rightSize * 0.45, 0),
-          width: rightSize,
-          height: rightSize,
-          borderRadius: rightSize / 2,
-          backgroundColor: color,
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          left: 0,
-          bottom: 0,
-          width: '100%',
-          height: baseHeight,
-          borderRadius: baseHeight / 2,
-          backgroundColor: color,
-        }}
-      />
-    </View>
-  );
-}
-
-interface CloudClusterProps {
-  palette: ThemePalette;
-  /** 0-1: how strongly the cloud picks up its red fill and ink outline. */
-  strength: number;
-  width: number;
-  height: number;
-  rotate: string;
-  style: ViewStyle;
-}
-
-function CloudCluster({ palette, strength, width, height, rotate, style }: CloudClusterProps) {
-  const fill = tint(palette, palette.accent, strength);
-  const ink = tint(palette, palette.border, Math.min(strength * 1.5, 0.92));
-
-  return (
-    <View style={[style, { width, height, transform: [{ rotate }] }]}>
-      <Cloud
-        color={ink}
-        width={width + 6}
-        height={height + 6}
-        style={{ position: 'absolute', left: -3, top: -3 }}
-      />
-      <Cloud color={fill} width={width} height={height} />
-    </View>
-  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -763,41 +665,65 @@ function GridPattern({ palette }: PatternProps) {
   );
 }
 
-/** Shinobi: black-rimmed red clouds across the card. */
-function CloudsPattern({ palette }: PatternProps) {
+/**
+ * Shinobi: Akatsuki-style red clouds with a cream rim and dark keyline.
+ * The emblem is a baked PNG (silhouette from the public-domain CC0
+ * "Akatsuki clouds" artwork) so we get the exact cloud-with-curls shape
+ * without adding an SVG renderer.
+ */
+function CloudsPattern(_props: PatternProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
-      <CloudCluster
-        palette={palette}
-        strength={0.55}
-        width={150}
-        height={72}
-        rotate="-10deg"
-        style={{ position: 'absolute', top: '24%', right: -38 }}
+      <Image
+        source={require('../assets/theme-cloud.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: '22%',
+          right: -44,
+          width: 156,
+          height: 105,
+          transform: [{ rotate: '-8deg' }],
+        }}
       />
-      <CloudCluster
-        palette={palette}
-        strength={0.45}
-        width={122}
-        height={60}
-        rotate="7deg"
-        style={{ position: 'absolute', bottom: -16, left: -30 }}
+      <Image
+        source={require('../assets/theme-cloud.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          bottom: -20,
+          left: -30,
+          width: 118,
+          height: 80,
+          opacity: 0.9,
+          transform: [{ rotate: '7deg' }],
+        }}
       />
-      <CloudCluster
-        palette={palette}
-        strength={0.25}
-        width={86}
-        height={42}
-        rotate="5deg"
-        style={{ position: 'absolute', top: 2, left: -22 }}
+      <Image
+        source={require('../assets/theme-cloud.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: -24,
+          width: 86,
+          height: 58,
+          opacity: 0.7,
+          transform: [{ rotate: '4deg' }],
+        }}
       />
-      <CloudCluster
-        palette={palette}
-        strength={0.32}
-        width={88}
-        height={44}
-        rotate="-4deg"
-        style={{ position: 'absolute', top: '60%', left: '38%' }}
+      <Image
+        source={require('../assets/theme-cloud.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: '62%',
+          left: '42%',
+          width: 84,
+          height: 57,
+          opacity: 0.8,
+          transform: [{ rotate: '-6deg' }],
+        }}
       />
     </View>
   );

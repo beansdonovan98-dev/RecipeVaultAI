@@ -594,7 +594,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'shinobi',
     label: 'Shinobi',
-    description: 'Ninja orange with red cloud-print cards',
+    description: 'Ninja orange with spiraled red cloud cards',
     colors: SHINOBI,
     design: {
       cardRadius: 8,
