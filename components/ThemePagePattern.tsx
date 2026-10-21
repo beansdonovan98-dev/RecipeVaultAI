@@ -1,8 +1,20 @@
 import React from 'react';
 import { Image, StyleSheet, View, type DimensionValue } from 'react-native';
 import { ThemeCardPattern } from '@/components/ThemeCardPattern';
+import { PAGE_MOTIFS } from '@/components/ThemePageMotifs';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import type { CardPattern } from '@/constants/themes';
+
+/** How strong each hand-drawn page motif is; dark themes need more. */
+const MOTIF_OPACITY: Partial<Record<CardPattern, number>> = {
+  halftone: 0.7,
+  stripes: 0.72,
+  stars: 1,
+  bubbles: 0.78,
+  dots: 0.68,
+  sprigs: 0.82,
+  embers: 0.92,
+};
 
 /** Patterns that already fill their space, so one faint layer is plenty. */
 const DENSE_PATTERNS: CardPattern[] = ['checks', 'halftone', 'stripes', 'dots', 'rules', 'grid'];
@@ -68,6 +80,8 @@ export function ThemePagePattern({ opacity }: ThemePagePatternProps) {
     return null;
   }
 
+  const pagePalette = { ...theme, card: theme.background };
+
   if (pattern === 'clouds') {
     return (
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.clip, { opacity: opacity ?? 0.62 }]}>
@@ -116,9 +130,24 @@ export function ThemePagePattern({ opacity }: ThemePagePatternProps) {
     );
   }
 
+  const Motif = PAGE_MOTIFS[pattern];
+  if (Motif) {
+    return (
+      <View
+        pointerEvents="none"
+        style={[
+          StyleSheet.absoluteFill,
+          styles.clip,
+          { opacity: opacity ?? MOTIF_OPACITY[pattern] ?? 0.7 },
+        ]}
+      >
+        <Motif palette={pagePalette} />
+      </View>
+    );
+  }
+
   const dense = DENSE_PATTERNS.includes(pattern);
   const baseOpacity = opacity ?? (dense ? 0.24 : 0.46);
-  const pagePalette = { ...theme, card: theme.background };
 
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.clip]}>
