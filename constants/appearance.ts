@@ -1,4 +1,14 @@
-export type FontKey = 'system' | 'serif' | 'rounded' | 'mono' | 'elegant';
+export type FontKey =
+  | 'system'
+  | 'serif'
+  | 'rounded'
+  | 'mono'
+  | 'elegant'
+  | 'condensed'
+  | 'geometric'
+  | 'editorial'
+  | 'slab'
+  | 'handwritten';
 
 export interface FontOption {
   id: FontKey;
@@ -47,6 +57,40 @@ export const FONT_OPTIONS: FontOption[] = [
     label: 'Typewriter',
     description: 'Cozy typewriter feel',
     families: { ios: 'Courier New', android: 'monospace', default: 'monospace' },
+  },
+  {
+    id: 'condensed',
+    label: 'Condensed',
+    description: 'Tall poster headlines',
+    families: {
+      ios: 'HelveticaNeue-CondensedBold',
+      android: 'sans-serif-condensed',
+      default: 'sans-serif-condensed',
+    },
+  },
+  {
+    id: 'geometric',
+    label: 'Geometric',
+    description: 'Clean Futura shapes',
+    families: { ios: 'Futura', android: 'sans-serif-medium', default: 'sans-serif' },
+  },
+  {
+    id: 'editorial',
+    label: 'Editorial',
+    description: 'High-contrast Baskerville',
+    families: { ios: 'Baskerville', android: 'serif', default: 'serif' },
+  },
+  {
+    id: 'slab',
+    label: 'Slab',
+    description: 'Sturdy Rockwell serif',
+    families: { ios: 'Rockwell', android: 'serif', default: 'serif' },
+  },
+  {
+    id: 'handwritten',
+    label: 'Handwritten',
+    description: 'Casual kitchen notes',
+    families: { ios: 'Bradley Hand', android: 'casual', default: 'cursive' },
   },
 ];
 

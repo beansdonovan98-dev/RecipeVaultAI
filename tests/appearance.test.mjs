@@ -20,10 +20,24 @@ import {
 test('font and color options are valid', () => {
   assert.equal(isFontKey('system'), true);
   assert.equal(isFontKey('serif'), true);
+  assert.equal(isFontKey('handwritten'), true);
+  assert.equal(isFontKey('condensed'), true);
   assert.equal(isFontKey('comic'), false);
   assert.equal(isFontKey(null), false);
-  assert.ok(FONT_OPTIONS.length >= 2);
+  assert.ok(FONT_OPTIONS.length >= 8);
   assert.ok(FONT_COLORS.some((option) => option.value === DEFAULT_FONT_COLOR));
+
+  const fontIds = new Set();
+  for (const option of FONT_OPTIONS) {
+    assert.equal(fontIds.has(option.id), false, `duplicate font id: ${option.id}`);
+    fontIds.add(option.id);
+    assert.ok(option.label.length > 0);
+    assert.ok(option.description.length > 0);
+    assert.ok(
+      Object.keys(option.families).length > 0 || option.id === 'system',
+      `${option.id} needs a font family`
+    );
+  }
 });
 
 test('theme presets are valid and complete', () => {
@@ -44,8 +58,15 @@ test('theme presets are valid and complete', () => {
     assert.ok(option.design.cardRadius > 0, `${option.id} needs a card radius`);
     assert.ok(option.design.cardBorderWidth >= 0, `${option.id} needs a border width`);
     assert.ok(['soft', 'hard', 'none'].includes(option.design.cardShadow));
-    assert.ok(['sans', 'serif', 'mono', 'rounded'].includes(option.design.displayFont));
+    assert.ok(['sans', 'serif', 'mono', 'rounded', 'condensed'].includes(option.design.displayFont));
+    assert.ok(
+      option.design.cardPattern === undefined || option.design.cardPattern === 'clouds',
+      `${option.id} uses a known card pattern`
+    );
   }
+
+  const shinobi = THEME_OPTIONS.find((option) => option.id === 'shinobi');
+  assert.equal(shinobi?.design.cardPattern, 'clouds');
 });
 
 test('hex colors are validated and normalized', () => {

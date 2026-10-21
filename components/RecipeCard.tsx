@@ -8,6 +8,7 @@ import { getCategoryInfo } from '@/constants/categories';
 import { getAuthorLabel } from '@/constants/authors';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { themeCardStyle } from '@/constants/themes';
+import { ThemeCardPattern } from '@/components/ThemeCardPattern';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -105,6 +106,19 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
       )}
 
       <View style={styles.content}>
+        <View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              overflow: 'hidden',
+              borderBottomLeftRadius: imageRadius,
+              borderBottomRightRadius: imageRadius,
+            },
+          ]}
+        >
+          <ThemeCardPattern pattern={design.cardPattern} palette={theme} />
+        </View>
         <View style={styles.header}>
           <View style={styles.tagRow}>
             {tags.slice(0, 3).map((tag) => {

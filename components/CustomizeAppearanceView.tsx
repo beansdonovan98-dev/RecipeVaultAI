@@ -167,7 +167,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
               <TouchableOpacity
                 key={option.id}
                 style={[
-                  styles.themeCard,
+                  styles.themeTile,
                   {
                     backgroundColor: option.colors.background,
                     borderColor: selected ? option.colors.accent : option.colors.borderLight,
@@ -182,12 +182,12 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
               >
                 <View
                   style={[
-                    styles.themePreviewCard,
+                    styles.themeTilePreview,
                     {
                       backgroundColor: option.colors.card,
                       borderColor: previewCard.borderColor,
                       borderWidth: previewCard.borderWidth,
-                      borderRadius: Math.min(previewCard.borderRadius, 14),
+                      borderRadius: Math.min(previewCard.borderRadius, 12),
                       shadowColor:
                         option.design.cardShadow === 'hard'
                           ? option.colors.border
@@ -206,7 +206,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
                     style={{
                       fontFamily: previewFont,
                       color: option.colors.text,
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: '700',
                     }}
                   >
@@ -221,40 +221,44 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
                   <View
                     style={[
                       styles.themePreviewLine,
-                      { backgroundColor: option.colors.accent, width: '45%', height: 3 },
+                      { backgroundColor: option.colors.accent, width: '40%', height: 3 },
                     ]}
                   />
                 </View>
-                <View style={styles.themeCardText}>
-                  <Text style={[styles.themeLabel, { color: option.colors.text }]}>
+
+                <View style={styles.themeTileRow}>
+                  <Text
+                    style={[styles.themeTileLabel, { color: option.colors.text }]}
+                    numberOfLines={1}
+                  >
                     {option.label}
                   </Text>
-                  <Text
-                    style={[styles.themeDescription, { color: option.colors.textSecondary }]}
-                    numberOfLines={2}
-                  >
-                    {option.description}
-                  </Text>
-                  <View style={styles.themeSwatches}>
-                    {[
-                      option.colors.primary,
-                      option.colors.accent,
-                      option.colors.background,
-                      option.colors.card,
-                    ].map((swatch, swatchIndex) => (
-                      <View
-                        key={`${option.id}-swatch-${swatchIndex}`}
-                        style={[
-                          styles.themeSwatch,
-                          { backgroundColor: swatch, borderColor: option.colors.borderLight },
-                        ]}
-                      />
-                    ))}
-                  </View>
+                  {selected ? (
+                    <Ionicons name="checkmark-circle" size={14} color={option.colors.accent} />
+                  ) : null}
                 </View>
-                {selected ? (
-                  <Ionicons name="checkmark-circle" size={20} color={option.colors.accent} />
-                ) : null}
+                <Text
+                  style={[styles.themeTileDescription, { color: option.colors.textSecondary }]}
+                  numberOfLines={2}
+                >
+                  {option.description}
+                </Text>
+                <View style={styles.themeSwatches}>
+                  {[
+                    option.colors.primary,
+                    option.colors.accent,
+                    option.colors.background,
+                    option.colors.card,
+                  ].map((swatch, swatchIndex) => (
+                    <View
+                      key={`${option.id}-swatch-${swatchIndex}`}
+                      style={[
+                        styles.themeSwatch,
+                        { backgroundColor: swatch, borderColor: option.colors.borderLight },
+                      ]}
+                    />
+                  ))}
+                </View>
               </TouchableOpacity>
             );
           })}
@@ -693,22 +697,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   themeGrid: {
-    gap: Spacing.sm,
-  },
-  themeCard: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    borderRadius: BorderRadius.md,
-    borderWidth: 2,
-    padding: Spacing.sm,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: Spacing.sm,
   },
-  themePreviewCard: {
-    width: 86,
-    height: 64,
-    padding: 8,
-    justifyContent: 'center',
+  themeTile: {
+    width: '48%',
+    padding: Spacing.sm,
+    borderWidth: 2,
     gap: 4,
+  },
+  themeTilePreview: {
+    height: 58,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    gap: 3,
   },
   themePreviewLine: {
     height: 4,
@@ -717,7 +721,7 @@ const styles = StyleSheet.create({
   themeSwatches: {
     flexDirection: 'row',
     gap: 4,
-    marginTop: 4,
+    marginTop: 2,
   },
   themeSwatch: {
     width: 12,
@@ -725,16 +729,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
   },
-  themeCardText: {
-    flex: 1,
-    gap: 2,
+  themeTileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
   },
-  themeLabel: {
+  themeTileLabel: {
     ...Typography.label,
-    fontSize: 14,
+    fontSize: 12,
+    flexShrink: 1,
   },
-  themeDescription: {
+  themeTileDescription: {
     ...Typography.caption,
+    fontSize: 10,
+    lineHeight: 13,
+    minHeight: 26,
   },
   fontGrid: {
     gap: Spacing.sm,

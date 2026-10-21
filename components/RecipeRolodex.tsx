@@ -20,6 +20,7 @@ import type { Recipe } from '@/types/recipe';
 import type { Category } from '@/types/recipe';
 import type { ThemePalette } from '@/constants/themes';
 import { themeCardStyle } from '@/constants/themes';
+import { ThemeCardPattern, type ThemeCardPatternKind } from '@/components/ThemeCardPattern';
 
 interface RecipeRolodexProps {
   recipes: Recipe[];
@@ -119,6 +120,7 @@ export function RecipeRolodex({ recipes, onOpen, onToggleFavorite }: RecipeRolod
             theme={theme}
             compact={cardHeight < 380}
             displayFamily={displayFamily}
+            pattern={design.cardPattern}
             cardRadius={Math.max(cardTokens.borderRadius - cardTokens.borderWidth, 0)}
             onOpen={() => onOpen(item)}
             onToggleFavorite={() => onToggleFavorite(item)}
@@ -247,6 +249,7 @@ interface RolodexCardProps {
   theme: ThemePalette;
   compact: boolean;
   displayFamily?: string;
+  pattern?: ThemeCardPatternKind;
   cardRadius: number;
   onOpen: () => void;
   onToggleFavorite: () => void;
@@ -257,6 +260,7 @@ function RolodexCard({
   theme,
   compact,
   displayFamily,
+  pattern,
   cardRadius,
   onOpen,
   onToggleFavorite,
@@ -314,6 +318,7 @@ function RolodexCard({
       </View>
 
       <View style={styles.body}>
+        <ThemeCardPattern pattern={pattern} palette={theme} />
         <View style={[styles.accentStrip, { backgroundColor: category.color }]} />
         <View style={styles.tagRow}>
           {tags.map((tag) => (

@@ -281,7 +281,7 @@ begin
     raise exception 'Unknown setting';
   end if;
 
-  if v_key = 'app_font_key' and v_value not in ('system', 'serif', 'rounded', 'mono', 'elegant') then
+  if v_key = 'app_font_key' and v_value not in ('system', 'serif', 'rounded', 'mono', 'elegant', 'condensed', 'geometric', 'editorial', 'slab', 'handwritten') then
     raise exception 'Invalid font key';
   end if;
 
@@ -289,7 +289,7 @@ begin
     raise exception 'Invalid font color';
   end if;
 
-  if v_key = 'app_theme_key' and v_value not in ('taverna', 'riso', 'diner', 'midnight', 'seaglass', 'butter') then
+  if v_key = 'app_theme_key' and v_value not in ('taverna', 'riso', 'diner', 'midnight', 'seaglass', 'butter', 'newsprint', 'citrus', 'lavender', 'sakura', 'ember', 'blueprint', 'shinobi') then
     raise exception 'Invalid theme key';
   end if;
 
@@ -303,7 +303,7 @@ begin
 
   if v_key = 'app_assistant_background'
      and v_value <> ''
-     and v_value !~ '^https://[^[:space:]]{1,400}$' then
+     and (char_length(v_value) > 400 or v_value !~ '^https://[^[:space:]]+$') then
     raise exception 'Invalid assistant background';
   end if;
 
