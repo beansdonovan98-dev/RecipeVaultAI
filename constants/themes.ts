@@ -47,12 +47,12 @@ export type DisplayFontKey = 'sans' | 'serif' | 'mono' | 'rounded' | 'condensed'
 
 /** Optional decorative wallpaper drawn inside recipe cards. */
 export type CardPattern =
-  | 'checks'
-  | 'halftone'
+  | 'olive'
+  | 'riso'
   | 'stripes'
   | 'stars'
   | 'bubbles'
-  | 'dots'
+  | 'cookies'
   | 'rules'
   | 'slices'
   | 'sprigs'
@@ -123,29 +123,29 @@ const TAVERNA: ThemePalette = {
 };
 
 const RISO: ThemePalette = {
-  background: '#FFF1DE',
-  card: '#FFFBF4',
-  primary: '#1A1614',
-  primaryLight: '#332B26',
-  secondary: '#4A4038',
-  accent: '#FF4B2B',
-  accentLight: '#FF7A5C',
-  tipBackground: '#FFE2A8',
-  tipBorder: '#1A1614',
-  border: '#1A1614',
-  borderLight: '#E8D6BE',
-  text: '#1A1614',
-  textSecondary: '#4A4038',
-  textMuted: '#8A7A68',
+  background: '#F3EFE6',
+  card: '#FFFDF7',
+  primary: '#1D3FBF',
+  primaryLight: '#3A5BE0',
+  secondary: '#5A5F7A',
+  accent: '#FF4D9D',
+  accentLight: '#FF7DB8',
+  tipBackground: '#FFE45C',
+  tipBorder: '#1D3FBF',
+  border: '#1D3FBF',
+  borderLight: '#DAD3C5',
+  text: '#131A3A',
+  textSecondary: '#4B5170',
+  textMuted: '#8A8FA8',
   white: '#FFFFFF',
   error: '#D92D20',
   success: '#1F7A45',
   warning: '#C77700',
-  heart: '#FF4B2B',
-  heartEmpty: '#D9C6AE',
-  inputBackground: '#FFF4E4',
-  shadow: 'rgba(26, 22, 20, 0.9)',
-  overlay: 'rgba(26, 22, 20, 0.55)',
+  heart: '#FF4D9D',
+  heartEmpty: '#D9D2C3',
+  inputBackground: '#FAF6EC',
+  shadow: 'rgba(29, 63, 191, 0.22)',
+  overlay: 'rgba(19, 26, 58, 0.55)',
 };
 
 const DINER: ThemePalette = {
@@ -227,29 +227,29 @@ const SEAGLASS: ThemePalette = {
 };
 
 const BUTTER: ThemePalette = {
-  background: '#FBEACB',
-  card: '#FFFDF7',
-  primary: '#4A2C1E',
-  primaryLight: '#6B4230',
-  secondary: '#7A5C48',
-  accent: '#E4572E',
-  accentLight: '#F07C57',
-  tipBackground: '#FDE7B8',
-  tipBorder: '#4A2C1E',
-  border: '#4A2C1E',
-  borderLight: '#EFD9AE',
-  text: '#3A2216',
-  textSecondary: '#7A5C48',
-  textMuted: '#A08872',
+  background: '#FFF2CC',
+  card: '#FFFDF6',
+  primary: '#3F2417',
+  primaryLight: '#5C3825',
+  secondary: '#8A6A55',
+  accent: '#D6336C',
+  accentLight: '#F06292',
+  tipBackground: '#FFE1EA',
+  tipBorder: '#3F2417',
+  border: '#3F2417',
+  borderLight: '#EAD6A8',
+  text: '#2E1A10',
+  textSecondary: '#6B4C3A',
+  textMuted: '#A08674',
   white: '#FFFFFF',
   error: '#B3261E',
   success: '#2F7A46',
   warning: '#B26B00',
-  heart: '#D14343',
+  heart: '#D6336C',
   heartEmpty: '#DCC49B',
-  inputBackground: '#FFF7E6',
-  shadow: 'rgba(74, 44, 30, 0.16)',
-  overlay: 'rgba(58, 34, 22, 0.55)',
+  inputBackground: '#FFF8E3',
+  shadow: 'rgba(63, 36, 23, 0.18)',
+  overlay: 'rgba(46, 26, 16, 0.55)',
 };
 
 const NEWSPRINT: ThemePalette = {
@@ -438,33 +438,33 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'taverna',
     label: 'Taverna',
-    description: 'Parchment and terracotta with a checked tablecloth corner',
+    description: 'Parchment and terracotta strewn with olive branches',
     colors: TAVERNA,
     design: {
       cardRadius: 14,
       cardBorderWidth: 1,
       cardShadow: 'soft',
       displayFont: 'serif',
-      cardPattern: 'checks',
+      cardPattern: 'olive',
     },
   },
   {
     id: 'riso',
     label: 'Riso Pop',
-    description: 'Screen-printed cream, tomato ink, and halftone dots',
+    description: 'Risograph blue, fluorescent pink, and warm paper',
     colors: RISO,
     design: {
       cardRadius: 12,
       cardBorderWidth: 2,
       cardShadow: 'hard',
       displayFont: 'sans',
-      cardPattern: 'halftone',
+      cardPattern: 'riso',
     },
   },
   {
     id: 'diner',
     label: 'Night Diner',
-    description: 'Neon pink and mint with late-night awning stripes',
+    description: 'Neon pink and mint with a checkerboard counter after midnight',
     colors: DINER,
     design: {
       cardRadius: 6,
@@ -477,7 +477,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'midnight',
     label: 'Midnight Brass',
-    description: 'Deep navy and brass with a dusting of stars',
+    description: 'Deep navy and brass with constellations and a ringed planet',
     colors: MIDNIGHT,
     design: {
       cardRadius: 18,
@@ -490,7 +490,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'seaglass',
     label: 'Sea Glass',
-    description: 'Airy mint and coral with drifting bubbles',
+    description: 'Sea-glass mint with sand dollars, starfish, and coral shards',
     colors: SEAGLASS,
     design: {
       cardRadius: 24,
@@ -503,20 +503,20 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'butter',
     label: 'Butter & Cocoa',
-    description: 'Bakery yellow and cocoa with polka dots',
+    description: 'Buttercream, cocoa, and raspberry with chocolate-chip cookies',
     colors: BUTTER,
     design: {
       cardRadius: 20,
       cardBorderWidth: 2,
       cardShadow: 'soft',
       displayFont: 'rounded',
-      cardPattern: 'dots',
+      cardPattern: 'cookies',
     },
   },
   {
     id: 'newsprint',
     label: 'Newsprint',
-    description: 'Crisp ink, ruled lines, and sharp square corners',
+    description: 'Ink-black newspaper columns, red stamps, and coffee rings',
     colors: NEWSPRINT,
     design: {
       cardRadius: 4,
@@ -529,7 +529,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'citrus',
     label: 'Citrus Grove',
-    description: 'Lemon light and leafy green with a citrus wheel',
+    description: 'Lemon light with orange, lemon, and lime wheels',
     colors: CITRUS,
     design: {
       cardRadius: 18,
@@ -542,7 +542,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'lavender',
     label: 'Lavender Haze',
-    description: 'Soft violet light with illustrated sprigs',
+    description: 'Soft violet light with lavender sprigs and drifting buds',
     colors: LAVENDER,
     design: {
       cardRadius: 22,
@@ -555,7 +555,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'sakura',
     label: 'Sakura',
-    description: 'Blush pink and rose ink with drifting petals',
+    description: 'Blush pink with a blossoming branch and drifting petals',
     colors: SAKURA,
     design: {
       cardRadius: 24,
@@ -568,7 +568,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'ember',
     label: 'Ember',
-    description: 'Smoldering charcoal and embers rising up the card',
+    description: 'Charcoal and flame with rising embers and smoke trails',
     colors: EMBER,
     design: {
       cardRadius: 12,
@@ -581,7 +581,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'blueprint',
     label: 'Blueprint',
-    description: 'Drafting-table navy with a graph-paper grid',
+    description: 'Drafting-table navy with a full grid and technical marks',
     colors: BLUEPRINT,
     design: {
       cardRadius: 8,

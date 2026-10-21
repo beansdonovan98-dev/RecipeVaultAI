@@ -7,17 +7,22 @@ import type { CardPattern } from '@/constants/themes';
 
 /** How strong each hand-drawn page motif is; dark themes need more. */
 const MOTIF_OPACITY: Partial<Record<CardPattern, number>> = {
-  halftone: 0.7,
-  stripes: 0.72,
+  olive: 0.82,
+  riso: 0.85,
+  stripes: 0.82,
   stars: 1,
-  bubbles: 0.78,
-  dots: 0.68,
-  sprigs: 0.82,
-  embers: 0.92,
+  bubbles: 0.88,
+  cookies: 0.82,
+  rules: 0.9,
+  slices: 0.9,
+  sprigs: 0.9,
+  petals: 0.92,
+  embers: 0.95,
+  grid: 0.88,
 };
 
 /** Patterns that already fill their space, so one faint layer is plenty. */
-const DENSE_PATTERNS: CardPattern[] = ['checks', 'halftone', 'stripes', 'dots', 'rules', 'grid'];
+const DENSE_PATTERNS: CardPattern[] = ['olive', 'riso', 'stripes', 'cookies', 'rules', 'grid'];
 
 interface CloudPlacement {
   top?: DimensionValue;
@@ -37,29 +42,6 @@ const CLOUDS: CloudPlacement[] = [
   { top: '64%', left: '-12%', size: 166, rotate: '12deg', opacity: 0.55 },
   { top: '78%', right: '-16%', size: 146, rotate: '-14deg', opacity: 0.62 },
   { bottom: '2%', left: '30%', size: 124, rotate: '5deg', opacity: 0.42 },
-];
-
-interface PetalPlacement {
-  top: DimensionValue;
-  left: DimensionValue;
-  size: number;
-  rotate: string;
-  opacity: number;
-}
-
-const PETALS: PetalPlacement[] = [
-  { top: '3%', left: '68%', size: 44, rotate: '26deg', opacity: 0.9 },
-  { top: '8%', left: '84%', size: 26, rotate: '-18deg', opacity: 0.7 },
-  { top: '17%', left: '10%', size: 34, rotate: '-42deg', opacity: 0.8 },
-  { top: '26%', left: '46%', size: 22, rotate: '74deg', opacity: 0.55 },
-  { top: '36%', left: '76%', size: 38, rotate: '48deg', opacity: 0.7 },
-  { top: '45%', left: '4%', size: 28, rotate: '14deg', opacity: 0.6 },
-  { top: '53%', left: '38%', size: 20, rotate: '-64deg', opacity: 0.45 },
-  { top: '61%', left: '66%', size: 34, rotate: '118deg', opacity: 0.6 },
-  { top: '71%', left: '12%', size: 24, rotate: '22deg', opacity: 0.55 },
-  { top: '78%', left: '52%', size: 40, rotate: '-32deg', opacity: 0.65 },
-  { top: '86%', left: '28%', size: 18, rotate: '96deg', opacity: 0.4 },
-  { top: '92%', left: '74%', size: 30, rotate: '8deg', opacity: 0.55 },
 ];
 
 interface ThemePagePatternProps {
@@ -100,29 +82,6 @@ export function ThemePagePattern({ opacity }: ThemePagePatternProps) {
               height: cloud.size / 1.482,
               opacity: cloud.opacity,
               transform: [{ rotate: cloud.rotate }],
-            }}
-          />
-        ))}
-      </View>
-    );
-  }
-
-  if (pattern === 'petals') {
-    return (
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.clip, { opacity: opacity ?? 0.66 }]}>
-        {PETALS.map((petal, index) => (
-          <Image
-            key={`page-petal-${index}`}
-            source={require('../assets/theme-petal.png')}
-            resizeMode="contain"
-            style={{
-              position: 'absolute',
-              top: petal.top,
-              left: petal.left,
-              width: petal.size * 0.658,
-              height: petal.size,
-              opacity: petal.opacity,
-              transform: [{ rotate: petal.rotate }],
             }}
           />
         ))}

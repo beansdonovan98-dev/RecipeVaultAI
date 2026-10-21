@@ -58,12 +58,12 @@ test('theme presets are valid and complete', () => {
   assert.ok(THEME_OPTIONS.length >= 3);
 
   const patterns = [
-    'checks',
-    'halftone',
+    'olive',
+    'riso',
     'stripes',
     'stars',
     'bubbles',
-    'dots',
+    'cookies',
     'rules',
     'slices',
     'sprigs',
