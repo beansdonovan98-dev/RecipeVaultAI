@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+import type { ThemePalette } from '@/constants/themes';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { useAssistant } from '@/contexts/AssistantContext';
 import { createRecipeFromChat, type CreatorMessage } from '@/services/recipeCreator';
@@ -31,8 +32,50 @@ interface CreatorTurn {
   text?: string;
   reply?: string;
   recipe?: RecipeInput;
+  /** The request that produced this turn, kept so a failure can be retried. */
+  prompt?: string;
   error?: string;
   loading?: boolean;
+}
+
+function describeCreatorError(error: unknown, name: string): string {
+  if (error instanceof Error) {
+    if (error.name === 'GeminiTimeoutError') {
+      return `${name} took too long to answer. Please try again.`;
+    }
+    if (error.name === 'AbortError') {
+      return 'That request was cancelled. Please try again.';
+    }
+    return error.message;
+  }
+  return 'Could not create that recipe. Please try again.';
+}
+
+/**
+ * The waiting bubble. A recipe can take a while on a busy model, so after a
+ * few seconds it admits that it is still working instead of spinning silently.
+ */
+function CookingBubble({ name, theme }: { name: string; theme: ThemePalette }) {
+  const [patient, setPatient] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setPatient(true), 12000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <View style={[styles.assistantBubble, { backgroundColor: theme.inputBackground }]}>
+      <ActivityIndicator size="small" color={theme.primary} />
+      <View style={styles.thinkingCopy}>
+        <Text style={[styles.thinkingText, { color: theme.textMuted }]}>{name} is cooking…</Text>
+        {patient ? (
+          <Text style={[styles.thinkingText, { color: theme.textMuted }]}>
+            Still cooking — a full recipe can take a minute.
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
 }
 
 interface CreatorScreenProps {
@@ -76,7 +119,7 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
     scrollRef.current?.scrollToEnd({ animated: true });
   }, [turns]);
 
-  const buildHistory = useCallback((current: CreatorTurn[], nextUserText: string): CreatorMessage[] => {
+  const buildHistory = useCallback((current: CreatorTurn[]): CreatorMessage[] => {
     const history: CreatorMessage[] = [];
     for (const turn of current) {
       if (turn.role === 'user' && turn.text) {
@@ -85,54 +128,74 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
         history.push({ role: 'model', content: JSON.stringify(turn.recipe) });
       }
     }
-    history.push({ role: 'user', content: nextUserText });
     return history;
   }, []);
 
-  const handleSend = useCallback(async () => {
+  const sendPrompt = useCallback(
+    async (prompt: string, replaceTurnId?: string) => {
+      if (!prompt || busy) {
+        return;
+      }
+
+      const assistantTurn: CreatorTurn = {
+        id: nextTurnId(),
+        role: 'assistant',
+        loading: true,
+        prompt,
+      };
+      const history: CreatorMessage[] = replaceTurnId
+        ? buildHistory(turns.filter((turn) => turn.id !== replaceTurnId))
+        : [...buildHistory(turns), { role: 'user', content: prompt }];
+
+      setTurns((prev) => {
+        if (replaceTurnId) {
+          return [...prev.filter((turn) => turn.id !== replaceTurnId), assistantTurn];
+        }
+        return [
+          ...prev,
+          { id: nextTurnId(), role: 'user', text: prompt },
+          assistantTurn,
+        ];
+      });
+      setBusy(true);
+
+      try {
+        const { reply, recipe } = await createRecipeFromChat(history, {
+          name: assistantName,
+          instructions: persona.instructions,
+        });
+        setTurns((prev) =>
+          prev.map((turn) =>
+            turn.id === assistantTurn.id ? { ...turn, loading: false, reply, recipe } : turn
+          )
+        );
+      } catch (error) {
+        const aborted = error instanceof Error && error.name === 'AbortError';
+        if (!aborted) {
+          captureException(error, { source: 'aiCreator.generate' });
+        }
+        setTurns((prev) =>
+          prev.map((turn) =>
+            turn.id === assistantTurn.id
+              ? { ...turn, loading: false, error: describeCreatorError(error, assistantName) }
+              : turn
+          )
+        );
+      } finally {
+        setBusy(false);
+      }
+    },
+    [assistantName, buildHistory, busy, persona, turns]
+  );
+
+  const handleSend = useCallback(() => {
     const prompt = input.trim();
     if (!prompt || busy) {
       return;
     }
-
-    const userTurn: CreatorTurn = { id: nextTurnId(), role: 'user', text: prompt };
-    const assistantTurn: CreatorTurn = { id: nextTurnId(), role: 'assistant', loading: true };
-    const history = buildHistory(turns, prompt);
-
-    setTurns((prev) => [...prev, userTurn, assistantTurn]);
     setInput('');
-    setBusy(true);
-
-    try {
-      const { reply, recipe } = await createRecipeFromChat(history, {
-        name: assistantName,
-        instructions: persona.instructions,
-      });
-      setTurns((prev) =>
-        prev.map((turn) =>
-          turn.id === assistantTurn.id ? { ...turn, loading: false, reply, recipe } : turn
-        )
-      );
-    } catch (error) {
-      const aborted = error instanceof Error && error.name === 'AbortError';
-      if (!aborted) {
-        captureException(error, { source: 'aiCreator.generate' });
-      }
-      setTurns((prev) =>
-        prev.map((turn) =>
-          turn.id === assistantTurn.id
-            ? {
-                ...turn,
-                loading: false,
-                error: error instanceof Error ? error.message : 'Could not create that recipe. Please try again.',
-              }
-            : turn
-        )
-      );
-    } finally {
-      setBusy(false);
-    }
-  }, [assistantName, buildHistory, busy, input, persona, turns]);
+    void sendPrompt(prompt);
+  }, [busy, input, sendPrompt]);
 
   const saveAs = useCallback(async (turnId: string, recipe: RecipeInput, author: AuthorId) => {
     try {
@@ -210,23 +273,32 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
     if (turn.loading) {
       return (
         <View key={turn.id} style={styles.assistantRow}>
-          <View style={[styles.assistantBubble, { backgroundColor: theme.inputBackground }]}>
-            <ActivityIndicator size="small" color={theme.primary} />
-            <Text style={[styles.thinkingText, { color: theme.textMuted }]}>
-              {assistantName} is cooking…
-            </Text>
-          </View>
+          <CookingBubble name={assistantName} theme={theme} />
         </View>
       );
     }
 
     if (turn.error) {
+      const retryPrompt = turn.prompt;
       return (
-        <View key={turn.id} style={styles.assistantRow}>
-          <View style={[styles.assistantBubble, { backgroundColor: theme.tipBackground }]}>
+        <View key={turn.id} style={styles.assistantGroup}>
+          <View style={[styles.errorBubble, { backgroundColor: theme.tipBackground }]}>
             <Ionicons name="alert-circle-outline" size={16} color={theme.error} />
             <Text style={[styles.errorText, { color: theme.error }]}>{turn.error}</Text>
           </View>
+          {retryPrompt ? (
+            <TouchableOpacity
+              style={[styles.retryButton, { borderColor: theme.borderLight }]}
+              onPress={() => void sendPrompt(retryPrompt, turn.id)}
+              disabled={busy}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Try again"
+            >
+              <Ionicons name="refresh" size={14} color={theme.primary} />
+              <Text style={[styles.retryText, { color: theme.primary }]}>Try again</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       );
     }
@@ -494,12 +566,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
   },
+  thinkingCopy: {
+    flexShrink: 1,
+  },
   thinkingText: {
     ...Typography.body,
   },
   errorText: {
     ...Typography.bodySmall,
     flexShrink: 1,
+  },
+  errorBubble: {
+    alignSelf: 'flex-start',
+    maxWidth: '88%',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    borderRadius: BorderRadius.lg,
+    borderBottomLeftRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  retryButton: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+  },
+  retryText: {
+    ...Typography.caption,
+    fontWeight: '600',
   },
   recipeCard: {
     width: '100%',

@@ -8,7 +8,18 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
  */
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
 
-const DEFAULT_TIMEOUT_MS = 25000;
+const DEFAULT_TIMEOUT_MS = 60000;
+
+/**
+ * Thrown when a request outlives its timeout, as opposed to the caller
+ * cancelling it. Kept separate so a slow model is not reported as "Aborted".
+ */
+export class GeminiTimeoutError extends Error {
+  constructor(message = 'The assistant took too long to answer. Please try again.') {
+    super(message);
+    this.name = 'GeminiTimeoutError';
+  }
+}
 
 export interface GeminiChatMessage {
   role: 'user' | 'model';
@@ -45,6 +56,8 @@ export interface GeminiGenerateOptions {
   systemInstruction?: string;
   responseMimeType?: 'application/json' | 'text/plain';
   temperature?: number;
+  /** How long to wait before giving up on one request. */
+  timeoutMs?: number;
   signal?: AbortSignal;
 }
 
@@ -123,6 +136,11 @@ function shouldRetry(error: unknown, signal?: AbortSignal): boolean {
   if (signal?.aborted) {
     return false;
   }
+  // A slow model should not be retried on another model: that just makes the
+  // user wait longer for the same answer.
+  if (error instanceof GeminiTimeoutError) {
+    return false;
+  }
   return !(error instanceof Error && error.name === 'AbortError');
 }
 
@@ -139,7 +157,11 @@ export async function geminiGenerateText(
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const onAbort = () => controller.abort();
   options.signal?.addEventListener('abort', onAbort);
 
@@ -181,6 +203,11 @@ export async function geminiGenerateText(
       throw new Error('Gemini returned an empty response.');
     }
     return text;
+  } catch (error) {
+    if (timedOut && !options.signal?.aborted) {
+      throw new GeminiTimeoutError();
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener('abort', onAbort);

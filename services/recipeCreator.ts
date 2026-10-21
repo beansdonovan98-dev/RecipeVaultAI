@@ -262,6 +262,8 @@ export async function createRecipeFromChat(
     systemInstruction: buildCreatorSystemPrompt(persona),
     responseMimeType: 'application/json',
     temperature: 0.65,
+    // A full recipe plus a personality line can take a while on a busy day.
+    timeoutMs: 90000,
     signal,
   });
 
