@@ -8,7 +8,14 @@ import {
   normalizeRecipe,
   toGeminiMessages,
 } from '../services/recipeCreator.ts';
-import { rankGeminiModels } from '../services/gemini.ts';
+import {
+  buildInteractionInput,
+  DEFAULT_GEMINI_MODEL,
+  extractInteractionText,
+  getGeminiModel,
+  getGeminiModels,
+  rankGeminiModels,
+} from '../services/gemini.ts';
 import {
   ASSISTANT_PERSONAS,
   DEFAULT_ASSISTANT_NAME,
@@ -218,7 +225,79 @@ test('rankGeminiModels prefers newest general-purpose flash models', () => {
   ]);
 });
 
+test('rankGeminiModels understands the zero-padded 3.8 id from the deprecation notice', () => {
+  assert.deepEqual(rankGeminiModels(['gemini-2.5-flash', 'gemini-03.8-flash']), [
+    'gemini-03.8-flash',
+    'gemini-2.5-flash',
+  ]);
+});
+
+test('model selection strips the models/ prefix and keeps the default first', () => {
+  const previous = process.env.EXPO_PUBLIC_GEMINI_MODEL;
+  try {
+    delete process.env.EXPO_PUBLIC_GEMINI_MODEL;
+    assert.equal(getGeminiModel(), DEFAULT_GEMINI_MODEL);
+    assert.equal(getGeminiModels()[0], DEFAULT_GEMINI_MODEL);
+
+    process.env.EXPO_PUBLIC_GEMINI_MODEL = 'models/gemini-3.8-flash';
+    assert.equal(getGeminiModel(), 'gemini-3.8-flash');
+    assert.equal(getGeminiModels()[0], 'gemini-3.8-flash');
+  } finally {
+    if (previous === undefined) {
+      delete process.env.EXPO_PUBLIC_GEMINI_MODEL;
+    } else {
+      process.env.EXPO_PUBLIC_GEMINI_MODEL = previous;
+    }
+  }
+});
+
 test('rankGeminiModels handles an empty or unhelpful model list', () => {
   assert.deepEqual(rankGeminiModels([]), []);
   assert.deepEqual(rankGeminiModels(['embedding-001', 'gemini-2.5-pro']), []);
+});
+
+test('extractInteractionText reads the last model output step', () => {
+  assert.equal(
+    extractInteractionText({
+      steps: [
+        { type: 'thought', summary: [{ type: 'text', text: 'thinking' }] },
+        { type: 'user_input', content: [{ type: 'text', text: 'hi' }] },
+        {
+          type: 'model_output',
+          content: [
+            { type: 'text', text: '{"title":' },
+            { type: 'text', text: '"soup"}' },
+          ],
+        },
+        { type: 'model_output', content: [{ type: 'text', text: '{"title":"stew"}' }] },
+      ],
+    }),
+    '{"title":"stew"}',
+  );
+});
+
+test('extractInteractionText handles output_text and plain string content', () => {
+  assert.equal(extractInteractionText({ output_text: 'ready' }), 'ready');
+  assert.equal(extractInteractionText({ steps: [{ type: 'model_output', content: 'plain' }] }), 'plain');
+  assert.equal(extractInteractionText({ steps: [{ type: 'thought' }] }), '');
+  assert.equal(extractInteractionText({ output_text: '   ' }), '');
+  assert.equal(extractInteractionText(null), '');
+  assert.equal(extractInteractionText('nope'), '');
+});
+
+test('buildInteractionInput maps chat roles onto interaction steps', () => {
+  assert.deepEqual(
+    buildInteractionInput([
+      { role: 'user', content: 'chicken curry' },
+      { role: 'model', content: '{"title":"Curry"}' },
+    ]),
+    [
+      { type: 'user_input', content: [{ type: 'text', text: 'chicken curry' }] },
+      { type: 'model_output', content: [{ type: 'text', text: '{"title":"Curry"}' }] },
+    ],
+  );
+});
+
+test('the default model is the one Google points new keys at', () => {
+  assert.equal(DEFAULT_GEMINI_MODEL, 'gemini-3.8-flash');
 });
