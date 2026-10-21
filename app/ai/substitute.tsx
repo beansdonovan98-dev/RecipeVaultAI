@@ -10,12 +10,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AssistantBackdrop } from '@/components/AssistantBackdrop';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
 
 export default function AISubstituteScreen() {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
   const [ingredient, setIngredient] = useState('');
   const [substitutions, setSubstitutions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,8 +55,10 @@ export default function AISubstituteScreen() {
 
   return (
     <ErrorBoundary>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <AssistantBackdrop />
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={styles.scroll}
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.searchSection}>
@@ -93,14 +98,15 @@ export default function AISubstituteScreen() {
         <View style={styles.resultSection}>
           <View style={styles.resultHeader}>
             <Ionicons name="swap-horizontal" size={24} color={theme.accent} />
-            <Text style={styles.resultTitle}>
+            <Text style={[styles.resultTitle, { fontFamily: displayFamily }]}>
               Substitutes for "{ingredient}"
             </Text>
           </View>
           <View
             style={[
               styles.substitutionsList,
-              { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+              cardTokens,
+              { backgroundColor: theme.card },
             ]}
           >
             {substitutions.map((sub, index) => (
@@ -161,6 +167,7 @@ export default function AISubstituteScreen() {
         )}
       </View>
     </ScrollView>
+    </View>
     </ErrorBoundary>
   );
 }
@@ -169,6 +176,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  scroll: {
+    flex: 1,
   },
   scrollContent: {
     padding: Spacing.lg,

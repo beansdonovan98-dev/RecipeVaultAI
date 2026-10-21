@@ -18,6 +18,7 @@ import {
   FONT_OPTIONS,
   isHexColor,
   normalizeHexColor,
+  readableTextColor,
 } from '@/constants/appearance';
 import {
   BorderRadius,
@@ -26,7 +27,7 @@ import {
   Spacing,
   Typography,
 } from '@/constants/theme';
-import { THEME_OPTIONS } from '@/constants/themes';
+import { THEME_OPTIONS, DISPLAY_FONTS, themeCardStyle } from '@/constants/themes';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { useAssistant } from '@/contexts/AssistantContext';
 import {
@@ -39,6 +40,16 @@ interface CustomizeAppearanceViewProps {
   onClose?: () => void;
 }
 
+/**
+ * Some room errors mean the Supabase function is out of date, not that the
+ * photo is bad. Only those should point at settings.sql.
+ */
+function needsSettingsSqlHelp(message: string): boolean {
+  return /unknown setting|invalid assistant background|room not found|could not find the function|schema cache|does not exist/i.test(
+    message
+  );
+}
+
 export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProps) {
   const {
     fontKey,
@@ -46,6 +57,8 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
     fontColor,
     themeKey,
     theme,
+    design,
+    displayFamily,
     setFontKey,
     setFontColor,
     setThemeKey,
@@ -53,6 +66,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
   } = useAppearance();
   const [customColor, setCustomColor] = useState(fontColor);
   const [colorError, setColorError] = useState<string | null>(null);
+  const cardTokens = themeCardStyle(design, theme);
 
   const {
     name: assistantName,
@@ -68,6 +82,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
   const [nameDraft, setNameDraft] = useState(assistantName);
   const [nameSaved, setNameSaved] = useState(false);
   const [pickingBackground, setPickingBackground] = useState(false);
+  const [retryingShare, setRetryingShare] = useState(false);
 
   useEffect(() => {
     setCustomColor(fontColor);
@@ -102,6 +117,18 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
     }
   };
 
+  const retrySharingBackground = async () => {
+    if (!backgroundUri) {
+      return;
+    }
+    setRetryingShare(true);
+    try {
+      await setBackground(backgroundUri);
+    } finally {
+      setRetryingShare(false);
+    }
+  };
+
   const applyCustomColor = () => {
     if (!isHexColor(customColor)) {
       setColorError('Use a 6-digit hex color, like #5B3A29.');
@@ -117,53 +144,125 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={[styles.introCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
+      <View style={[styles.introCard, cardTokens, { backgroundColor: theme.card }]}>
         <Ionicons name="color-palette-outline" size={28} color={theme.accent} />
-        <Text style={styles.introTitle}>Make it yours</Text>
+        <Text style={[styles.introTitle, { fontFamily: displayFamily }]}>Make it yours</Text>
         <Text style={styles.introText}>
           Choose a theme, font, and text color, and name the recipe assistant. Your choices are saved
           for both phones in your shared room.
         </Text>
       </View>
 
-      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
-        <Text style={styles.sectionLabel}>Theme</Text>
+      <View style={[styles.sectionCard, cardTokens, { backgroundColor: theme.card }]}>
+        <Text style={[styles.sectionLabel, { fontFamily: displayFamily }]}>Theme</Text>
+        <Text style={[styles.sectionHint, { color: theme.textSecondary }]}>
+          Each theme brings its own heading face, card shape, and shadow — not just colors.
+        </Text>
         <View style={styles.themeGrid}>
           {THEME_OPTIONS.map((option) => {
             const selected = option.id === themeKey;
+            const previewFont = Platform.select(DISPLAY_FONTS[option.design.displayFont]);
+            const previewCard = themeCardStyle(option.design, option.colors);
             return (
               <TouchableOpacity
                 key={option.id}
                 style={[
                   styles.themeCard,
-                  { backgroundColor: option.colors.inputBackground, borderColor: option.colors.borderLight },
-                  selected && { borderColor: option.colors.accent },
+                  {
+                    backgroundColor: option.colors.background,
+                    borderColor: selected ? option.colors.accent : option.colors.borderLight,
+                    borderRadius: Math.max(option.design.cardRadius, 8),
+                  },
                 ]}
                 onPress={() => void setThemeKey(option.id)}
-                activeOpacity={0.8}
+                activeOpacity={0.85}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 accessibilityLabel={`Use ${option.label} theme`}
               >
-                <View style={[styles.themePreview, { backgroundColor: option.colors.background }]}>
-                  <View style={[styles.themePreviewCard, { backgroundColor: option.colors.card }]}>
-                    <View style={[styles.themePreviewLine, { backgroundColor: option.colors.primary }]} />
-                    <View style={[styles.themePreviewLineShort, { backgroundColor: option.colors.accent }]} />
-                  </View>
+                <View
+                  style={[
+                    styles.themePreviewCard,
+                    {
+                      backgroundColor: option.colors.card,
+                      borderColor: previewCard.borderColor,
+                      borderWidth: previewCard.borderWidth,
+                      borderRadius: Math.min(previewCard.borderRadius, 14),
+                      shadowColor:
+                        option.design.cardShadow === 'hard'
+                          ? option.colors.border
+                          : option.colors.shadow,
+                      shadowOpacity: option.design.cardShadow === 'none' ? 0 : 1,
+                      shadowRadius: option.design.cardShadow === 'hard' ? 0 : 6,
+                      shadowOffset:
+                        option.design.cardShadow === 'hard'
+                          ? { width: 3, height: 3 }
+                          : { width: 0, height: 2 },
+                      elevation: option.design.cardShadow === 'none' ? 0 : 3,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      fontFamily: previewFont,
+                      color: option.colors.text,
+                      fontSize: 22,
+                      fontWeight: '700',
+                    }}
+                  >
+                    Aa
+                  </Text>
+                  <View
+                    style={[
+                      styles.themePreviewLine,
+                      { backgroundColor: option.colors.primary, width: '70%' },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.themePreviewLine,
+                      { backgroundColor: option.colors.accent, width: '45%', height: 3 },
+                    ]}
+                  />
                 </View>
                 <View style={styles.themeCardText}>
-                  <Text style={styles.themeLabel}>{option.label}</Text>
-                  <Text style={styles.themeDescription}>{option.description}</Text>
+                  <Text style={[styles.themeLabel, { color: option.colors.text }]}>
+                    {option.label}
+                  </Text>
+                  <Text
+                    style={[styles.themeDescription, { color: option.colors.textSecondary }]}
+                    numberOfLines={2}
+                  >
+                    {option.description}
+                  </Text>
+                  <View style={styles.themeSwatches}>
+                    {[
+                      option.colors.primary,
+                      option.colors.accent,
+                      option.colors.background,
+                      option.colors.card,
+                    ].map((swatch, swatchIndex) => (
+                      <View
+                        key={`${option.id}-swatch-${swatchIndex}`}
+                        style={[
+                          styles.themeSwatch,
+                          { backgroundColor: swatch, borderColor: option.colors.borderLight },
+                        ]}
+                      />
+                    ))}
+                  </View>
                 </View>
-                {selected ? <Ionicons name="checkmark-circle" size={20} color={option.colors.accent} /> : null}
+                {selected ? (
+                  <Ionicons name="checkmark-circle" size={20} color={option.colors.accent} />
+                ) : null}
               </TouchableOpacity>
             );
           })}
         </View>
       </View>
 
-      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
-        <Text style={styles.sectionLabel}>Font</Text>
+      <View style={[styles.sectionCard, cardTokens, { backgroundColor: theme.card }]}>
+        <Text style={[styles.sectionLabel, { fontFamily: displayFamily }]}>Font</Text>
         <View style={styles.fontGrid}>
           {FONT_OPTIONS.map((option) => {
             const selected = option.id === fontKey;
@@ -203,8 +302,11 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         </View>
       </View>
 
-      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
-        <Text style={styles.sectionLabel}>Font color</Text>
+      <View style={[styles.sectionCard, cardTokens, { backgroundColor: theme.card }]}>
+        <Text style={[styles.sectionLabel, { fontFamily: displayFamily }]}>Font color</Text>
+        <Text style={[styles.sectionHint, { color: theme.textSecondary }]}>
+          If a color would disappear on the current theme, the app lightens or darkens it just enough to read.
+        </Text>
         <View style={styles.swatchGrid}>
           {FONT_COLORS.map((option) => {
             const selected = option.value === fontColor;
@@ -266,8 +368,8 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         {colorError ? <Text style={styles.errorText}>{colorError}</Text> : null}
       </View>
 
-      <View style={[styles.sectionCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
-        <Text style={styles.sectionLabel}>Recipe assistant</Text>
+      <View style={[styles.sectionCard, cardTokens, { backgroundColor: theme.card }]}>
+        <Text style={[styles.sectionLabel, { fontFamily: displayFamily }]}>Recipe assistant</Text>
         <Text style={[styles.sectionHint, { color: theme.textSecondary }]}>
           {isShared
             ? 'The name and personality are shared, so you both talk to the same assistant.'
@@ -312,10 +414,15 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
           <Text style={[styles.savedText, { color: theme.success }]}>Saved</Text>
         ) : null}
         {sharedError ? (
-          <Text style={[styles.errorText, { color: theme.error }]}>
-            Saved on this phone only. The shared room rejected it — re-run supabase/settings.sql in
-            Supabase so both phones can share it.
-          </Text>
+          <View style={[styles.sharedErrorBox, { borderColor: theme.error }]}>
+            <Text style={[styles.errorText, { color: theme.error }]}>{sharedError}</Text>
+            <Text style={[styles.sharedErrorHint, { color: theme.textMuted }]}>
+              Saved on this phone only.
+              {needsSettingsSqlHelp(sharedError)
+                ? ' Re-run supabase/settings.sql in the Supabase SQL editor, then try sharing again.'
+                : ''}
+            </Text>
+          </View>
         ) : null}
 
         <View style={styles.personaGrid}>
@@ -355,8 +462,8 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
         <View style={styles.backgroundBlock}>
           <Text style={styles.customColorLabel}>Chat background</Text>
           <Text style={[styles.sectionHint, { color: theme.textSecondary }]}>
-            Shown behind your conversation. Save a picture of your assistant to your photos, then
-            choose it here.
+            Shown behind the assistant chat and all three AI tools. Save a picture of your assistant
+            to your photos, then choose it here.
           </Text>
           <View style={styles.backgroundRow}>
             <View
@@ -402,15 +509,36 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
               ) : null}
             </View>
           </View>
+          {isShared && sharedError && backgroundUri ? (
+            <TouchableOpacity
+              style={[styles.retryShareButton, { borderColor: theme.primary }]}
+              onPress={() => void retrySharingBackground()}
+              activeOpacity={0.8}
+              disabled={retryingShare}
+              accessibilityRole="button"
+              accessibilityLabel="Try sharing the background again"
+            >
+              {retryingShare ? (
+                <ActivityIndicator size="small" color={theme.primary} />
+              ) : (
+                <>
+                  <Ionicons name="share-outline" size={14} color={theme.primary} />
+                  <Text style={[styles.retryShareText, { color: theme.primary }]}>
+                    Try sharing again
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
 
-      <View style={[styles.previewCard, { backgroundColor: theme.card, borderColor: theme.borderLight }]}>
-        <Text style={styles.sectionLabel}>Preview</Text>
-        <RNText style={[styles.previewTitle, { fontFamily, color: fontColor }]}>
+      <View style={[styles.previewCard, cardTokens, { backgroundColor: theme.card }]}>
+        <Text style={[styles.sectionLabel, { fontFamily: displayFamily }]}>Preview</Text>
+        <RNText style={[styles.previewTitle, { fontFamily: displayFamily, color: readableTextColor(fontColor, theme.card, theme.text) }]}>
           Sunday Pot Roast
         </RNText>
-        <RNText style={[styles.previewBody, { fontFamily, color: fontColor }]}>
+        <RNText style={[styles.previewBody, { fontFamily, color: readableTextColor(fontColor, theme.card, theme.text) }]}>
           A warm, comforting meal for the two of you. Season, simmer, and serve when tender.
         </RNText>
       </View>
@@ -548,6 +676,22 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     fontWeight: '600',
   },
+  retryShareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    alignSelf: 'flex-start',
+    marginTop: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  retryShareText: {
+    ...Typography.label,
+    fontSize: 11,
+  },
   themeGrid: {
     gap: Spacing.sm,
   },
@@ -559,29 +703,27 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: Spacing.sm,
   },
-  themePreview: {
-    width: 74,
-    height: 52,
-    borderRadius: BorderRadius.sm,
-    padding: 6,
-    justifyContent: 'center',
-  },
   themePreviewCard: {
-    flex: 1,
-    borderRadius: 4,
-    padding: 6,
+    width: 86,
+    height: 64,
+    padding: 8,
     justifyContent: 'center',
     gap: 4,
   },
   themePreviewLine: {
     height: 4,
-    width: '80%',
     borderRadius: 2,
   },
-  themePreviewLineShort: {
-    height: 3,
-    width: '55%',
-    borderRadius: 2,
+  themeSwatches: {
+    flexDirection: 'row',
+    gap: 4,
+    marginTop: 4,
+  },
+  themeSwatch: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 1,
   },
   themeCardText: {
     flex: 1,
@@ -700,6 +842,16 @@ const styles = StyleSheet.create({
   errorText: {
     ...Typography.caption,
     color: Colors.error,
+  },
+  sharedErrorBox: {
+    marginTop: Spacing.sm,
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    gap: 2,
+  },
+  sharedErrorHint: {
+    ...Typography.caption,
   },
   previewCard: {
     backgroundColor: Colors.card,

@@ -27,13 +27,15 @@ import {
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
 
 interface RoomSetupViewProps {
   onClose: () => void;
 }
 
 export function RoomSetupView({ onClose }: RoomSetupViewProps) {
-  const { theme } = useAppearance();
+  const { theme, design } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
   const { config, reload: reloadRoomConfig } = useRoomConfig();
   const [code, setCode] = useState('');
   const [joining, setJoining] = useState(false);
@@ -199,7 +201,8 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
       <View
         style={[
           styles.introCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
       >
         <Ionicons name="people-outline" size={28} color={theme.primary} />
@@ -232,7 +235,8 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
       <TouchableOpacity
         style={[
           styles.statusButton,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
         onPress={() => openScreenOverlay('sync-status')}
         activeOpacity={0.8}
@@ -249,7 +253,8 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
       <View
         style={[
           styles.formCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
       >
         <AuthorSelector value={member} onChange={chooseMember} />
@@ -273,7 +278,8 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
       <View
         style={[
           styles.formCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
       >
         <Text style={styles.sectionLabel}>Room code</Text>

@@ -24,6 +24,7 @@ import {
   Typography,
 } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
 
 interface SyncStatusViewProps {
   onClose: () => void;
@@ -71,7 +72,8 @@ function formatLastSynced(value: number | null): string {
 }
 
 export function SyncStatusView({ onClose }: SyncStatusViewProps) {
-  const { theme } = useAppearance();
+  const { theme, design } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
   const { config } = useRoomConfig();
   const status = useSyncStatus();
   const [checking, setChecking] = useState(false);
@@ -107,7 +109,8 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
       <View
         style={[
           styles.statusCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
       >
         <View style={[styles.iconCircle, { backgroundColor: `${toneColor}18` }]}>
@@ -122,7 +125,8 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
       <View
         style={[
           styles.detailsCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
       >
         <View style={styles.detailRow}>

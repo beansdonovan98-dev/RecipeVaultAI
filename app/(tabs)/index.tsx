@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useRoomConfig } from '@/hooks/useRoomConfig';
-import { RecipeCard } from '@/components/RecipeCard';
+import { RecipeRolodex } from '@/components/RecipeRolodex';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -18,7 +18,7 @@ import { openScreenOverlay } from '@/services/screenOverlay';
 import { recordBreadcrumb } from '@/services/crashTracker';
 
 export default function HomeScreen() {
-  const { theme } = useAppearance();
+  const { theme, displayFamily } = useAppearance();
   const { recipes, loading, error, toggleFavorite, refresh } = useRecipes();
   const { config: roomConfig } = useRoomConfig();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -46,30 +46,23 @@ export default function HomeScreen() {
     <ErrorBoundary>
       <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
-          <View style={styles.statusRow}>
-            <Text style={styles.headerSubtitle}>{recipes.length} recipes</Text>
+          <View style={styles.brandRow}>
+            <View style={styles.brandBlock}>
+              <Text style={[styles.brandTitle, { fontFamily: displayFamily }]}>Recipe Vault</Text>
+              <View style={[styles.brandRule, { backgroundColor: theme.accent }]} />
+            </View>
             <View style={styles.headerActions}>
               <TouchableOpacity
-                style={[styles.roomChip, { backgroundColor: theme.tipBackground }]}
-                onPress={() => {
-                  recordBreadcrumb('tap:room-settings');
-                  openScreenOverlay('settings');
-                }}
+                style={[styles.iconButton, { backgroundColor: theme.tipBackground }]}
+                onPress={() => void refresh()}
                 activeOpacity={0.8}
                 accessibilityRole="button"
-                accessibilityLabel="Open shared room settings"
+                accessibilityLabel="Refresh recipes"
               >
-                <Ionicons
-                  name={roomConfig ? 'people' : 'people-outline'}
-                  size={14}
-                  color={theme.primary}
-                />
-                <Text style={styles.roomChipText} numberOfLines={1}>
-                  {roomConfig ? roomConfig.code : 'Set up sharing'}
-                </Text>
+                <Ionicons name="refresh-outline" size={18} color={theme.primary} />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.crashButton, { backgroundColor: theme.tipBackground }]}
+                style={[styles.iconButton, { backgroundColor: theme.tipBackground }]}
                 onPress={() => requestCrashViewer()}
                 activeOpacity={0.8}
                 accessibilityRole="button"
@@ -78,6 +71,33 @@ export default function HomeScreen() {
                 <Ionicons name="bug-outline" size={18} color={theme.primary} />
               </TouchableOpacity>
             </View>
+          </View>
+
+          <View style={styles.headerMetaRow}>
+            <Text style={styles.headerSubtitle}>
+              {filteredRecipes.length === recipes.length
+                ? `${recipes.length} recipes`
+                : `${filteredRecipes.length} of ${recipes.length} recipes`}
+            </Text>
+            <TouchableOpacity
+              style={[styles.roomChip, { backgroundColor: theme.tipBackground }]}
+              onPress={() => {
+                recordBreadcrumb('tap:room-settings');
+                openScreenOverlay('settings');
+              }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Open shared room settings"
+            >
+              <Ionicons
+                name={roomConfig ? 'people' : 'people-outline'}
+                size={14}
+                color={theme.primary}
+              />
+              <Text style={styles.roomChipText} numberOfLines={1}>
+                {roomConfig ? roomConfig.code : 'Set up sharing'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -105,21 +125,15 @@ export default function HomeScreen() {
             message={selectedCategory ? 'Try a different category' : 'Tap the + button to add your first recipe'}
           />
         ) : (
-          <FlatList
-            data={filteredRecipes}
-            keyExtractor={item => item.id.toString()}
-            contentContainerStyle={styles.list}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={theme.primary} />
-            }
-            renderItem={({ item }) => (
-              <RecipeCard
-                recipe={item}
-                onPress={() => navigateSafely(`/recipe/${item.id}`, 'tap:recipe-detail')}
-                onToggleFavorite={() => toggleFavorite(item.id, !item.isFavorite)}
-              />
-            )}
-          />
+          <View style={styles.deck}>
+            <RecipeRolodex
+              recipes={filteredRecipes}
+              onOpen={(recipe) =>
+                navigateSafely(`/recipe/${recipe.id}`, 'tap:recipe-detail')
+              }
+              onToggleFavorite={(recipe) => toggleFavorite(recipe.id, !recipe.isFavorite)}
+            />
+          </View>
         )}
 
         <TouchableOpacity
@@ -149,11 +163,26 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.sm,
   },
-  statusRow: {
+  brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.md,
+  },
+  brandBlock: {
+    flexShrink: 1,
+  },
+  brandTitle: {
+    ...Typography.title,
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: -0.5,
+  },
+  brandRule: {
+    height: 3,
+    width: 38,
+    borderRadius: 2,
+    marginTop: 2,
   },
   headerActions: {
     flexDirection: 'row',
@@ -175,7 +204,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     flexShrink: 1,
   },
-  crashButton: {
+  iconButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -185,7 +214,14 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     ...Typography.bodySmall,
-    marginTop: 2,
+    letterSpacing: 0.3,
+  },
+  headerMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    marginTop: Spacing.xs,
   },
   filterSection: {
     marginBottom: Spacing.sm,
@@ -194,9 +230,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     gap: Spacing.sm,
   },
-  list: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: 100,
+  deck: {
+    flex: 1,
+    paddingBottom: 88,
   },
   fab: {
     position: 'absolute',

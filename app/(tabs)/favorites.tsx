@@ -15,7 +15,7 @@ import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function FavoritesScreen() {
-  const { theme } = useAppearance();
+  const { theme, displayFamily } = useAppearance();
   const router = useRouter();
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,7 @@ export default function FavoritesScreen() {
     <ErrorBoundary>
       <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Favorites</Text>
+          <Text style={[styles.headerTitle, { fontFamily: displayFamily }]}>Favorites</Text>
           <Text style={styles.headerSubtitle}>{favorites.length} saved</Text>
         </View>
 

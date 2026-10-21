@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 export default function TabLayout() {
-  const { fontFamily, theme } = useAppearance();
+  const { fontFamily, theme, design, displayFamily } = useAppearance();
   const member = useMember();
   const { config } = useRoomConfig();
   const partner = usePartnerPresence(config, member);
@@ -33,8 +33,8 @@ export default function TabLayout() {
         tabBarInactiveTintColor: theme.textMuted,
         tabBarStyle: {
           backgroundColor: theme.card,
-          borderTopColor: theme.borderLight,
-          borderTopWidth: 1,
+          borderTopColor: design.cardShadow === 'hard' ? theme.border : theme.borderLight,
+          borderTopWidth: Math.max(design.cardBorderWidth, 1),
           height: 60,
           paddingBottom: 8,
           paddingTop: 4,
@@ -52,7 +52,7 @@ export default function TabLayout() {
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 20,
-          fontFamily,
+          fontFamily: displayFamily ?? fontFamily,
           color: theme.text,
         },
         headerShadowVisible: false,
@@ -65,7 +65,7 @@ export default function TabLayout() {
           headerLeft:
             showPartnerOnLeft && partnerLabel
               ? () => (
-                  <Text style={styles.headerName} numberOfLines={1}>
+                  <Text style={[styles.headerName, { color: theme.textSecondary }]} numberOfLines={1}>
                     {partnerLabel}
                   </Text>
                 )
@@ -76,7 +76,7 @@ export default function TabLayout() {
           headerRight:
             showPartnerOnRight && partnerLabel
               ? () => (
-                  <Text style={styles.headerName} numberOfLines={1}>
+                  <Text style={[styles.headerName, { color: theme.textSecondary }]} numberOfLines={1}>
                     {partnerLabel}
                   </Text>
                 )

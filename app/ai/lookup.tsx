@@ -17,11 +17,13 @@ import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText
 import { AUTHORS, type AuthorId } from '@/constants/authors';
 import { RecipeInput } from '@/types/recipe';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AssistantBackdrop } from '@/components/AssistantBackdrop';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
 
 const SEARCH_DEBOUNCE_MS = 320;
 
@@ -49,7 +51,8 @@ interface AIRecipeLookupScreenProps {
 }
 
 export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenProps) {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
   const router = useRouter();
   const [recipeName, setRecipeName] = useState('');
   const [results, setResults] = useState<RecipeSearchResult[]>([]);
@@ -220,19 +223,22 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
 
   return (
     <ErrorBoundary>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <AssistantBackdrop />
       <ScrollView
-        style={[styles.container, { backgroundColor: theme.background }]}
+        style={styles.scroll}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
         <View
           style={[
             styles.introCard,
-            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+            cardTokens,
+            { backgroundColor: theme.card },
           ]}
         >
           <Ionicons name="search" size={28} color={theme.primary} />
-          <Text style={styles.introTitle}>Recipe Name Lookup</Text>
+          <Text style={[styles.introTitle, { fontFamily: displayFamily }]}>Recipe Name Lookup</Text>
           <Text style={[styles.introText, { color: theme.textSecondary }]}>
             Start typing a recipe name and real matches appear as you go. Tap one to see its
             ingredients and steps, then save it.
@@ -242,7 +248,8 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
         <View
           style={[
             styles.formCard,
-            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+            cardTokens,
+            { backgroundColor: theme.card },
           ]}
         >
           <Text style={styles.sectionLabel}>Recipe name</Text>
@@ -322,10 +329,11 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
           <View
             style={[
               styles.previewCard,
-              { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+              cardTokens,
+              { backgroundColor: theme.card },
             ]}
           >
-            <Text style={styles.recipeName}>{generatedRecipe.title}</Text>
+            <Text style={[styles.recipeName, { fontFamily: displayFamily }]}>{generatedRecipe.title}</Text>
             <Text style={[styles.recipeDescription, { color: theme.textSecondary }]}>
               {generatedRecipe.description}
             </Text>
@@ -389,6 +397,7 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
           </View>
         ) : null}
       </ScrollView>
+      </View>
     </ErrorBoundary>
   );
 }
@@ -397,6 +406,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  scroll: {
+    flex: 1,
   },
   content: {
     padding: Spacing.lg,

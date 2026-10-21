@@ -24,6 +24,7 @@ import { SyncStatusView } from '@/components/SyncStatusView';
 import { AppearanceProvider, useAppearance } from '@/contexts/AppearanceContext';
 import { AssistantProvider } from '@/contexts/AssistantContext';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { readableTextColor } from '@/constants/appearance';
 import {
   acknowledgeCrash,
   captureException,
@@ -72,7 +73,8 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  const { fontFamily, fontColor, theme } = useAppearance();
+  const { fontFamily, fontColor, theme, displayFamily } = useAppearance();
+  const headerTextColor = readableTextColor(fontColor, theme.background, theme.text);
   const [dbError, setDbError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [showCrashViewer, setShowCrashViewer] = useState(false);
@@ -190,11 +192,11 @@ function RootLayoutContent() {
               headerStyle: {
                 backgroundColor: theme.background,
               },
-              headerTintColor: fontColor,
+              headerTintColor: headerTextColor,
               headerTitleStyle: {
                 fontWeight: '600',
-                fontFamily,
-                color: fontColor,
+                fontFamily: displayFamily ?? fontFamily,
+                color: headerTextColor,
               },
               headerShadowVisible: false,
               contentStyle: {

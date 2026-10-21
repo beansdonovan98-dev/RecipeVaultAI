@@ -21,12 +21,38 @@ import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
+import type { ThemePalette } from '@/constants/themes';
 import { navigateSafely } from '@/utils/safeNavigation';
 import { getCategoryInfo } from '@/constants/categories';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
+
+function SectionHeader({
+  icon,
+  title,
+  theme,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  theme: ThemePalette;
+}) {
+  const { displayFamily } = useAppearance();
+  return (
+    <View style={styles.sectionHeader}>
+      <View style={[styles.sectionIconWrap, { backgroundColor: theme.tipBackground }]}>
+        <Ionicons name={icon} size={14} color={theme.accent} />
+      </View>
+      <Text style={[styles.sectionTitle, { color: theme.accent, fontFamily: displayFamily }]}>
+        {title}
+      </Text>
+      <View style={[styles.sectionRule, { backgroundColor: theme.borderLight }]} />
+    </View>
+  );
+}
 
 export default function RecipeDetailScreen() {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const idStr = Array.isArray(id) ? id[0] : id;
@@ -87,6 +113,7 @@ export default function RecipeDetailScreen() {
   }
 
   const tags = recipe.tags.length > 0 ? recipe.tags : [recipe.category];
+  const categoryInfo = getCategoryInfo(recipe.category as any);
 
   return (
     <ErrorBoundary>
@@ -95,12 +122,32 @@ export default function RecipeDetailScreen() {
           {recipe.imageUri ? (
             <Image source={{ uri: recipe.imageUri }} style={styles.image} />
           ) : (
-            <View style={[styles.image, styles.placeholderImage, { backgroundColor: theme.inputBackground }]}>
-              <Ionicons name="restaurant" size={48} color={theme.textMuted} />
+            <View
+              style={[
+                styles.image,
+                styles.placeholderImage,
+                { backgroundColor: `${categoryInfo.color}16` },
+              ]}
+            >
+              <Ionicons
+                name={categoryInfo.icon as any}
+                size={72}
+                color={categoryInfo.color}
+                style={styles.placeholderIcon}
+              />
             </View>
           )}
 
-          <View style={styles.content}>
+          <View
+            style={[
+              styles.content,
+              {
+                backgroundColor: theme.background,
+                borderTopLeftRadius: Math.max(design.cardRadius + 10, 22),
+                borderTopRightRadius: Math.max(design.cardRadius + 10, 22),
+              },
+            ]}
+          >
             <View style={styles.header}>
               <View style={styles.tagRow}>
                 {tags.map((tag) => {
@@ -114,26 +161,46 @@ export default function RecipeDetailScreen() {
                 })}
               </View>
               <View style={styles.headerActions}>
-                <TouchableOpacity onPress={() => toggleFavorite(!recipe.isFavorite)} style={styles.actionButton}>
+                <TouchableOpacity
+                  onPress={() => toggleFavorite(!recipe.isFavorite)}
+                  style={[styles.actionButton, { backgroundColor: theme.tipBackground }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={recipe.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                >
                   <Ionicons
                     name={recipe.isFavorite ? 'heart' : 'heart-outline'}
-                    size={24}
+                    size={19}
                     color={recipe.isFavorite ? theme.heart : theme.textMuted}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleShare} style={styles.actionButton}>
-                  <Ionicons name="share-outline" size={22} color={theme.textMuted} />
+                <TouchableOpacity
+                  onPress={handleShare}
+                  style={[styles.actionButton, { backgroundColor: theme.tipBackground }]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Share recipe"
+                >
+                  <Ionicons name="share-outline" size={18} color={theme.textMuted} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigateSafely(`/edit?id=${recipe.id}`, 'tap:edit-recipe')} style={styles.actionButton}>
-                  <Ionicons name="create-outline" size={22} color={theme.textMuted} />
+                <TouchableOpacity
+                  onPress={() => navigateSafely(`/edit?id=${recipe.id}`, 'tap:edit-recipe')}
+                  style={[styles.actionButton, { backgroundColor: theme.tipBackground }]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit recipe"
+                >
+                  <Ionicons name="create-outline" size={18} color={theme.textMuted} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                  <Ionicons name="trash-outline" size={22} color={theme.error} />
+                <TouchableOpacity
+                  onPress={handleDelete}
+                  style={[styles.actionButton, { backgroundColor: theme.tipBackground }]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Delete recipe"
+                >
+                  <Ionicons name="trash-outline" size={18} color={theme.error} />
                 </TouchableOpacity>
               </View>
             </View>
 
-            <Text style={styles.title}>{recipe.title}</Text>
+            <Text style={[styles.title, { fontFamily: displayFamily }]}>{recipe.title}</Text>
             {recipe.description ? (
               <Text style={[styles.description, { color: theme.textSecondary }]}>{recipe.description}</Text>
             ) : null}
@@ -141,34 +208,39 @@ export default function RecipeDetailScreen() {
             <View
               style={[
                 styles.metaRow,
-                { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+                cardTokens,
+                { backgroundColor: theme.card },
               ]}
             >
-              <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={16} color={theme.accent} />
-                <Text style={styles.metaLabel}>Prep Time</Text>
-                <Text style={styles.metaValue}>{String(recipe.prepTime ?? '')} min</Text>
-              </View>
-              <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
-              <View style={styles.metaItem}>
-                <Ionicons name="flame-outline" size={16} color={theme.accent} />
-                <Text style={styles.metaLabel}>Cook Time</Text>
-                <Text style={styles.metaValue}>{String(recipe.cookTime ?? '')} min</Text>
-              </View>
-              <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
-              <View style={styles.metaItem}>
-                <Ionicons name="people-outline" size={16} color={theme.accent} />
-                <Text style={styles.metaLabel}>Servings</Text>
-                <Text style={styles.metaValue}>{String(recipe.servings ?? '')}</Text>
-              </View>
+              {[
+                { icon: 'time-outline' as const, label: 'Prep', value: `${String(recipe.prepTime ?? '')} min` },
+                { icon: 'flame-outline' as const, label: 'Cook', value: `${String(recipe.cookTime ?? '')} min` },
+                { icon: 'people-outline' as const, label: 'Serves', value: String(recipe.servings ?? '') },
+              ].map((stat, statIndex) => (
+                <React.Fragment key={stat.label}>
+                  {statIndex > 0 ? (
+                    <View style={[styles.metaDivider, { backgroundColor: theme.borderLight }]} />
+                  ) : null}
+                  <View style={styles.metaItem}>
+                    <View style={[styles.metaIcon, { backgroundColor: theme.tipBackground }]}>
+                      <Ionicons name={stat.icon} size={15} color={theme.accent} />
+                    </View>
+                    <Text style={[styles.metaValue, { color: theme.text }]}>{stat.value}</Text>
+                    <Text style={[styles.metaLabel, { color: theme.textMuted }]}>
+                      {stat.label.toUpperCase()}
+                    </Text>
+                  </View>
+                </React.Fragment>
+              ))}
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { borderBottomColor: theme.borderLight }]}>Ingredients</Text>
+              <SectionHeader icon="basket-outline" title="Ingredients" theme={theme} />
               <View
                 style={[
                   styles.ingredientsCard,
-                  { backgroundColor: theme.card, borderColor: theme.borderLight },
+                  cardTokens,
+                  { backgroundColor: theme.card },
                 ]}
               >
                 {recipe.ingredients.map((ing, index) => (
@@ -198,26 +270,47 @@ export default function RecipeDetailScreen() {
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { borderBottomColor: theme.borderLight }]}>Instructions</Text>
-              <View style={styles.instructionsList}>
-                {recipe.instructions.map((inst, index) => (
-                  <View key={index} style={styles.instructionItem}>
-                    <View style={[styles.stepNumber, { backgroundColor: theme.primary }]}>
-                      <Text style={[styles.stepNumberText, { color: theme.white }]}>
-                        {String(inst.step ?? '')}
-                      </Text>
-                    </View>
-                    <View style={styles.instructionContent}>
-                      <RichText text={inst.text} style={styles.instructionText} />
-                      {inst.tip ? (
-                        <View style={[styles.tipBox, { backgroundColor: theme.tipBackground }]}>
-                          <Ionicons name="bulb-outline" size={14} color={theme.accent} />
-                          <Text style={[styles.tipText, { color: theme.text }]}>{String(inst.tip ?? '')}</Text>
+              <SectionHeader icon="list-outline" title="Instructions" theme={theme} />
+              <View
+                style={[
+                  styles.instructionsCard,
+                  cardTokens,
+                  { backgroundColor: theme.card },
+                ]}
+              >
+                {recipe.instructions.map((inst, index) => {
+                  const isLast = index === recipe.instructions.length - 1;
+                  return (
+                    <View key={index} style={styles.instructionRow}>
+                      <View style={styles.stepGutter}>
+                        <View style={[styles.stepNumber, { backgroundColor: theme.primary }]}>
+                          <Text style={[styles.stepNumberText, { color: theme.white }]}>
+                            {String(inst.step ?? index + 1)}
+                          </Text>
                         </View>
-                      ) : null}
+                        {!isLast ? (
+                          <View style={[styles.stepLine, { backgroundColor: theme.borderLight }]} />
+                        ) : null}
+                      </View>
+                      <View style={[styles.instructionContent, isLast && styles.instructionContentLast]}>
+                        <RichText text={inst.text} style={styles.instructionText} />
+                        {inst.tip ? (
+                          <View
+                            style={[
+                              styles.tipBox,
+                              { backgroundColor: theme.tipBackground, borderLeftColor: theme.accent },
+                            ]}
+                          >
+                            <Ionicons name="bulb-outline" size={14} color={theme.accent} />
+                            <Text style={[styles.tipText, { color: theme.text }]}>
+                              {String(inst.tip ?? '')}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             </View>
           </View>
@@ -240,15 +333,22 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 280,
+    height: 300,
   },
   placeholderImage: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.inputBackground,
   },
+  placeholderIcon: {
+    opacity: 0.35,
+  },
   content: {
+    marginTop: -28,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     padding: Spacing.xl,
+    paddingTop: Spacing.xxl,
   },
   header: {
     flexDirection: 'row',
@@ -283,11 +383,16 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   actionButton: {
-    padding: Spacing.xs,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     ...Typography.title,
-    fontSize: 32,
+    fontSize: 30,
+    lineHeight: 36,
     marginBottom: Spacing.sm,
   },
   description: {
@@ -299,55 +404,83 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    marginBottom: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    marginBottom: Spacing.xxl,
     borderWidth: 1,
     borderColor: Colors.borderLight,
     ...Shadows.card,
   },
   metaItem: {
+    flex: 1,
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
+  },
+  metaIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
   },
   metaLabel: {
     ...Typography.caption,
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
   metaValue: {
     ...Typography.label,
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: '700',
   },
   metaDivider: {
     width: 1,
-    height: 40,
+    height: 44,
     backgroundColor: Colors.borderLight,
-    marginHorizontal: Spacing.lg,
   },
   section: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.xxl,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  sectionIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sectionTitle: {
     ...Typography.sectionLabel,
-    fontSize: 14,
-    marginBottom: Spacing.md,
-    paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
+    fontSize: 13,
+  },
+  sectionRule: {
+    flex: 1,
+    height: 1,
+    marginLeft: Spacing.xs,
+    opacity: 0.7,
   },
   ingredientsCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.borderLight,
     paddingVertical: Spacing.xs,
+    ...Shadows.card,
   },
   ingredientRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.lg,
     gap: Spacing.sm,
   },
   ingredientRowDivider: {
@@ -361,9 +494,10 @@ const styles = StyleSheet.create({
   },
   ingredientAmount: {
     ...Typography.body,
-    width: 84,
+    width: 72,
     textAlign: 'right',
     fontWeight: '700',
+    fontVariant: ['tabular-nums'],
   },
   ingredientName: {
     ...Typography.body,
@@ -376,17 +510,27 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     maxWidth: 110,
   },
-  instructionsList: {
-    gap: Spacing.lg,
+  instructionsCard: {
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.sm,
+    ...Shadows.card,
   },
-  instructionItem: {
+  instructionRow: {
     flexDirection: 'row',
     gap: Spacing.md,
   },
+  stepGutter: {
+    width: 30,
+    alignItems: 'center',
+  },
   stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -395,20 +539,35 @@ const styles = StyleSheet.create({
     ...Typography.label,
     color: Colors.white,
     fontSize: 13,
+    fontWeight: '700',
+  },
+  stepLine: {
+    width: 2,
+    flex: 1,
+    marginVertical: 4,
+    borderRadius: 1,
   },
   instructionContent: {
     flex: 1,
+    paddingTop: 3,
+    paddingBottom: Spacing.lg,
+  },
+  instructionContentLast: {
+    paddingBottom: Spacing.sm,
   },
   instructionText: {
     ...Typography.body,
+    fontSize: 15,
     lineHeight: 24,
   },
   tipBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: Colors.tipBackground,
-    padding: Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.sm,
+    borderLeftWidth: 3,
     marginTop: Spacing.sm,
     gap: Spacing.sm,
   },

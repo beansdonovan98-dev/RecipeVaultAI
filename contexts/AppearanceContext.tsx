@@ -19,8 +19,11 @@ import {
 } from '@/constants/appearance';
 import {
   DEFAULT_THEME_KEY,
+  DISPLAY_FONTS,
+  getThemeDesign,
   getThemePalette,
   isThemeKey,
+  type ThemeDesign,
   type ThemeKey,
   type ThemePalette,
 } from '@/constants/themes';
@@ -39,6 +42,10 @@ interface AppearanceContextValue {
   fontColor: string;
   themeKey: ThemeKey;
   theme: ThemePalette;
+  /** Shape and typography rules that come with the theme. */
+  design: ThemeDesign;
+  /** Font family for titles and section labels, if the theme asks for one. */
+  displayFamily: string | undefined;
   setFontKey: (next: FontKey) => Promise<void>;
   setFontColor: (next: string) => Promise<void>;
   setThemeKey: (next: ThemeKey) => Promise<void>;
@@ -51,6 +58,8 @@ const AppearanceContext = createContext<AppearanceContextValue>({
   fontColor: DEFAULT_FONT_COLOR,
   themeKey: DEFAULT_THEME_KEY,
   theme: getThemePalette(DEFAULT_THEME_KEY),
+  design: getThemeDesign(DEFAULT_THEME_KEY),
+  displayFamily: undefined,
   setFontKey: async () => {},
   setFontColor: async () => {},
   setThemeKey: async () => {},
@@ -297,20 +306,22 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     }
   }, [hasRemoteRoom, roomCode, roomId]);
 
-  const value = useMemo<AppearanceContextValue>(
-    () => ({
+  const value = useMemo<AppearanceContextValue>(() => {
+    const design = getThemeDesign(themeKey);
+    return {
       fontKey,
       fontFamily: resolveFontFamily(fontKey),
       fontColor,
       themeKey,
       theme: getThemePalette(themeKey),
+      design,
+      displayFamily: Platform.select(DISPLAY_FONTS[design.displayFont]),
       setFontKey,
       setFontColor,
       setThemeKey,
       resetAppearance,
-    }),
-    [fontKey, fontColor, themeKey, setFontKey, setFontColor, setThemeKey, resetAppearance]
-  );
+    };
+  }, [fontKey, fontColor, themeKey, setFontKey, setFontColor, setThemeKey, resetAppearance]);
 
   return <AppearanceContext.Provider value={value}>{children}</AppearanceContext.Provider>;
 }

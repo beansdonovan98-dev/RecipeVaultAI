@@ -1,4 +1,10 @@
-export type ThemeKey = 'warm' | 'bistro' | 'paper' | 'coastal' | 'date-night';
+export type ThemeKey =
+  | 'taverna'
+  | 'riso'
+  | 'diner'
+  | 'midnight'
+  | 'seaglass'
+  | 'butter';
 
 export interface ThemePalette {
   background: string;
@@ -26,175 +32,239 @@ export interface ThemePalette {
   overlay: string;
 }
 
+/** How a theme treats corners, edges, and shadows. */
+export type CardShadowStyle = 'soft' | 'hard' | 'none';
+
+/** Display face used for titles and section labels, separate from the body font. */
+export type DisplayFontKey = 'sans' | 'serif' | 'mono' | 'rounded';
+
+export interface ThemeDesign {
+  cardRadius: number;
+  cardBorderWidth: number;
+  cardShadow: CardShadowStyle;
+  displayFont: DisplayFontKey;
+}
+
 export interface ThemeOption {
   id: ThemeKey;
   label: string;
   description: string;
   colors: ThemePalette;
+  design: ThemeDesign;
 }
 
-export const DEFAULT_THEME_KEY: ThemeKey = 'warm';
-
-const WARM: ThemePalette = {
-  background: '#F2C879',
-  card: '#FFF4E0',
-  primary: '#1E3A5F',
-  primaryLight: '#2E5385',
-  secondary: '#6B5844',
-  accent: '#C2410C',
-  accentLight: '#EA6A2B',
-  tipBackground: '#F8E3B4',
-  tipBorder: '#1E3A5F',
-  border: '#1E3A5F',
-  borderLight: '#E0BE85',
-  text: '#1E3A5F',
-  textSecondary: '#6B5844',
-  textMuted: '#95815F',
-  white: '#FFFFFF',
-  error: '#DC2626',
-  success: '#15803D',
-  warning: '#D97706',
-  heart: '#DC2626',
-  heartEmpty: '#D6B578',
-  inputBackground: '#FFF4E0',
-  shadow: 'rgba(107, 88, 68, 0.18)',
-  overlay: 'rgba(30, 58, 95, 0.5)',
+export const DISPLAY_FONTS: Record<
+  DisplayFontKey,
+  { ios?: string; android?: string; default?: string }
+> = {
+  // No family means "use the platform default", which also lets the body font
+  // setting win when the user has picked one.
+  sans: {},
+  serif: { ios: 'Georgia', android: 'serif', default: 'serif' },
+  mono: { ios: 'Courier New', android: 'monospace', default: 'monospace' },
+  rounded: { ios: 'Arial Rounded MT Bold', android: 'sans-serif-medium' },
 };
 
-const BISTRO: ThemePalette = {
-  background: '#BCD49A',
-  card: '#F4F9EA',
-  primary: '#14532D',
-  primaryLight: '#1E6B40',
-  secondary: '#4B5D55',
-  accent: '#B45309',
-  accentLight: '#D97706',
-  tipBackground: '#D6E4B6',
-  tipBorder: '#14532D',
-  border: '#14532D',
-  borderLight: '#A6BE7E',
-  text: '#16352A',
-  textSecondary: '#4B5D55',
-  textMuted: '#7E8C84',
+export const DEFAULT_THEME_KEY: ThemeKey = 'taverna';
+
+const TAVERNA: ThemePalette = {
+  background: '#F3E7D3',
+  card: '#FFFBF2',
+  primary: '#3A2A1F',
+  primaryLight: '#5A4334',
+  secondary: '#6E5A48',
+  accent: '#C2542C',
+  accentLight: '#E0703F',
+  tipBackground: '#EFE0C8',
+  tipBorder: '#3A2A1F',
+  border: '#3A2A1F',
+  borderLight: '#DFCBB0',
+  text: '#2E211A',
+  textSecondary: '#6E5A48',
+  textMuted: '#9A8573',
   white: '#FFFFFF',
-  error: '#B91C1C',
-  success: '#15803D',
-  warning: '#B45309',
-  heart: '#B91C1C',
-  heartEmpty: '#9FBA7A',
-  inputBackground: '#F4F9EA',
-  shadow: 'rgba(20, 83, 45, 0.16)',
-  overlay: 'rgba(20, 83, 45, 0.55)',
+  error: '#B3261E',
+  success: '#3F6B3B',
+  warning: '#B7791F',
+  heart: '#B3261E',
+  heartEmpty: '#C9B49A',
+  inputBackground: '#F7EDDD',
+  shadow: 'rgba(58, 42, 31, 0.16)',
+  overlay: 'rgba(46, 33, 26, 0.55)',
 };
 
-const PAPER: ThemePalette = {
-  background: '#E3DBC9',
-  card: '#FFFFFF',
-  primary: '#111827',
-  primaryLight: '#1F2937',
-  secondary: '#52525B',
-  accent: '#A16207',
-  accentLight: '#CA8A04',
-  tipBackground: '#EDE6D6',
-  tipBorder: '#111827',
-  border: '#111827',
-  borderLight: '#C9C0AB',
-  text: '#111827',
-  textSecondary: '#52525B',
-  textMuted: '#7D838D',
+const RISO: ThemePalette = {
+  background: '#FFF1DE',
+  card: '#FFFBF4',
+  primary: '#1A1614',
+  primaryLight: '#332B26',
+  secondary: '#4A4038',
+  accent: '#FF4B2B',
+  accentLight: '#FF7A5C',
+  tipBackground: '#FFE2A8',
+  tipBorder: '#1A1614',
+  border: '#1A1614',
+  borderLight: '#E8D6BE',
+  text: '#1A1614',
+  textSecondary: '#4A4038',
+  textMuted: '#8A7A68',
   white: '#FFFFFF',
-  error: '#B91C1C',
-  success: '#047857',
-  warning: '#A16207',
-  heart: '#B91C1C',
-  heartEmpty: '#B0A793',
-  inputBackground: '#FFFFFF',
-  shadow: 'rgba(17, 24, 39, 0.14)',
-  overlay: 'rgba(17, 24, 39, 0.5)',
+  error: '#D92D20',
+  success: '#1F7A45',
+  warning: '#C77700',
+  heart: '#FF4B2B',
+  heartEmpty: '#D9C6AE',
+  inputBackground: '#FFF4E4',
+  shadow: 'rgba(26, 22, 20, 0.9)',
+  overlay: 'rgba(26, 22, 20, 0.55)',
 };
 
-const COASTAL: ThemePalette = {
-  background: '#A3D8D0',
-  card: '#EFFAF7',
-  primary: '#0F5257',
-  primaryLight: '#15707A',
-  secondary: '#4A6664',
-  accent: '#C2410C',
-  accentLight: '#EA580C',
-  tipBackground: '#C8E8E3',
-  tipBorder: '#0F5257',
-  border: '#0F5257',
-  borderLight: '#8CC6BE',
-  text: '#0B3B40',
-  textSecondary: '#4A6664',
-  textMuted: '#6F8B89',
+const DINER: ThemePalette = {
+  background: '#101014',
+  card: '#191922',
+  primary: '#FF3D8B',
+  primaryLight: '#FF6FA9',
+  secondary: '#C9C9D6',
+  accent: '#22E6C8',
+  accentLight: '#6FF5DE',
+  tipBackground: '#23232F',
+  tipBorder: '#22E6C8',
+  border: '#3A3A4C',
+  borderLight: '#2C2C3A',
+  text: '#F7F5FF',
+  textSecondary: '#C9C9D6',
+  textMuted: '#8E8EA3',
   white: '#FFFFFF',
-  error: '#B91C1C',
-  success: '#047857',
-  warning: '#B45309',
-  heart: '#B91C1C',
-  heartEmpty: '#8FBBB3',
-  inputBackground: '#EFFAF7',
-  shadow: 'rgba(15, 82, 87, 0.16)',
-  overlay: 'rgba(15, 82, 87, 0.55)',
+  error: '#FF6B6B',
+  success: '#3DDC97',
+  warning: '#FFC93C',
+  heart: '#FF3D8B',
+  heartEmpty: '#4A4A5C',
+  inputBackground: '#20202B',
+  shadow: 'rgba(0, 0, 0, 0.6)',
+  overlay: 'rgba(0, 0, 0, 0.7)',
 };
 
-const DATE_NIGHT: ThemePalette = {
-  background: '#1B1119',
-  card: '#2B1D28',
-  primary: '#E11D74',
-  primaryLight: '#F0489A',
-  secondary: '#C9B4C2',
-  accent: '#F0B429',
-  accentLight: '#F8CE5C',
-  tipBackground: '#3B2634',
-  tipBorder: '#F0489A',
-  border: '#5C3D4E',
-  borderLight: '#48303F',
-  text: '#F9EDF4',
-  textSecondary: '#D9C4D2',
-  textMuted: '#AA8E9C',
+const MIDNIGHT: ThemePalette = {
+  background: '#0A0F1C',
+  card: '#131B2E',
+  primary: '#4E7CF0',
+  primaryLight: '#7A9DFF',
+  secondary: '#B8C4DC',
+  accent: '#E8B44A',
+  accentLight: '#F5D07E',
+  tipBackground: '#1B2540',
+  tipBorder: '#E8B44A',
+  border: '#2B3A57',
+  borderLight: '#24314A',
+  text: '#EEF3FF',
+  textSecondary: '#B8C4DC',
+  textMuted: '#7E8DA8',
   white: '#FFFFFF',
-  error: '#F87171',
-  success: '#34D399',
+  error: '#FF7B7B',
+  success: '#4ADE80',
   warning: '#F5C26B',
-  heart: '#F87171',
-  heartEmpty: '#6C5362',
-  inputBackground: '#342632',
-  shadow: 'rgba(0, 0, 0, 0.45)',
-  overlay: 'rgba(0, 0, 0, 0.65)',
+  heart: '#FF7B7B',
+  heartEmpty: '#3B4A66',
+  inputBackground: '#1A2440',
+  shadow: 'rgba(0, 0, 0, 0.5)',
+  overlay: 'rgba(0, 0, 0, 0.7)',
+};
+
+const SEAGLASS: ThemePalette = {
+  background: '#E6F5F0',
+  card: '#FFFFFF',
+  primary: '#0F5C52',
+  primaryLight: '#1B7A6D',
+  secondary: '#4A6B66',
+  accent: '#FF7A5C',
+  accentLight: '#FF9B84',
+  tipBackground: '#D3EDE6',
+  tipBorder: '#0F5C52',
+  border: '#0F5C52',
+  borderLight: '#BFDDD5',
+  text: '#0B3B36',
+  textSecondary: '#4A6B66',
+  textMuted: '#7C9993',
+  white: '#FFFFFF',
+  error: '#C0392B',
+  success: '#14805E',
+  warning: '#C77D00',
+  heart: '#E05A45',
+  heartEmpty: '#A8C9C1',
+  inputBackground: '#F0FAF7',
+  shadow: 'rgba(15, 92, 82, 0.14)',
+  overlay: 'rgba(11, 59, 54, 0.55)',
+};
+
+const BUTTER: ThemePalette = {
+  background: '#FBEACB',
+  card: '#FFFDF7',
+  primary: '#4A2C1E',
+  primaryLight: '#6B4230',
+  secondary: '#7A5C48',
+  accent: '#E4572E',
+  accentLight: '#F07C57',
+  tipBackground: '#FDE7B8',
+  tipBorder: '#4A2C1E',
+  border: '#4A2C1E',
+  borderLight: '#EFD9AE',
+  text: '#3A2216',
+  textSecondary: '#7A5C48',
+  textMuted: '#A08872',
+  white: '#FFFFFF',
+  error: '#B3261E',
+  success: '#2F7A46',
+  warning: '#B26B00',
+  heart: '#D14343',
+  heartEmpty: '#DCC49B',
+  inputBackground: '#FFF7E6',
+  shadow: 'rgba(74, 44, 30, 0.16)',
+  overlay: 'rgba(58, 34, 22, 0.55)',
 };
 
 export const THEME_OPTIONS: ThemeOption[] = [
   {
-    id: 'warm',
-    label: 'Warm Kitchen',
-    description: 'Golden honey with deep navy and burnt orange',
-    colors: WARM,
+    id: 'taverna',
+    label: 'Taverna',
+    description: 'Parchment, espresso ink, and terracotta — a dog-eared cookbook',
+    colors: TAVERNA,
+    design: { cardRadius: 14, cardBorderWidth: 1, cardShadow: 'soft', displayFont: 'serif' },
   },
   {
-    id: 'bistro',
-    label: 'Modern Bistro',
-    description: 'Sage green with forest green and warm brass',
-    colors: BISTRO,
+    id: 'riso',
+    label: 'Riso Pop',
+    description: 'Screen-printed cream and tomato with thick ink outlines',
+    colors: RISO,
+    design: { cardRadius: 12, cardBorderWidth: 2, cardShadow: 'hard', displayFont: 'sans' },
   },
   {
-    id: 'paper',
-    label: 'Paper Minimal',
-    description: 'Warm linen with ink black and antique gold',
-    colors: PAPER,
+    id: 'diner',
+    label: 'Night Diner',
+    description: 'Neon pink and mint on charcoal, straight off the counter',
+    colors: DINER,
+    design: { cardRadius: 6, cardBorderWidth: 1, cardShadow: 'none', displayFont: 'mono' },
   },
   {
-    id: 'coastal',
-    label: 'Coastal Table',
-    description: 'Sea glass with deep teal and coral',
-    colors: COASTAL,
+    id: 'midnight',
+    label: 'Midnight Brass',
+    description: 'Deep navy and brass, a late table with the lights low',
+    colors: MIDNIGHT,
+    design: { cardRadius: 18, cardBorderWidth: 1, cardShadow: 'soft', displayFont: 'serif' },
   },
   {
-    id: 'date-night',
-    label: 'Date Night',
-    description: 'Deep plum with rose and candlelight gold',
-    colors: DATE_NIGHT,
+    id: 'seaglass',
+    label: 'Sea Glass',
+    description: 'Airy mint and coral with soft, rounded edges',
+    colors: SEAGLASS,
+    design: { cardRadius: 24, cardBorderWidth: 0, cardShadow: 'soft', displayFont: 'rounded' },
+  },
+  {
+    id: 'butter',
+    label: 'Butter & Cocoa',
+    description: 'Bakery yellow, cocoa brown, and a warm persimmon pop',
+    colors: BUTTER,
+    design: { cardRadius: 20, cardBorderWidth: 2, cardShadow: 'soft', displayFont: 'rounded' },
   },
 ];
 
@@ -203,5 +273,65 @@ export function isThemeKey(value: unknown): value is ThemeKey {
 }
 
 export function getThemePalette(key: ThemeKey): ThemePalette {
-  return THEME_OPTIONS.find((option) => option.id === key)?.colors ?? WARM;
+  return THEME_OPTIONS.find((option) => option.id === key)?.colors ?? TAVERNA;
+}
+
+export function getThemeDesign(key: ThemeKey): ThemeDesign {
+  return (
+    THEME_OPTIONS.find((option) => option.id === key)?.design ?? THEME_OPTIONS[0].design
+  );
+}
+
+export interface CardStyleTokens {
+  borderRadius: number;
+  borderWidth: number;
+  borderColor: string;
+  shadowColor: string;
+  shadowOffset: { width: number; height: number };
+  shadowOpacity: number;
+  shadowRadius: number;
+  elevation: number;
+}
+
+/**
+ * Shared card treatment for a theme: rounded paper, thick screen-printed
+ * outlines, or a flat diner counter depending on the design.
+ */
+export function themeCardStyle(design: ThemeDesign, palette: ThemePalette): CardStyleTokens {
+  if (design.cardShadow === 'hard') {
+    return {
+      borderRadius: design.cardRadius,
+      borderWidth: design.cardBorderWidth,
+      borderColor: palette.border,
+      shadowColor: palette.border,
+      shadowOffset: { width: 5, height: 5 },
+      shadowOpacity: 1,
+      shadowRadius: 0,
+      elevation: 4,
+    };
+  }
+
+  if (design.cardShadow === 'none') {
+    return {
+      borderRadius: design.cardRadius,
+      borderWidth: design.cardBorderWidth,
+      borderColor: palette.borderLight,
+      shadowColor: 'transparent',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    };
+  }
+
+  return {
+    borderRadius: design.cardRadius,
+    borderWidth: design.cardBorderWidth,
+    borderColor: palette.borderLight,
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    elevation: 3,
+  };
 }

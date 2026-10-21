@@ -17,7 +17,7 @@ import { ALL_CATEGORIES, Category } from '@/types/recipe';
 import { useAppearance } from '@/contexts/AppearanceContext';
 
 export default function CategoriesScreen() {
-  const { theme } = useAppearance();
+  const { theme, displayFamily } = useAppearance();
   const router = useRouter();
   const [recipesByCategory, setRecipesByCategory] = useState<Record<string, Recipe[]>>({});
   const [loading, setLoading] = useState(true);
@@ -80,7 +80,7 @@ export default function CategoriesScreen() {
               <View style={[styles.categoryHeader, { borderBottomColor: theme.borderLight }]}>
                 <View style={styles.categoryTitleRow}>
                   <Ionicons name={info.icon as any} size={20} color={info.color} />
-                  <Text style={styles.categoryTitle}>{category}</Text>
+                  <Text style={[styles.categoryTitle, { fontFamily: displayFamily }]}>{category}</Text>
                   <Text style={[styles.categoryCount, { color: theme.textMuted }]}>({recipes.length})</Text>
                 </View>
               </View>

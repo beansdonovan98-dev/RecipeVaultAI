@@ -137,6 +137,14 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
           (setting) => setting.key === BACKGROUND_SETTING
         )?.value;
 
+        // A background in the room means the key is accepted, so any earlier
+        // "the room rejected the background" message is stale.
+        if (sharedBackground && /^https?:\/\//i.test(sharedBackground)) {
+          setSharedError((current) =>
+            current && /background/i.test(current) ? null : current
+          );
+        }
+
         const localName = await getSetting(NAME_SETTING);
         const localPersona = await getSetting(PERSONA_SETTING);
         const localBackground = await getSetting(BACKGROUND_SETTING);
@@ -253,10 +261,20 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
     [persist]
   );
 
+  const keepBackgroundLocally = useCallback(async (uri: string) => {
+    setBackgroundUri(uri);
+    try {
+      await setSetting(BACKGROUND_SETTING, uri);
+    } catch (error) {
+      captureException(error, { source: 'assistant.setBackground.local' });
+    }
+  }, []);
+
   const setBackground = useCallback(
     async (uri: string | null) => {
       if (!uri) {
         setBackgroundUri(null);
+        setSharedError(null);
         await persist(BACKGROUND_SETTING, '', 'assistant.clearBackground');
         // Clear the local copy too, otherwise it would reappear when the room
         // value is empty.
@@ -269,35 +287,42 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (isShared && roomCode && roomId) {
+        let uploaded: string;
         try {
-          const uploaded = await uploadPhoto(roomId, 'assistant-background', uri);
-          try {
-            await setRoomSetting(roomCode, BACKGROUND_SETTING, uploaded);
-            setSharedError(null);
-            setBackgroundUri(uploaded);
-            return;
-          } catch (error) {
-            captureException(error, { source: 'assistant.setBackground.shared' });
-            setSharedError(
-              error instanceof Error
-                ? error.message
-                : 'The shared room would not accept that setting.'
-            );
-          }
+          uploaded = await uploadPhoto(roomId, 'assistant-background', uri);
         } catch (error) {
           captureException(error, { source: 'assistant.setBackground.upload' });
           setSharedError(
-            error instanceof Error ? error.message : 'Could not upload that photo.'
+            `The photo upload failed, so the other phone can't see it yet. ${
+              error instanceof Error ? error.message : 'Unknown upload error.'
+            }`
+          );
+          await keepBackgroundLocally(uri);
+          return;
+        }
+
+        try {
+          await setRoomSetting(roomCode, BACKGROUND_SETTING, uploaded);
+          setSharedError(null);
+          setBackgroundUri(uploaded);
+          // Cache the shared URL locally as a fallback for offline starts.
+          try {
+            await setSetting(BACKGROUND_SETTING, uploaded);
+          } catch (error) {
+            captureException(error, { source: 'assistant.setBackground.local' });
+          }
+          return;
+        } catch (error) {
+          captureException(error, { source: 'assistant.setBackground.shared' });
+          setSharedError(
+            `The photo uploaded, but the shared room rejected the background setting. ${
+              error instanceof Error ? error.message : 'Unknown room error.'
+            }`
           );
         }
       }
 
-      setBackgroundUri(uri);
-      try {
-        await setSetting(BACKGROUND_SETTING, uri);
-      } catch (error) {
-        captureException(error, { source: 'assistant.setBackground.local' });
-      }
+      await keepBackgroundLocally(uri);
     },
     [isShared, roomCode, roomId, persist]
   );

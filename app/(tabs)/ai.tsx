@@ -6,26 +6,28 @@ import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { openScreenOverlay } from '@/services/screenOverlay';
 import { recordBreadcrumb } from '@/services/crashTracker';
+import { AssistantBackdrop } from '@/components/AssistantBackdrop';
+import { themeCardStyle } from '@/constants/themes';
 
 export default function AIToolsScreen() {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
 
   return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <AssistantBackdrop />
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={styles.scroll}
       contentContainerStyle={styles.content}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>AI Tools</Text>
+        <Text style={[styles.headerTitle, { fontFamily: displayFamily }]}>AI Tools</Text>
         <Text style={styles.headerSubtitle}>Powered by smart recipe intelligence</Text>
       </View>
 
       <View style={styles.toolsContainer}>
         <TouchableOpacity
-          style={[
-            styles.toolCard,
-            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
-          ]}
+          style={[styles.toolCard, cardTokens, { backgroundColor: theme.card }]}
           onPress={() => {
             recordBreadcrumb('tap:ai-creator');
             openScreenOverlay('ai-creator');
@@ -35,7 +37,7 @@ export default function AIToolsScreen() {
           <View style={[styles.iconContainer, { backgroundColor: '#F3E8FF' }]}>
             <Ionicons name="chatbubbles" size={28} color="#9333EA" />
           </View>
-          <Text style={styles.toolTitle}>Recipe Creator</Text>
+          <Text style={[styles.toolTitle, { fontFamily: displayFamily }]}>Recipe Creator</Text>
           <Text style={styles.toolDescription}>
             Describe any recipe in plain words and ask for changes like “make it without curry”
           </Text>
@@ -46,10 +48,7 @@ export default function AIToolsScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.toolCard,
-            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
-          ]}
+          style={[styles.toolCard, cardTokens, { backgroundColor: theme.card }]}
           onPress={() => {
             recordBreadcrumb('tap:ai-lookup');
             openScreenOverlay('ai-lookup');
@@ -59,7 +58,7 @@ export default function AIToolsScreen() {
           <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
             <Ionicons name="search" size={28} color="#3182CE" />
           </View>
-          <Text style={styles.toolTitle}>Recipe Name Lookup</Text>
+          <Text style={[styles.toolTitle, { fontFamily: displayFamily }]}>Recipe Name Lookup</Text>
           <Text style={styles.toolDescription}>
             Enter a recipe name and get a method, ingredients, and steps you can save
           </Text>
@@ -70,10 +69,7 @@ export default function AIToolsScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.toolCard,
-            { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
-          ]}
+          style={[styles.toolCard, cardTokens, { backgroundColor: theme.card }]}
           onPress={() => {
             recordBreadcrumb('tap:ai-substitute');
             openScreenOverlay('ai-substitute');
@@ -83,7 +79,7 @@ export default function AIToolsScreen() {
           <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
             <Ionicons name="swap-horizontal" size={28} color="#DD6B20" />
           </View>
-          <Text style={styles.toolTitle}>Ingredient Substitutions</Text>
+          <Text style={[styles.toolTitle, { fontFamily: displayFamily }]}>Ingredient Substitutions</Text>
           <Text style={styles.toolDescription}>
             Find smart alternatives for ingredients you don't have or can't eat
           </Text>
@@ -94,6 +90,7 @@ export default function AIToolsScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </View>
   );
 }
 
@@ -101,6 +98,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  scroll: {
+    flex: 1,
   },
   content: {
     paddingBottom: Spacing.xxxl,

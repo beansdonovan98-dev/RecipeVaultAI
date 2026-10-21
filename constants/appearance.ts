@@ -74,3 +74,62 @@ export function isHexColor(value: string): boolean {
 export function normalizeHexColor(value: string): string {
   return value.trim().toUpperCase();
 }
+
+function hexChannels(hex: string): [number, number, number] | null {
+  if (!isHexColor(hex)) {
+    return null;
+  }
+  const value = hex.trim().slice(1);
+  return [
+    parseInt(value.slice(0, 2), 16),
+    parseInt(value.slice(2, 4), 16),
+    parseInt(value.slice(4, 6), 16),
+  ];
+}
+
+function channelLuminance(channel: number): number {
+  const value = channel / 255;
+  return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+}
+
+export function relativeLuminance(hex: string): number | null {
+  const channels = hexChannels(hex);
+  if (!channels) {
+    return null;
+  }
+  const [red, green, blue] = channels;
+  return (
+    0.2126 * channelLuminance(red) +
+    0.7152 * channelLuminance(green) +
+    0.0722 * channelLuminance(blue)
+  );
+}
+
+/** WCAG-style contrast ratio between two hex colors. Unknown input counts as readable. */
+export function contrastRatio(a: string, b: string): number {
+  const first = relativeLuminance(a);
+  const second = relativeLuminance(b);
+  if (first === null || second === null) {
+    return 21;
+  }
+  const lighter = Math.max(first, second);
+  const darker = Math.min(first, second);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Keeps a hand-picked text color, but swaps in a readable one when it would
+ * disappear into the background (for example a dark font color on a dark theme).
+ */
+export function readableTextColor(
+  preferred: string,
+  background: string,
+  fallback: string
+): string {
+  if (contrastRatio(preferred, background) >= 2.2) {
+    return preferred;
+  }
+  return contrastRatio(fallback, background) > contrastRatio(preferred, background)
+    ? fallback
+    : preferred;
+}

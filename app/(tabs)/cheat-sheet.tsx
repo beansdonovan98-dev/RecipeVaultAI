@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
 
 interface ConversionRow {
   label: string;
@@ -265,13 +266,15 @@ function SectionCard({
   icon: string;
   children: React.ReactNode;
 }) {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
 
   return (
     <View
       style={[
         styles.card,
-        { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+        cardTokens,
+        { backgroundColor: theme.card },
       ]}
     >
       <View style={[styles.cardHeader, { borderBottomColor: theme.borderLight }]}>
@@ -279,7 +282,7 @@ function SectionCard({
           <Ionicons name={icon as any} size={22} color={theme.primary} />
         </View>
         <View style={styles.headerText}>
-          <Text style={styles.cardTitle}>{title}</Text>
+          <Text style={[styles.cardTitle, { fontFamily: displayFamily }]}>{title}</Text>
           <Text style={styles.cardSubtitle}>{subtitle}</Text>
         </View>
       </View>
@@ -289,7 +292,8 @@ function SectionCard({
 }
 
 export default function CheatSheetScreen() {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
 
   return (
     <ScrollView
@@ -297,7 +301,7 @@ export default function CheatSheetScreen() {
       contentContainerStyle={styles.content}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Cooking Cheat Sheet</Text>
+        <Text style={[styles.headerTitle, { fontFamily: displayFamily }]}>Cooking Cheat Sheet</Text>
         <Text style={styles.headerSubtitle}>
           Common conversions and safe meat temperatures.
         </Text>
@@ -330,7 +334,8 @@ export default function CheatSheetScreen() {
       <View
         style={[
           styles.tipsCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
+          cardTokens,
+          { backgroundColor: theme.card },
         ]}
       >
         <Ionicons name="checkmark-circle-outline" size={20} color={theme.success} />

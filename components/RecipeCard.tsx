@@ -7,6 +7,7 @@ import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/
 import { getCategoryInfo } from '@/constants/categories';
 import { getAuthorLabel } from '@/constants/authors';
 import { useAppearance } from '@/contexts/AppearanceContext';
+import { themeCardStyle } from '@/constants/themes';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -16,24 +17,39 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full' }: RecipeCardProps) {
-  const { theme } = useAppearance();
+  const { theme, design, displayFamily } = useAppearance();
+  const cardTokens = themeCardStyle(design, theme);
+  const imageRadius = Math.max(cardTokens.borderRadius - cardTokens.borderWidth, 0);
   const tags = recipe.tags.length > 0 ? recipe.tags : [recipe.category];
   const authorLabel = getAuthorLabel(recipe.author);
 
   if (variant === 'compact') {
     return (
       <TouchableOpacity
-        style={[
-          styles.compactCard,
-          { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
-        ]}
+        style={[styles.compactCard, cardTokens, { backgroundColor: theme.card }]}
         onPress={onPress}
         activeOpacity={0.8}
       >
         {recipe.imageUri ? (
-          <Image source={{ uri: recipe.imageUri }} style={styles.compactImage} />
+          <Image
+            source={{ uri: recipe.imageUri }}
+            style={[
+              styles.compactImage,
+              { borderTopLeftRadius: imageRadius, borderBottomLeftRadius: imageRadius },
+            ]}
+          />
         ) : (
-          <View style={[styles.compactImage, styles.placeholderImage, { backgroundColor: theme.inputBackground }]}>
+          <View
+            style={[
+              styles.compactImage,
+              styles.placeholderImage,
+              {
+                backgroundColor: theme.inputBackground,
+                borderTopLeftRadius: imageRadius,
+                borderBottomLeftRadius: imageRadius,
+              },
+            ]}
+          >
             <Ionicons name="restaurant" size={24} color={theme.textMuted} />
           </View>
         )}
@@ -42,7 +58,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
             {tags.slice(0, 2).join(' · ')}
             {authorLabel ? ` · ${authorLabel}` : ''}
           </Text>
-          <Text style={styles.compactTitle} numberOfLines={2}>{recipe.title}</Text>
+          <Text style={[styles.compactTitle, { fontFamily: displayFamily }]} numberOfLines={2}>{recipe.title}</Text>
           <View style={styles.compactMeta}>
             <Ionicons name="time-outline" size={12} color={theme.textMuted} />
             <Text style={styles.compactMetaText}>{(Number(recipe.prepTime ?? 0) + Number(recipe.cookTime ?? 0))} min</Text>
@@ -63,14 +79,27 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow }]}
+      style={[styles.card, cardTokens, { backgroundColor: theme.card }]}
       onPress={onPress}
       activeOpacity={0.95}
     >
       {recipe.imageUri ? (
-        <Image source={{ uri: recipe.imageUri }} style={styles.image} />
+        <Image
+          source={{ uri: recipe.imageUri }}
+          style={[styles.image, { borderTopLeftRadius: imageRadius, borderTopRightRadius: imageRadius }]}
+        />
       ) : (
-        <View style={[styles.image, styles.placeholderImage, { backgroundColor: theme.inputBackground }]}>
+        <View
+          style={[
+            styles.image,
+            styles.placeholderImage,
+            {
+              backgroundColor: theme.inputBackground,
+              borderTopLeftRadius: imageRadius,
+              borderTopRightRadius: imageRadius,
+            },
+          ]}
+        >
           <Ionicons name="restaurant" size={40} color={theme.textMuted} />
         </View>
       )}
@@ -102,7 +131,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
           )}
         </View>
 
-        <Text style={styles.title} numberOfLines={2}>{recipe.title}</Text>
+        <Text style={[styles.title, { fontFamily: displayFamily }]} numberOfLines={2}>{recipe.title}</Text>
 
         {recipe.description ? (
           <Text style={styles.description} numberOfLines={2}>{recipe.description}</Text>
@@ -145,7 +174,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.borderLight,
-    overflow: 'hidden',
     marginBottom: Spacing.lg,
     ...Shadows.card,
   },
@@ -250,7 +278,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: Colors.borderLight,
-    overflow: 'hidden',
     marginBottom: Spacing.md,
     ...Shadows.card,
   },
