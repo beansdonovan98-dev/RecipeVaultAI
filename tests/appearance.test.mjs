@@ -25,7 +25,19 @@ test('font and color options are valid', () => {
   assert.equal(isFontKey('comic'), false);
   assert.equal(isFontKey(null), false);
   assert.ok(FONT_OPTIONS.length >= 8);
+  assert.ok(FONT_COLORS.length >= 18);
   assert.ok(FONT_COLORS.some((option) => option.value === DEFAULT_FONT_COLOR));
+
+  const colorIds = new Set();
+  const colorValues = new Set();
+  for (const color of FONT_COLORS) {
+    assert.equal(colorIds.has(color.id), false, `duplicate font color id: ${color.id}`);
+    assert.equal(colorValues.has(color.value), false, `duplicate font color: ${color.value}`);
+    colorIds.add(color.id);
+    colorValues.add(color.value);
+    assert.ok(isHexColor(color.value), `${color.id} needs a hex value`);
+    assert.ok(color.label.length > 0);
+  }
 
   const fontIds = new Set();
   for (const option of FONT_OPTIONS) {
@@ -45,7 +57,23 @@ test('theme presets are valid and complete', () => {
   assert.equal(isThemeKey('vaporwave'), false);
   assert.ok(THEME_OPTIONS.length >= 3);
 
+  const patterns = [
+    'checks',
+    'halftone',
+    'stripes',
+    'stars',
+    'bubbles',
+    'dots',
+    'rules',
+    'slices',
+    'sprigs',
+    'petals',
+    'embers',
+    'grid',
+    'clouds',
+  ];
   const ids = new Set();
+  const designs = new Set();
   for (const option of THEME_OPTIONS) {
     assert.equal(ids.has(option.id), false, `duplicate theme id: ${option.id}`);
     ids.add(option.id);
@@ -59,14 +87,11 @@ test('theme presets are valid and complete', () => {
     assert.ok(option.design.cardBorderWidth >= 0, `${option.id} needs a border width`);
     assert.ok(['soft', 'hard', 'none'].includes(option.design.cardShadow));
     assert.ok(['sans', 'serif', 'mono', 'rounded', 'condensed'].includes(option.design.displayFont));
-    assert.ok(
-      option.design.cardPattern === undefined || option.design.cardPattern === 'clouds',
-      `${option.id} uses a known card pattern`
-    );
+    assert.ok(patterns.includes(option.design.cardPattern), `${option.id} uses a known card pattern`);
+    designs.add(option.design.cardPattern);
   }
 
-  const shinobi = THEME_OPTIONS.find((option) => option.id === 'shinobi');
-  assert.equal(shinobi?.design.cardPattern, 'clouds');
+  assert.equal(designs.size, THEME_OPTIONS.length, 'each theme has its own card pattern');
 });
 
 test('hex colors are validated and normalized', () => {

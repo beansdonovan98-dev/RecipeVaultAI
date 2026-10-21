@@ -46,7 +46,20 @@ export type CardShadowStyle = 'soft' | 'hard' | 'none';
 export type DisplayFontKey = 'sans' | 'serif' | 'mono' | 'rounded' | 'condensed';
 
 /** Optional decorative wallpaper drawn inside recipe cards. */
-export type CardPattern = 'clouds';
+export type CardPattern =
+  | 'checks'
+  | 'halftone'
+  | 'stripes'
+  | 'stars'
+  | 'bubbles'
+  | 'dots'
+  | 'rules'
+  | 'slices'
+  | 'sprigs'
+  | 'petals'
+  | 'embers'
+  | 'grid'
+  | 'clouds';
 
 export interface ThemeDesign {
   cardRadius: number;
@@ -425,86 +438,158 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'taverna',
     label: 'Taverna',
-    description: 'Parchment, espresso ink, and terracotta — a dog-eared cookbook',
+    description: 'Parchment and terracotta with a checked tablecloth corner',
     colors: TAVERNA,
-    design: { cardRadius: 14, cardBorderWidth: 1, cardShadow: 'soft', displayFont: 'serif' },
+    design: {
+      cardRadius: 14,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'serif',
+      cardPattern: 'checks',
+    },
   },
   {
     id: 'riso',
     label: 'Riso Pop',
-    description: 'Screen-printed cream and tomato with thick ink outlines',
+    description: 'Screen-printed cream, tomato ink, and halftone dots',
     colors: RISO,
-    design: { cardRadius: 12, cardBorderWidth: 2, cardShadow: 'hard', displayFont: 'sans' },
+    design: {
+      cardRadius: 12,
+      cardBorderWidth: 2,
+      cardShadow: 'hard',
+      displayFont: 'sans',
+      cardPattern: 'halftone',
+    },
   },
   {
     id: 'diner',
     label: 'Night Diner',
-    description: 'Neon pink and mint on charcoal, straight off the counter',
+    description: 'Neon pink and mint with late-night awning stripes',
     colors: DINER,
-    design: { cardRadius: 6, cardBorderWidth: 1, cardShadow: 'none', displayFont: 'mono' },
+    design: {
+      cardRadius: 6,
+      cardBorderWidth: 1,
+      cardShadow: 'none',
+      displayFont: 'mono',
+      cardPattern: 'stripes',
+    },
   },
   {
     id: 'midnight',
     label: 'Midnight Brass',
-    description: 'Deep navy and brass, a late table with the lights low',
+    description: 'Deep navy and brass with a dusting of stars',
     colors: MIDNIGHT,
-    design: { cardRadius: 18, cardBorderWidth: 1, cardShadow: 'soft', displayFont: 'serif' },
+    design: {
+      cardRadius: 18,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'serif',
+      cardPattern: 'stars',
+    },
   },
   {
     id: 'seaglass',
     label: 'Sea Glass',
-    description: 'Airy mint and coral with soft, rounded edges',
+    description: 'Airy mint and coral with drifting bubbles',
     colors: SEAGLASS,
-    design: { cardRadius: 24, cardBorderWidth: 0, cardShadow: 'soft', displayFont: 'rounded' },
+    design: {
+      cardRadius: 24,
+      cardBorderWidth: 0,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'bubbles',
+    },
   },
   {
     id: 'butter',
     label: 'Butter & Cocoa',
-    description: 'Bakery yellow, cocoa brown, and a warm persimmon pop',
+    description: 'Bakery yellow and cocoa with polka dots',
     colors: BUTTER,
-    design: { cardRadius: 20, cardBorderWidth: 2, cardShadow: 'soft', displayFont: 'rounded' },
+    design: {
+      cardRadius: 20,
+      cardBorderWidth: 2,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'dots',
+    },
   },
   {
     id: 'newsprint',
     label: 'Newsprint',
-    description: 'Crisp ink on off-white paper with sharp, unrounded cards',
+    description: 'Crisp ink, ruled lines, and sharp square corners',
     colors: NEWSPRINT,
-    design: { cardRadius: 4, cardBorderWidth: 1, cardShadow: 'none', displayFont: 'serif' },
+    design: {
+      cardRadius: 4,
+      cardBorderWidth: 1,
+      cardShadow: 'none',
+      displayFont: 'serif',
+      cardPattern: 'rules',
+    },
   },
   {
     id: 'citrus',
     label: 'Citrus Grove',
-    description: 'Lemon light, leafy green, and a juicy orange accent',
+    description: 'Lemon light and leafy green with a citrus wheel',
     colors: CITRUS,
-    design: { cardRadius: 18, cardBorderWidth: 1, cardShadow: 'soft', displayFont: 'rounded' },
+    design: {
+      cardRadius: 18,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'slices',
+    },
   },
   {
     id: 'lavender',
     label: 'Lavender Haze',
-    description: 'Soft violet light with deep plum ink and airy cards',
+    description: 'Soft violet light with illustrated sprigs',
     colors: LAVENDER,
-    design: { cardRadius: 22, cardBorderWidth: 0, cardShadow: 'soft', displayFont: 'serif' },
+    design: {
+      cardRadius: 22,
+      cardBorderWidth: 0,
+      cardShadow: 'soft',
+      displayFont: 'serif',
+      cardPattern: 'sprigs',
+    },
   },
   {
     id: 'sakura',
     label: 'Sakura',
-    description: 'Blush pink, rose ink, and gently rounded petals',
+    description: 'Blush pink and rose ink with drifting petals',
     colors: SAKURA,
-    design: { cardRadius: 24, cardBorderWidth: 0, cardShadow: 'soft', displayFont: 'rounded' },
+    design: {
+      cardRadius: 24,
+      cardBorderWidth: 0,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'petals',
+    },
   },
   {
     id: 'ember',
     label: 'Ember',
-    description: 'Smoldering charcoal, burnt orange, and firelight gold',
+    description: 'Smoldering charcoal and embers rising up the card',
     colors: EMBER,
-    design: { cardRadius: 12, cardBorderWidth: 1, cardShadow: 'soft', displayFont: 'serif' },
+    design: {
+      cardRadius: 12,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'serif',
+      cardPattern: 'embers',
+    },
   },
   {
     id: 'blueprint',
     label: 'Blueprint',
-    description: 'Drafting-table navy with cyan lines and amber notes',
+    description: 'Drafting-table navy with a graph-paper grid',
     colors: BLUEPRINT,
-    design: { cardRadius: 8, cardBorderWidth: 1, cardShadow: 'none', displayFont: 'mono' },
+    design: {
+      cardRadius: 8,
+      cardBorderWidth: 1,
+      cardShadow: 'none',
+      displayFont: 'mono',
+      cardPattern: 'grid',
+    },
   },
   {
     id: 'shinobi',

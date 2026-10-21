@@ -97,11 +97,22 @@ export const FONT_OPTIONS: FontOption[] = [
 export const FONT_COLORS: FontColorOption[] = [
   { id: 'navy', label: 'Navy', value: '#1B2A4A' },
   { id: 'ink', label: 'Ink', value: '#111827' },
-  { id: 'espresso', label: 'Espresso', value: '#5B3A29' },
-  { id: 'burgundy', label: 'Burgundy', value: '#7A2E3A' },
-  { id: 'forest', label: 'Forest', value: '#2F5D50' },
-  { id: 'plum', label: 'Plum', value: '#5B3A66' },
   { id: 'slate', label: 'Slate', value: '#334155' },
+  { id: 'charcoal', label: 'Charcoal', value: '#2B2B2B' },
+  { id: 'espresso', label: 'Espresso', value: '#5B3A29' },
+  { id: 'cocoa', label: 'Cocoa', value: '#4A2C1A' },
+  { id: 'pine', label: 'Pine', value: '#1F4D3A' },
+  { id: 'forest', label: 'Forest', value: '#2F5D50' },
+  { id: 'olive', label: 'Olive', value: '#4D5D2A' },
+  { id: 'teal', label: 'Teal', value: '#0F766E' },
+  { id: 'ocean', label: 'Ocean', value: '#0C4A6E' },
+  { id: 'cobalt', label: 'Cobalt', value: '#1E3A8A' },
+  { id: 'plum', label: 'Plum', value: '#5B3A66' },
+  { id: 'mauve', label: 'Mauve', value: '#6B4A6E' },
+  { id: 'burgundy', label: 'Burgundy', value: '#7A2E3A' },
+  { id: 'rose', label: 'Rose', value: '#8C2F4A' },
+  { id: 'rust', label: 'Rust', value: '#8A3B12' },
+  { id: 'terracotta', label: 'Terracotta', value: '#A34A2A' },
 ];
 
 export const DEFAULT_FONT_KEY: FontKey = 'system';
