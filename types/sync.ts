@@ -63,3 +63,12 @@ export interface RoomSetting {
   key: string;
   value: string;
 }
+
+export interface RemoteMessage {
+  id: string;
+  room_id: string;
+  member: string;
+  text: string;
+  image_url: string | null;
+  created_at: string;
+}

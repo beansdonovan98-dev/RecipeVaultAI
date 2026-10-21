@@ -1,4 +1,4 @@
-import type { RemoteRecipe, RemoteRecipeInput, RoomSetting } from '@/types/sync';
+import type { RemoteMessage, RemoteRecipe, RemoteRecipeInput, RoomSetting } from '@/types/sync';
 import { isAuthorId, type AuthorId } from '@/constants/authors';
 import { getImageFileMeta, isRemoteImageUri } from './syncHelpers';
 
@@ -164,5 +164,56 @@ export async function uploadPhoto(
     throw new Error(`Photo upload failed (${response.status}): ${text.slice(0, 300)}`);
   }
 
+  return `${SUPABASE_URL}/storage/v1/object/public/recipe-photos/${storagePath}?v=${Date.now()}`;
+}
+
+export async function listMessages(code: string, since?: string): Promise<RemoteMessage[]> {
+  const messages = await rpc<RemoteMessage[] | null>('rvai_list_messages', {
+    p_code: code,
+    p_since: since ?? null,
+  });
+  if (!Array.isArray(messages)) return [];
+  return messages;
+}
+
+export async function sendMessage(code: string, member: string, text: string, imageUrl?: string | null): Promise<string | null> {
+  const id = await rpc<string | null>('rvai_send_message', {
+    p_code: code,
+    p_member: member,
+    p_text: text,
+    p_image_url: imageUrl ?? null,
+  });
+  return id;
+}
+
+export async function uploadChatPhoto(localUri: string): Promise<string> {
+  if (isRemoteImageUri(localUri)) return localUri;
+  if (!isRemoteConfigured()) throw new Error('Shared rooms are not configured in this build.');
+  const { extension, mimeType } = getImageFileMeta(localUri);
+  const remoteId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const storagePath = `chat/${remoteId}.${extension}`;
+  const formData = new FormData();
+  formData.append('file', {
+    uri: localUri,
+    name: `${remoteId}.${extension}`,
+    type: mimeType,
+  } as unknown as Blob);
+  const response = await fetchWithTimeout(
+    `${SUPABASE_URL}/storage/v1/object/recipe-photos/${storagePath}`,
+    {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'x-upsert': 'true',
+      },
+      body: formData,
+    },
+    45000
+  );
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Photo upload failed (${response.status}): ${text.slice(0, 300)}`);
+  }
   return `${SUPABASE_URL}/storage/v1/object/public/recipe-photos/${storagePath}?v=${Date.now()}`;
 }

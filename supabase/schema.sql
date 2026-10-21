@@ -48,6 +48,18 @@ alter table public.rvai_recipes add column if not exists tags jsonb not null def
 
 create index if not exists rvai_recipes_room_id_idx on public.rvai_recipes(room_id);
 
+create table if not exists public.rvai_messages (
+  id uuid primary key default gen_random_uuid(),
+  room_id uuid not null references public.rvai_rooms(id) on delete cascade,
+  member text not null,
+  text text not null default '',
+  image_url text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists rvai_messages_room_id_idx on public.rvai_messages(room_id);
+create index if not exists rvai_messages_created_at_idx on public.rvai_messages(created_at);
+
 create table if not exists public.rvai_presence (
   room_id uuid not null references public.rvai_rooms(id) on delete cascade,
   member text not null,
@@ -67,11 +79,13 @@ alter table public.rvai_rooms enable row level security;
 alter table public.rvai_recipes enable row level security;
 alter table public.rvai_presence enable row level security;
 alter table public.rvai_room_settings enable row level security;
+alter table public.rvai_messages enable row level security;
 
 revoke all on public.rvai_rooms from anon, authenticated;
 revoke all on public.rvai_recipes from anon, authenticated;
 revoke all on public.rvai_presence from anon, authenticated;
 revoke all on public.rvai_room_settings from anon, authenticated;
+revoke all on public.rvai_messages from anon, authenticated;
 
 create or replace function public.rvai_create_room(p_code text)
 returns uuid
@@ -387,3 +401,64 @@ on storage.objects for update
 to anon
 using (bucket_id = 'recipe-photos')
 with check (bucket_id = 'recipe-photos');
+
+-- Chat messages.
+
+create or replace function public.rvai_send_message(p_code text, p_member text, p_text text, p_image_url text)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_room_id uuid;
+  v_id uuid;
+begin
+  select id into v_room_id
+  from public.rvai_rooms
+  where code = upper(regexp_replace(trim(p_code), '[^A-Za-z0-9]', '', 'g'));
+
+  if v_room_id is null then
+    raise exception 'Room not found';
+  end if;
+
+  insert into public.rvai_messages (room_id, member, text, image_url)
+  values (v_room_id, p_member, coalesce(p_text, ''), nullif(trim(coalesce(p_image_url, '')), ''))
+  returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+create or replace function public.rvai_list_messages(p_code text, p_since timestamptz default null)
+returns setof public.rvai_messages
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_room_id uuid;
+begin
+  select id into v_room_id
+  from public.rvai_rooms
+  where code = upper(regexp_replace(trim(p_code), '[^A-Za-z0-9]', '', 'g'));
+
+  if v_room_id is null then
+    raise exception 'Room not found';
+  end if;
+
+  return query
+    select m.*
+    from public.rvai_messages m
+    where m.room_id = v_room_id
+      and (p_since is null or m.created_at > p_since)
+    order by m.created_at asc
+    limit 200;
+end;
+$$;
+
+revoke all on function public.rvai_send_message(text, text, text, text) from public;
+revoke all on function public.rvai_list_messages(text, timestamptz) from public;
+
+grant execute on function public.rvai_send_message(text, text, text, text) to anon;
+grant execute on function public.rvai_list_messages(text, timestamptz) to anon;

@@ -416,8 +416,8 @@ const BLUEPRINT: ThemePalette = {
 };
 
 const SOUTHPARK: ThemePalette = {
-  background: '#CCE7F5',
-  card: '#FFFFFF',
+  background: '#B8D8F0',
+  card: '#F5F0E1',
   primary: '#1F4E79',
   primaryLight: '#4A7BA7',
   secondary: '#2C5F8A',
