@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  buildSearchTerms,
   mapCategory,
   mealToRecipe,
   parseMeasure,
@@ -83,4 +84,12 @@ test('unknown categories fall back to Dinner', () => {
   assert.equal(mapCategory('Vegan'), 'Vegan');
   assert.equal(mapCategory('Something Weird'), 'Dinner');
   assert.equal(mapCategory(null), 'Dinner');
+});
+
+test('search terms drop stop words and short words', () => {
+  assert.deepEqual(buildSearchTerms('baked chicken and rice'), ['baked', 'chicken', 'rice']);
+  assert.deepEqual(buildSearchTerms('the best easy recipe'), []);
+  assert.deepEqual(buildSearchTerms('  Chicken   Handi  '), ['chicken', 'handi']);
+  assert.deepEqual(buildSearchTerms('ab cd'), []);
+  assert.deepEqual(buildSearchTerms(''), []);
 });

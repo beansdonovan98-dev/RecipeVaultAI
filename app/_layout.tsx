@@ -12,8 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { initializeDatabase } from '@/db/schema';
 import AddRecipeScreen from '@/app/add';
-import AIGenerateScreen from '@/app/ai/generate';
 import AIRecipeLookupScreen from '@/app/ai/lookup';
+import AICreatorScreen from '@/app/ai/creator';
 import AISubstituteScreen from '@/app/ai/substitute';
 import { AppText as Text } from '@/components/AppText';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -46,8 +46,8 @@ console.log('[STARTUP] JS startup');
 
 const OVERLAY_TITLES: Record<OverlayScreen, string> = {
   add: 'Add Recipe',
-  'ai-generate': 'AI Recipe Generator',
   'ai-lookup': 'Recipe Name Lookup',
+  'ai-creator': 'Recipe Creator',
   'ai-substitute': 'Ingredient Substitutions',
   settings: 'Shared Room',
   'sync-status': 'Connection Status',
@@ -203,7 +203,6 @@ function RootLayoutContent() {
             <Stack.Screen name="add" options={{ title: 'Add Recipe' }} />
             <Stack.Screen name="edit" options={{ title: 'Edit Recipe' }} />
             <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe Details' }} />
-            <Stack.Screen name="ai/generate" options={{ title: 'AI Recipe Generator' }} />
             <Stack.Screen name="ai/substitute" options={{ title: 'Ingredient Substitutions' }} />
             <Stack.Screen name="crashes" options={{ title: 'Crash Reports' }} />
           </Stack>
@@ -233,10 +232,10 @@ function RootLayoutContent() {
             <View style={styles.overlayContent}>
               {screenOverlay === 'add' ? (
                 <AddRecipeScreen onClose={closeScreenOverlay} />
-              ) : screenOverlay === 'ai-generate' ? (
-                <AIGenerateScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'ai-lookup' ? (
                 <AIRecipeLookupScreen onClose={closeScreenOverlay} />
+              ) : screenOverlay === 'ai-creator' ? (
+                <AICreatorScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'settings' ? (
                 <ErrorBoundary>
                   <RoomSetupView onClose={closeScreenOverlay} />

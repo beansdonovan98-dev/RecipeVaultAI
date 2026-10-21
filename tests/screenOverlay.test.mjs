@@ -19,13 +19,13 @@ test('screen overlay store handles open, close, replay, and unsubscribe', () => 
   assert.equal(getScreenOverlay(), 'add');
   assert.deepEqual(seen, [null, 'add']);
 
-  openScreenOverlay('ai-generate');
-  assert.equal(getScreenOverlay(), 'ai-generate');
-  assert.deepEqual(seen, [null, 'add', 'ai-generate']);
+  openScreenOverlay('ai-creator');
+  assert.equal(getScreenOverlay(), 'ai-creator');
+  assert.deepEqual(seen, [null, 'add', 'ai-creator']);
 
   closeScreenOverlay();
   assert.equal(getScreenOverlay(), null);
-  assert.deepEqual(seen, [null, 'add', 'ai-generate', null]);
+  assert.deepEqual(seen, [null, 'add', 'ai-creator', null]);
 
   unsubscribeFirst();
   closeScreenOverlay();
@@ -51,7 +51,7 @@ test('a new subscriber receives the current overlay and stale listeners are igno
   assert.deepEqual(second, ['ai-substitute', 'add']);
 
   unsubscribeSecond();
-  assert.doesNotThrow(() => openScreenOverlay('ai-generate'));
+  assert.doesNotThrow(() => openScreenOverlay('ai-creator'));
   assert.doesNotThrow(() => closeScreenOverlay());
   assert.equal(getScreenOverlay(), null);
 });

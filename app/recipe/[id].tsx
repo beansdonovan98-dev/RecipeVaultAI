@@ -165,20 +165,33 @@ export default function RecipeDetailScreen() {
 
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { borderBottomColor: theme.borderLight }]}>Ingredients</Text>
-              <View style={styles.ingredientsList}>
+              <View
+                style={[
+                  styles.ingredientsCard,
+                  { backgroundColor: theme.card, borderColor: theme.borderLight },
+                ]}
+              >
                 {recipe.ingredients.map((ing, index) => (
-                  <View key={index} style={styles.ingredientItem}>
-                    <View style={[styles.bullet, { backgroundColor: theme.accent }]} />
-                    <Text style={styles.ingredientText}>
-                      <Text style={styles.ingredientAmount}>{String(ing.amount ?? '')} {String(ing.unit ?? '')}</Text>
-                      {' '}
-                      <Text style={styles.ingredientName}>{String(ing.name ?? '')}</Text>
-                      {ing.notes ? (
-                        <Text style={[styles.ingredientNotes, { color: theme.textMuted }]}>
-                          {' '}({String(ing.notes ?? '')})
-                        </Text>
-                      ) : null}
+                  <View
+                    key={index}
+                    style={[
+                      styles.ingredientRow,
+                      index < recipe.ingredients.length - 1
+                        ? [styles.ingredientRowDivider, { borderBottomColor: theme.borderLight }]
+                        : null,
+                    ]}
+                  >
+                    <View style={[styles.ingredientDot, { backgroundColor: theme.accent }]} />
+                    <Text style={[styles.ingredientAmount, { color: theme.primary }]}>
+                      {String(ing.amount ?? '')}
+                      {ing.unit ? ` ${String(ing.unit)}` : ''}
                     </Text>
+                    <Text style={[styles.ingredientName, { color: theme.text }]}>{String(ing.name ?? '')}</Text>
+                    {ing.notes ? (
+                      <Text style={[styles.ingredientNotes, { color: theme.textMuted }]}>
+                        {` (${String(ing.notes ?? '')})`}
+                      </Text>
+                    ) : null}
                   </View>
                 ))}
               </View>
@@ -199,7 +212,7 @@ export default function RecipeDetailScreen() {
                       {inst.tip ? (
                         <View style={[styles.tipBox, { backgroundColor: theme.tipBackground }]}>
                           <Ionicons name="bulb-outline" size={14} color={theme.accent} />
-                          <Text style={styles.tipText}>{String(inst.tip ?? '')}</Text>
+                          <Text style={[styles.tipText, { color: theme.text }]}>{String(inst.tip ?? '')}</Text>
                         </View>
                       ) : null}
                     </View>
@@ -323,36 +336,45 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
   },
-  ingredientsList: {
-    gap: Spacing.sm,
+  ingredientsCard: {
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    paddingVertical: Spacing.xs,
   },
-  ingredientItem: {
+  ingredientRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
   },
-  bullet: {
+  ingredientRowDivider: {
+    borderBottomWidth: 1,
+  },
+  ingredientDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.accent,
     marginTop: 7,
   },
-  ingredientText: {
-    ...Typography.body,
-    flex: 1,
-    lineHeight: 22,
-  },
   ingredientAmount: {
+    ...Typography.body,
+    width: 84,
+    textAlign: 'right',
     fontWeight: '700',
-    color: Colors.primary,
   },
   ingredientName: {
-    color: Colors.text,
+    ...Typography.body,
+    flex: 1,
+    flexShrink: 1,
   },
   ingredientNotes: {
-    color: Colors.textMuted,
+    ...Typography.bodySmall,
     fontStyle: 'italic',
+    flexShrink: 0,
+    maxWidth: 110,
   },
   instructionsList: {
     gap: Spacing.lg,

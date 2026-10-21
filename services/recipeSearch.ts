@@ -2,6 +2,18 @@ import type { RecipeInput } from '../types/recipe';
 
 const MEALDB_BASE = 'https://www.themealdb.com/api/json/v1/1';
 const DEFAULT_TIMEOUT_MS = 8000;
+const MAX_RESULTS = 12;
+const MAX_TERM_SEARCHES = 4;
+
+// Words that carry little meaning for a recipe-name lookup. They are skipped
+// when falling back to per-word searches so "baked chicken and rice" becomes
+// ["chicken", "baked", "rice"] instead of matching nothing.
+const STOP_WORDS = new Set([
+  'a', 'an', 'and', 'are', 'as', 'at', 'be', 'best', 'but', 'by', 'can', 'do',
+  'does', 'easy', 'for', 'from', 'how', 'i', 'in', 'is', 'it', 'its', 'made',
+  'make', 'me', 'my', 'of', 'on', 'or', 'quick', 'recipe', 'recipes', 'simple',
+  'some', 'that', 'the', 'this', 'to', 'very', 'with', 'you', 'your',
+]);
 
 export interface RecipeSearchResult {
   id: string;
@@ -171,13 +183,71 @@ function readMeals(payload: unknown): MealDbMeal[] {
   return Array.isArray(meals) ? (meals as MealDbMeal[]) : [];
 }
 
+async function fetchMeals(path: string, signal?: AbortSignal): Promise<MealDbMeal[]> {
+  const payload = await fetchJson(path, signal);
+  return readMeals(payload);
+}
+
+/**
+ * Breaks a free-text query into meaningful search terms, dropping stop words
+ * and short words. Exported for deterministic testing.
+ */
+export function buildSearchTerms(query: string): string[] {
+  const words = query.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+  const seen = new Set<string>();
+  const terms: string[] = [];
+  for (const word of words) {
+    if (word.length < 3 || STOP_WORDS.has(word) || seen.has(word)) {
+      continue;
+    }
+    seen.add(word);
+    terms.push(word);
+  }
+  return terms;
+}
+
 export async function searchRecipes(
   query: string,
   signal?: AbortSignal
 ): Promise<RecipeSearchResult[]> {
   const trimmed = query.trim();
-  const payload = await fetchJson(`/search.php?s=${encodeURIComponent(trimmed)}`, signal);
-  return readMeals(payload).map(toSearchResult);
+  const primary = await fetchMeals(`/search.php?s=${encodeURIComponent(trimmed)}`, signal);
+  if (primary.length > 0) {
+    return primary.slice(0, MAX_RESULTS).map(toSearchResult);
+  }
+
+  // The free database has a small catalogue, so a long phrase like
+  // "baked chicken and rice" returns nothing even though "chicken" and "rice"
+  // are well covered. Fall back to searching each meaningful word and merging
+  // the unique hits, most distinctive term first.
+  const terms = buildSearchTerms(trimmed);
+  if (terms.length === 0) {
+    return [];
+  }
+
+  const ordered = [...terms].sort((a, b) => b.length - a.length).slice(0, MAX_TERM_SEARCHES);
+  const merged = new Map<string, RecipeSearchResult>();
+
+  await Promise.all(
+    ordered.map(async (term) => {
+      try {
+        const meals = await fetchMeals(`/search.php?s=${encodeURIComponent(term)}`, signal);
+        for (const meal of meals) {
+          const result = toSearchResult(meal);
+          if (!merged.has(result.id)) {
+            merged.set(result.id, result);
+          }
+        }
+      } catch (error) {
+        if (signal?.aborted) {
+          throw error;
+        }
+        // A single term failing should not discard the other matches.
+      }
+    })
+  );
+
+  return [...merged.values()].slice(0, MAX_RESULTS);
 }
 
 export async function getRecipeById(

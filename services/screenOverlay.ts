@@ -1,7 +1,7 @@
 export type OverlayScreen =
   | 'add'
-  | 'ai-generate'
   | 'ai-lookup'
+  | 'ai-creator'
   | 'ai-substitute'
   | 'settings'
   | 'sync-status';

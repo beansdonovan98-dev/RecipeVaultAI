@@ -27,20 +27,20 @@ export default function AIToolsScreen() {
             { backgroundColor: theme.card, borderColor: theme.borderLight, shadowColor: theme.shadow },
           ]}
           onPress={() => {
-            recordBreadcrumb('tap:ai-generator');
-            openScreenOverlay('ai-generate');
+            recordBreadcrumb('tap:ai-creator');
+            openScreenOverlay('ai-creator');
           }}
           activeOpacity={0.8}
         >
-          <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
-            <Ionicons name="sparkles" size={28} color="#38A169" />
+          <View style={[styles.iconContainer, { backgroundColor: '#F3E8FF' }]}>
+            <Ionicons name="chatbubbles" size={28} color="#9333EA" />
           </View>
-          <Text style={styles.toolTitle}>Recipe Generator</Text>
+          <Text style={styles.toolTitle}>Recipe Creator</Text>
           <Text style={styles.toolDescription}>
-            Enter your available ingredients and AI will create a custom recipe for you
+            Describe any recipe in plain words and ask for changes like “make it without curry”
           </Text>
           <View style={styles.toolAction}>
-            <Text style={[styles.toolActionText, { color: theme.primary }]}>Generate Recipe</Text>
+            <Text style={[styles.toolActionText, { color: theme.primary }]}>Start Creating</Text>
             <Ionicons name="arrow-forward" size={16} color={theme.primary} />
           </View>
         </TouchableOpacity>

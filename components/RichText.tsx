@@ -1,5 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, type StyleProp, type TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text as RNText,
+  View,
+  type StyleProp,
+  type TextStyle,
+} from 'react-native';
 import { AppText } from '@/components/AppText';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
@@ -37,24 +43,38 @@ function parseInline(input: string): InlineSegment[] {
   return segments;
 }
 
-function renderInline(segments: InlineSegment[], keyPrefix: string): React.ReactNode {
+interface SegmentStyles {
+  base: TextStyle;
+  bold: TextStyle;
+  underline: TextStyle;
+}
+
+function renderInline(
+  segments: InlineSegment[],
+  keyPrefix: string,
+  segmentStyles: SegmentStyles,
+): React.ReactNode {
   return segments.map((segment, index) => {
     const key = `${keyPrefix}-${index}`;
     if (segment.type === 'bold') {
       return (
-        <AppText key={key} style={styles.bold}>
-          {renderInline(parseInline(segment.content), key)}
-        </AppText>
+        <RNText key={key} style={segmentStyles.bold}>
+          {renderInline(parseInline(segment.content), key, segmentStyles)}
+        </RNText>
       );
     }
     if (segment.type === 'underline') {
       return (
-        <AppText key={key} style={styles.underline}>
-          {renderInline(parseInline(segment.content), key)}
-        </AppText>
+        <RNText key={key} style={segmentStyles.underline}>
+          {renderInline(parseInline(segment.content), key, segmentStyles)}
+        </RNText>
       );
     }
-    return <AppText key={key}>{segment.content}</AppText>;
+    return (
+      <RNText key={key} style={segmentStyles.base}>
+        {segment.content}
+      </RNText>
+    );
   });
 }
 
@@ -64,8 +84,25 @@ interface RichTextProps {
 }
 
 export function RichText({ text, style }: RichTextProps) {
-  const { theme } = useAppearance();
+  const { theme, fontColor, fontFamily } = useAppearance();
   const lines = text.split(/\r?\n/);
+
+  // Build the base text style without a font weight so the formatted children
+  // (bold/underline) always own their own weight. Relying on weight
+  // inheritance across nested Text runs is unreliable and was causing bold to
+  // silently render as regular weight.
+  const flattened = StyleSheet.flatten(style ?? {}) ?? {};
+  const { fontWeight: callerWeight, ...rest } = flattened;
+  const baseStyle: TextStyle = {
+    ...rest,
+    color: fontColor,
+    ...(fontFamily ? { fontFamily } : null),
+  };
+  const segmentStyles: SegmentStyles = {
+    base: { ...baseStyle, fontWeight: callerWeight ?? '400' },
+    bold: { ...baseStyle, fontWeight: '700' },
+    underline: { ...baseStyle, textDecorationLine: 'underline' },
+  };
 
   return (
     <View>
@@ -78,8 +115,8 @@ export function RichText({ text, style }: RichTextProps) {
             {isBullet ? (
               <AppText style={[styles.bulletMarker, { color: theme.accent }]}>•</AppText>
             ) : null}
-            <AppText style={[style, isBullet ? styles.bulletText : null]}>
-              {renderInline(segments, String(lineIndex))}
+            <AppText style={[baseStyle, isBullet ? styles.bulletText : null]}>
+              {renderInline(segments, String(lineIndex), segmentStyles)}
             </AppText>
           </View>
         );
@@ -101,11 +138,5 @@ const styles = StyleSheet.create({
   },
   bulletText: {
     flex: 1,
-  },
-  bold: {
-    fontWeight: '700',
-  },
-  underline: {
-    textDecorationLine: 'underline',
   },
 });
