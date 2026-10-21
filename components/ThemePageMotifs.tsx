@@ -2534,149 +2534,87 @@ function PageMountain({
 }
 
 function MountainsMotif({ palette }: MotifProps) {
-  const peak = tint(palette, palette.primary, 0.55);
+  const peak = tint(palette, palette.primary, 0.5);
   const peak2 = tint(palette, palette.primary, 0.75);
-  const peak3 = tint(palette, palette.primaryLight, 0.6);
-  const sun = tint(palette, palette.tipBackground, 0.95);
+  const peak3 = tint(palette, palette.primaryLight, 0.55);
+  const sun = tint(palette, palette.tipBackground, 0.98);
+  const sunRay = tint(palette, palette.tipBackground, 0.8);
   const cloud = tint(palette, palette.white, 0.95);
-  const confetti = [palette.accent, palette.primary, palette.tipBackground, '#22E6C8', palette.primaryLight];
+  const confetti = ['#2563EB', '#16A34A', '#DC2626', '#F97316', '#FACC15', '#9333EA'];
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      {/* Sky haze. */}
-      <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '46%',
-          backgroundColor: tint(palette, palette.primaryLight, 0.12),
-          opacity: 0.9,
-        }}
-      />
-
-      {/* Sun. */}
-      <View
-        style={{
-          position: 'absolute',
-          top: '6%',
-          right: '8%',
-          width: 118,
-          height: 118,
-          borderRadius: 59,
-          backgroundColor: sun,
-          opacity: 0.9,
-        }}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          top: '9%',
-          right: '11%',
-          width: 74,
-          height: 44,
-          borderRadius: 22,
-          backgroundColor: cloud,
-          opacity: 0.95,
-        }}
-      />
-
-      {/* Clouds. */}
+      {Array.from({ length: 24 }).map((_, index) => (
+        <View key={`fiber-${index}`} style={{ position: 'absolute', top: `${(index * 41) % 100}%`, left: 0, right: 0, height: 1, backgroundColor: tint(palette, palette.primary, 0.06), opacity: 0.4 }} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <View key={`fiber-v-${index}`} style={{ position: 'absolute', left: `${(index * 83) % 100}%`, top: 0, bottom: 0, width: 1, backgroundColor: tint(palette, palette.primary, 0.04), opacity: 0.25 }} />
+      ))}
+      <View style={{ position: 'absolute', top: '2%', right: '3%', width: 190, height: 190 }}>
+        {Array.from({ length: 18 }).map((_, index) => (
+          <View key={`ray-${index}`} style={{ position: 'absolute', top: 95 - 50, left: 95 - 2, width: 4, height: 100, backgroundColor: sunRay, opacity: 0.7, transform: [{ rotate: `${index * 20}deg` }] }} />
+        ))}
+        <View style={{ position: 'absolute', top: 31, left: 31, width: 128, height: 128, borderRadius: 64, backgroundColor: sun, opacity: 0.98 }} />
+        <View style={{ position: 'absolute', top: 56, left: 58, width: 74, height: 44, borderRadius: 22, backgroundColor: cloud, opacity: 0.9 }} />
+      </View>
       {([
-        { top: '14%', left: '4%', w: 150, h: 52 },
-        { top: '22%', left: '58%', w: 120, h: 44 },
-        { top: '34%', left: '24%', w: 90, h: 34 },
-        { top: '46%', left: '74%', w: 110, h: 40 },
+        { top: '11%', left: '2%', w: 180, h: 60 },
+        { top: '19%', left: '50%', w: 140, h: 50 },
+        { top: '28%', left: '18%', w: 110, h: 40 },
+        { top: '38%', left: '68%', w: 130, h: 46 },
       ] as Array<{ top: DimensionValue; left: DimensionValue; w: number; h: number }>).map((c, index) => (
-        <View
-          key={`cloud-${index}`}
-          style={{
-            position: 'absolute',
-            top: c.top,
-            left: c.left,
-            width: c.w,
-            height: c.h,
-            borderRadius: c.h / 2,
-            backgroundColor: cloud,
-            opacity: 0.92,
-          }}
-        >
-          <View
-            style={{
-              position: 'absolute',
-              top: -c.h * 0.4,
-              left: c.w * 0.18,
-              width: c.w * 0.42,
-              height: c.h * 0.9,
-              borderRadius: c.h / 2,
-              backgroundColor: cloud,
-            }}
-          />
-          <View
-            style={{
-              position: 'absolute',
-              top: -c.h * 0.35,
-              left: c.w * 0.48,
-              width: c.w * 0.34,
-              height: c.h * 0.85,
-              borderRadius: c.h / 2,
-              backgroundColor: cloud,
-            }}
-          />
+        <View key={`cloud-${index}`} style={{ position: 'absolute', top: c.top, left: c.left, width: c.w, height: c.h, borderRadius: c.h / 2, backgroundColor: cloud, opacity: 0.92 }}>
+          <View style={{ position: 'absolute', top: -c.h * 0.4, left: c.w * 0.18, width: c.w * 0.42, height: c.h * 0.9, borderRadius: c.h / 2, backgroundColor: cloud }} />
+          <View style={{ position: 'absolute', top: -c.h * 0.35, left: c.w * 0.48, width: c.w * 0.34, height: c.h * 0.85, borderRadius: c.h / 2, backgroundColor: cloud }} />
         </View>
       ))}
-
-      {/* Mountains along the bottom. */}
-      <PageMountain size={230} color={peak} capSize={78} style={{ position: 'absolute', bottom: -40, left: '-8%' }} />
-      <PageMountain size={170} color={peak2} capSize={58} style={{ position: 'absolute', bottom: -30, left: '26%' }} />
-      <PageMountain size={200} color={peak3} capSize={68} style={{ position: 'absolute', bottom: -36, left: '52%' }} />
-      <PageMountain size={150} color={peak} capSize={52} style={{ position: 'absolute', bottom: -28, right: '-6%' }} />
-      <PageMountain size={120} color={peak2} capSize={42} style={{ position: 'absolute', bottom: -22, left: '78%' }} />
-
-      {/* Smaller peaks in the mid distance. */}
-      <PageMountain size={96} color={tint(palette, palette.primary, 0.4)} capSize={32} style={{ position: 'absolute', bottom: '18%', left: '8%', opacity: 0.7 }} />
-      <PageMountain size={84} color={tint(palette, palette.primary, 0.45)} capSize={28} style={{ position: 'absolute', bottom: '22%', left: '46%', opacity: 0.65 }} />
-      <PageMountain size={74} color={tint(palette, palette.primary, 0.5)} capSize={24} style={{ position: 'absolute', bottom: '20%', right: '12%', opacity: 0.6 }} />
-
-      {/* Confetti. */}
-      {Array.from({ length: 22 }).map((_, index) => (
-        <View
-          key={`confetti-${index}`}
-          style={{
-            position: 'absolute',
-            top: `${6 + ((index * 37) % 86)}%`,
-            left: `${(index * 53) % 94}%`,
-            width: index % 3 === 0 ? 9 : 6,
-            height: index % 3 === 0 ? 9 : 6,
-            borderRadius: index % 2 === 0 ? 0 : 3,
-            backgroundColor: confetti[index % confetti.length],
-            opacity: 0.7,
-            transform: [{ rotate: `${(index * 41) % 90}deg` }],
-          }}
-        />
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '48%' }}>
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', backgroundColor: peak3, opacity: 0.6 }} />
+        <PageMountain size={320} color={peak3} capSize={96} style={{ position: 'absolute', bottom: -64, left: '-14%', opacity: 0.65 }} />
+        <PageMountain size={240} color={peak3} capSize={72} style={{ position: 'absolute', bottom: -48, left: '20%', opacity: 0.65 }} />
+        <PageMountain size={280} color={peak3} capSize={84} style={{ position: 'absolute', bottom: -56, left: '48%', opacity: 0.65 }} />
+        <PageMountain size={200} color={peak3} capSize={60} style={{ position: 'absolute', bottom: -40, right: '-10%', opacity: 0.65 }} />
+      </View>
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%' }}>
+        <PageMountain size={270} color={peak} capSize={92} style={{ position: 'absolute', bottom: -54, left: '-8%' }} />
+        <PageMountain size={195} color={peak2} capSize={66} style={{ position: 'absolute', bottom: -39, left: '26%' }} />
+        <PageMountain size={240} color={peak} capSize={82} style={{ position: 'absolute', bottom: -48, left: '48%' }} />
+        <PageMountain size={165} color={peak2} capSize={56} style={{ position: 'absolute', bottom: -33, right: '-6%' }} />
+        <PageMountain size={140} color={peak} capSize={48} style={{ position: 'absolute', bottom: -28, left: '74%' }} />
+      </View>
+      <View style={{ position: 'absolute', bottom: '26%', left: '8%', width: 44, height: 52 }}>
+        <View style={{ position: 'absolute', top: 0, left: 8, width: 28, height: 22, borderRadius: 14, backgroundColor: '#2563EB', opacity: 0.9 }} />
+        <View style={{ position: 'absolute', top: 0, left: 18, width: 10, height: 10, borderRadius: 5, backgroundColor: '#DC2626', opacity: 0.9 }} />
+        <View style={{ position: 'absolute', top: 20, left: 10, width: 24, height: 30, borderRadius: 4, backgroundColor: '#2563EB', opacity: 0.85 }} />
+      </View>
+      <View style={{ position: 'absolute', bottom: '28%', left: '22%', width: 44, height: 52 }}>
+        <View style={{ position: 'absolute', top: 0, left: 6, width: 32, height: 20, borderRadius: 16, backgroundColor: '#16A34A', opacity: 0.9 }} />
+        <View style={{ position: 'absolute', top: -4, left: 16, width: 14, height: 14, borderRadius: 7, backgroundColor: '#F97316', opacity: 0.9 }} />
+        <View style={{ position: 'absolute', top: 18, left: 10, width: 24, height: 32, borderRadius: 4, backgroundColor: '#16A34A', opacity: 0.85 }} />
+      </View>
+      <View style={{ position: 'absolute', bottom: '24%', right: '18%', width: 52, height: 60 }}>
+        <View style={{ position: 'absolute', top: 0, left: 8, width: 36, height: 24, borderRadius: 18, backgroundColor: '#FACC15', opacity: 0.9 }} />
+        <View style={{ position: 'absolute', top: 22, left: 4, width: 44, height: 36, borderRadius: 6, backgroundColor: '#DC2626', opacity: 0.9 }} />
+      </View>
+      <View style={{ position: 'absolute', bottom: '27%', right: '8%', width: 40, height: 48 }}>
+        <View style={{ position: 'absolute', top: 0, left: 0, width: 40, height: 40, borderRadius: 20, backgroundColor: '#F97316', opacity: 0.9 }} />
+        <View style={{ position: 'absolute', top: 10, left: 12, width: 16, height: 12, borderRadius: 6, backgroundColor: '#1F2937', opacity: 0.8 }} />
+        <View style={{ position: 'absolute', top: 36, left: 8, width: 24, height: 12, borderRadius: 4, backgroundColor: '#F97316', opacity: 0.85 }} />
+      </View>
+      <View style={{ position: 'absolute', bottom: '12%', left: '4%', right: '4%', height: 70, flexDirection: 'row', alignItems: 'flex-end', opacity: 0.9 }}>
+        {[50, 38, 62, 44, 56, 32, 50, 40, 58, 46, 54, 36].map((h, index) => (
+          <View key={`building-${index}`} style={{ flex: 1, height: h, marginRight: 2, backgroundColor: tint(palette, palette.primary, 0.3), borderTopWidth: 2, borderTopColor: tint(palette, palette.primary, 0.65) }} />
+        ))}
+      </View>
+      {Array.from({ length: 34 }).map((_, index) => (
+        <View key={`confetti-${index}`} style={{ position: 'absolute', top: `${3 + ((index * 29) % 90)}%`, left: `${(index * 43) % 96}%`, width: index % 3 === 0 ? 11 : 7, height: index % 3 === 0 ? 11 : 7, borderRadius: index % 2 === 0 ? 0 : 4, backgroundColor: confetti[index % confetti.length], opacity: 0.78, transform: [{ rotate: `${(index * 41) % 90}deg` }] }} />
       ))}
-
-      {/* Snowflakes. */}
-      {Array.from({ length: 12 }).map((_, index) => (
-        <View
-          key={`snow-${index}`}
-          style={{
-            position: 'absolute',
-            top: `${8 + ((index * 43) % 84)}%`,
-            left: `${(index * 61) % 92}%`,
-            width: index % 2 === 0 ? 4 : 3,
-            height: index % 2 === 0 ? 4 : 3,
-            borderRadius: 2,
-            backgroundColor: cloud,
-            opacity: 0.85,
-          }}
-        />
+      {Array.from({ length: 18 }).map((_, index) => (
+        <View key={`snow-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 43) % 88)}%`, left: `${(index * 61) % 94}%`, width: index % 2 === 0 ? 4 : 3, height: index % 2 === 0 ? 4 : 3, borderRadius: 2, backgroundColor: cloud, opacity: 0.85 }} />
       ))}
     </View>
   );
 }
-
 /* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */

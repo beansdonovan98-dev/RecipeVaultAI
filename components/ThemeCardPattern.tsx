@@ -1518,7 +1518,7 @@ function MountainsPattern({ palette }: PatternProps) {
   const peak = tint(palette, palette.primary, 0.5);
   const snow = tint(palette, palette.white, 0.9);
   const sun = tint(palette, palette.tipBackground, 0.9);
-  const confetti = [palette.accent, palette.primary, palette.tipBackground, '#22E6C8', palette.primaryLight];
+  const confetti = ['#2563EB', '#16A34A', '#DC2626', '#F97316', '#FACC15', '#9333EA'];
 
   function Mountain({ size, left, bottom, color, capSize }: { size: number; left: number; bottom: number; color: string; capSize: number }) {
     return (
@@ -1562,15 +1562,40 @@ function MountainsPattern({ palette }: PatternProps) {
       <View
         style={{
           position: 'absolute',
-          top: -18,
-          right: -12,
-          width: 58,
-          height: 58,
-          borderRadius: 29,
-          backgroundColor: sun,
-          opacity: 0.85,
+          top: -26,
+          right: -20,
+          width: 74,
+          height: 74,
         }}
-      />
+      >
+        {Array.from({ length: 8 }).map((_, index) => (
+          <View
+            key={`ray-${index}`}
+            style={{
+              position: 'absolute',
+              top: 37 - 30,
+              left: 37 - 1.5,
+              width: 3,
+              height: 60,
+              backgroundColor: sun,
+              opacity: 0.7,
+              transform: [{ rotate: `${index * 45}deg` }],
+            }}
+          />
+        ))}
+        <View
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            width: 58,
+            height: 58,
+            borderRadius: 29,
+            backgroundColor: sun,
+            opacity: 0.85,
+          }}
+        />
+      </View>
       <View
         style={{
           position: 'absolute',
@@ -1600,12 +1625,38 @@ function MountainsPattern({ palette }: PatternProps) {
       <Mountain size={58} left={138} bottom={-8} color={peak} capSize={20} />
       <Mountain size={84} left={186} bottom={-12} color={tint(palette, palette.primary, 0.6)} capSize={30} />
       <Mountain size={46} left={264} bottom={-6} color={peak} capSize={16} />
-      {Array.from({ length: 12 }).map((_, index) => (
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 8,
+          left: 8,
+          right: 8,
+          height: 26,
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          opacity: 0.8,
+        }}
+      >
+        {[14, 10, 18, 12, 16, 9, 15, 11, 17, 13].map((h, index) => (
+          <View
+            key={`building-${index}`}
+            style={{
+              flex: 1,
+              height: h,
+              marginRight: 1,
+              backgroundColor: tint(palette, palette.primary, 0.4),
+              borderTopWidth: 1.5,
+              borderTopColor: tint(palette, palette.primary, 0.75),
+            }}
+          />
+        ))}
+      </View>
+      {Array.from({ length: 18 }).map((_, index) => (
         <View
           key={`confetti-${index}`}
           style={{
             position: 'absolute',
-            top: `${8 + ((index * 31) % 74)}%`,
+            top: `${6 + ((index * 31) % 74)}%`,
             left: `${(index * 47) % 92}%`,
             width: index % 3 === 0 ? 8 : 5,
             height: index % 3 === 0 ? 8 : 5,

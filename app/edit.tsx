@@ -46,6 +46,7 @@ export default function EditRecipeScreen() {
   const [ingredients, setIngredients] = useState<(Omit<Ingredient, 'id'> & { id: string })[]>([]);
   const [instructions, setInstructions] = useState<(Omit<Instruction, 'id' | 'step'> & { id: string })[]>([]);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [cropAspect, setCropAspect] = useState<[number, number]>([16, 9]);
   const [saving, setSaving] = useState(false);
   const category = tags[0] ?? 'Dinner';
 
@@ -80,11 +81,11 @@ export default function EditRecipeScreen() {
     }
   };
 
-  const pickImage = async () => {
+  const pickImage = async (aspect: [number, number] = cropAspect) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect,
       quality: 0.8,
     });
     if (!result.canceled && result.assets[0]) {
@@ -92,21 +93,31 @@ export default function EditRecipeScreen() {
     }
   };
 
-  const takePhoto = async () => {
+  const takePhoto = async (aspect: [number, number] = cropAspect) => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect,
       quality: 0.8,
     });
     if (!result.canceled && result.assets[0]) {
       setImageUri(result.assets[0].uri);
     }
+  };
+
+  const chooseAspect = (source: 'camera' | 'library') => {
+    Alert.alert('Crop shape', 'Choose how the photo is cropped', [
+      { text: 'Wide (16:9)', onPress: () => { setCropAspect([16, 9]); source === 'camera' ? takePhoto([16, 9]) : pickImage([16, 9]); } },
+      { text: 'Standard (4:3)', onPress: () => { setCropAspect([4, 3]); source === 'camera' ? takePhoto([4, 3]) : pickImage([4, 3]); } },
+      { text: 'Square (1:1)', onPress: () => { setCropAspect([1, 1]); source === 'camera' ? takePhoto([1, 1]) : pickImage([1, 1]); } },
+      { text: 'Portrait (3:4)', onPress: () => { setCropAspect([3, 4]); source === 'camera' ? takePhoto([3, 4]) : pickImage([3, 4]); } },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const showImagePicker = () => {
     Alert.alert('Add Photo', 'Choose an option', [
-      { text: 'Camera', onPress: takePhoto },
-      { text: 'Photo Library', onPress: pickImage },
+      { text: 'Camera', onPress: () => chooseAspect('camera') },
+      { text: 'Photo Library', onPress: () => chooseAspect('library') },
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
