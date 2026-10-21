@@ -71,6 +71,7 @@ test('theme presets are valid and complete', () => {
     'embers',
     'grid',
     'clouds',
+    'mountains',
   ];
   const ids = new Set();
   const designs = new Set();
@@ -86,7 +87,7 @@ test('theme presets are valid and complete', () => {
     assert.ok(option.design.cardRadius > 0, `${option.id} needs a card radius`);
     assert.ok(option.design.cardBorderWidth >= 0, `${option.id} needs a border width`);
     assert.ok(['soft', 'hard', 'none'].includes(option.design.cardShadow));
-    assert.ok(['sans', 'serif', 'mono', 'rounded', 'condensed'].includes(option.design.displayFont));
+    assert.ok(['sans', 'serif', 'mono', 'rounded', 'condensed', 'comic'].includes(option.design.displayFont));
     assert.ok(patterns.includes(option.design.cardPattern), `${option.id} uses a known card pattern`);
     designs.add(option.design.cardPattern);
   }

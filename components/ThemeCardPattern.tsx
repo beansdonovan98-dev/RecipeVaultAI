@@ -1512,6 +1512,114 @@ function CloudsPattern(_props: PatternProps) {
   );
 }
 
+/** South Park: construction-paper mountains, a yellow sun, and primary confetti. */
+function MountainsPattern({ palette }: PatternProps) {
+  const sky = tint(palette, palette.primary, 0.18);
+  const peak = tint(palette, palette.primary, 0.5);
+  const snow = tint(palette, palette.white, 0.9);
+  const sun = tint(palette, palette.tipBackground, 0.9);
+  const confetti = [palette.accent, palette.primary, palette.tipBackground, '#22E6C8', palette.primaryLight];
+
+  function Mountain({ size, left, bottom, color, capSize }: { size: number; left: number; bottom: number; color: string; capSize: number }) {
+    return (
+      <View style={{ position: 'absolute', left, bottom, width: size, height: size }}>
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: 0,
+            height: 0,
+            borderLeftWidth: size / 2,
+            borderRightWidth: size / 2,
+            borderBottomWidth: size,
+            borderLeftColor: 'transparent',
+            borderRightColor: 'transparent',
+            borderBottomColor: color,
+          }}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            bottom: size - capSize * 0.85,
+            left: size / 2 - capSize / 2,
+            width: 0,
+            height: 0,
+            borderLeftWidth: capSize / 2,
+            borderRightWidth: capSize / 2,
+            borderBottomWidth: capSize,
+            borderLeftColor: 'transparent',
+            borderRightColor: 'transparent',
+            borderBottomColor: snow,
+          }}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <View
+        style={{
+          position: 'absolute',
+          top: -18,
+          right: -12,
+          width: 58,
+          height: 58,
+          borderRadius: 29,
+          backgroundColor: sun,
+          opacity: 0.85,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          top: -2,
+          right: 4,
+          width: 34,
+          height: 20,
+          borderRadius: 10,
+          backgroundColor: tint(palette, palette.white, 0.95),
+          opacity: 0.9,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          top: 24,
+          left: 16,
+          width: 44,
+          height: 22,
+          borderRadius: 11,
+          backgroundColor: tint(palette, palette.white, 0.9),
+          opacity: 0.8,
+        }}
+      />
+      <Mountain size={96} left={-12} bottom={-14} color={peak} capSize={34} />
+      <Mountain size={74} left={62} bottom={-10} color={tint(palette, palette.primary, 0.7)} capSize={26} />
+      <Mountain size={58} left={138} bottom={-8} color={peak} capSize={20} />
+      <Mountain size={84} left={186} bottom={-12} color={tint(palette, palette.primary, 0.6)} capSize={30} />
+      <Mountain size={46} left={264} bottom={-6} color={peak} capSize={16} />
+      {Array.from({ length: 12 }).map((_, index) => (
+        <View
+          key={`confetti-${index}`}
+          style={{
+            position: 'absolute',
+            top: `${8 + ((index * 31) % 74)}%`,
+            left: `${(index * 47) % 92}%`,
+            width: index % 3 === 0 ? 8 : 5,
+            height: index % 3 === 0 ? 8 : 5,
+            borderRadius: index % 2 === 0 ? 0 : 3,
+            backgroundColor: confetti[index % confetti.length],
+            opacity: 0.7,
+            transform: [{ rotate: `${(index * 37) % 90}deg` }],
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 const PATTERNS: Record<CardPattern, React.ComponentType<PatternProps>> = {
@@ -1528,6 +1636,7 @@ const PATTERNS: Record<CardPattern, React.ComponentType<PatternProps>> = {
   embers: EmbersPattern,
   grid: GridPattern,
   clouds: CloudsPattern,
+  mountains: MountainsPattern,
 };
 
 /**

@@ -11,7 +11,8 @@ export type ThemeKey =
   | 'sakura'
   | 'ember'
   | 'blueprint'
-  | 'shinobi';
+  | 'shinobi'
+  | 'southpark';
 
 export interface ThemePalette {
   background: string;
@@ -43,7 +44,7 @@ export interface ThemePalette {
 export type CardShadowStyle = 'soft' | 'hard' | 'none';
 
 /** Display face used for titles and section labels, separate from the body font. */
-export type DisplayFontKey = 'sans' | 'serif' | 'mono' | 'rounded' | 'condensed';
+export type DisplayFontKey = 'sans' | 'serif' | 'mono' | 'rounded' | 'condensed' | 'comic';
 
 /** Optional decorative wallpaper drawn inside recipe cards. */
 export type CardPattern =
@@ -59,7 +60,8 @@ export type CardPattern =
   | 'petals'
   | 'embers'
   | 'grid'
-  | 'clouds';
+  | 'clouds'
+  | 'mountains';
 
 export interface ThemeDesign {
   cardRadius: number;
@@ -91,6 +93,11 @@ export const DISPLAY_FONTS: Record<
     ios: 'HelveticaNeue-CondensedBold',
     android: 'sans-serif-condensed',
     default: 'sans-serif-condensed',
+  },
+  comic: {
+    ios: 'Chalkboard SE',
+    android: 'casual',
+    default: 'cursive',
   },
 };
 
@@ -408,6 +415,32 @@ const BLUEPRINT: ThemePalette = {
   overlay: 'rgba(4, 14, 26, 0.7)',
 };
 
+const SOUTHPARK: ThemePalette = {
+  background: '#CCE7F5',
+  card: '#FFFFFF',
+  primary: '#1F4E79',
+  primaryLight: '#4A7BA7',
+  secondary: '#2C5F8A',
+  accent: '#E63946',
+  accentLight: '#FF6B6B',
+  tipBackground: '#FFF176',
+  tipBorder: '#1F4E79',
+  border: '#1F4E79',
+  borderLight: '#B0C9DD',
+  text: '#1A2A3A',
+  textSecondary: '#3A5A7A',
+  textMuted: '#7A9AB8',
+  white: '#FFFFFF',
+  error: '#D92D20',
+  success: '#2D7A3E',
+  warning: '#C77700',
+  heart: '#E63946',
+  heartEmpty: '#B0C9DD',
+  inputBackground: '#EAF4FB',
+  shadow: 'rgba(31, 78, 121, 0.2)',
+  overlay: 'rgba(10, 30, 50, 0.55)',
+};
+
 const SHINOBI: ThemePalette = {
   background: '#F6E6C8',
   card: '#FFFBF2',
@@ -602,6 +635,19 @@ export const THEME_OPTIONS: ThemeOption[] = [
       cardShadow: 'hard',
       displayFont: 'condensed',
       cardPattern: 'clouds',
+    },
+  },
+  {
+    id: 'southpark',
+    label: 'South Park',
+    description: 'Construction-paper peaks, blue sky, and a yellow sun',
+    colors: SOUTHPARK,
+    design: {
+      cardRadius: 12,
+      cardBorderWidth: 2,
+      cardShadow: 'hard',
+      displayFont: 'comic',
+      cardPattern: 'mountains',
     },
   },
 ];

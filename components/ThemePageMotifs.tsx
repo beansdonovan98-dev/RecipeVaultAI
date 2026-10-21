@@ -2483,6 +2483,201 @@ function GridMotif({ palette }: MotifProps) {
 }
 
 /* ------------------------------------------------------------------ */
+/* South Park: construction-paper peaks, sky, sun, and confetti        */
+/* ------------------------------------------------------------------ */
+
+function PageMountain({
+  size,
+  color,
+  capSize,
+  style,
+}: {
+  size: number;
+  color: string;
+  capSize: number;
+  style: ViewStyle;
+}) {
+  return (
+    <View style={[style, { width: size, height: size }]}>
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: 0,
+          height: 0,
+          borderLeftWidth: size / 2,
+          borderRightWidth: size / 2,
+          borderBottomWidth: size,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: color,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          bottom: size - capSize * 0.85,
+          left: size / 2 - capSize / 2,
+          width: 0,
+          height: 0,
+          borderLeftWidth: capSize / 2,
+          borderRightWidth: capSize / 2,
+          borderBottomWidth: capSize,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderBottomColor: '#FFFFFF',
+        }}
+      />
+    </View>
+  );
+}
+
+function MountainsMotif({ palette }: MotifProps) {
+  const peak = tint(palette, palette.primary, 0.55);
+  const peak2 = tint(palette, palette.primary, 0.75);
+  const peak3 = tint(palette, palette.primaryLight, 0.6);
+  const sun = tint(palette, palette.tipBackground, 0.95);
+  const cloud = tint(palette, palette.white, 0.95);
+  const confetti = [palette.accent, palette.primary, palette.tipBackground, '#22E6C8', palette.primaryLight];
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {/* Sky haze. */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '46%',
+          backgroundColor: tint(palette, palette.primaryLight, 0.12),
+          opacity: 0.9,
+        }}
+      />
+
+      {/* Sun. */}
+      <View
+        style={{
+          position: 'absolute',
+          top: '6%',
+          right: '8%',
+          width: 118,
+          height: 118,
+          borderRadius: 59,
+          backgroundColor: sun,
+          opacity: 0.9,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          top: '9%',
+          right: '11%',
+          width: 74,
+          height: 44,
+          borderRadius: 22,
+          backgroundColor: cloud,
+          opacity: 0.95,
+        }}
+      />
+
+      {/* Clouds. */}
+      {([
+        { top: '14%', left: '4%', w: 150, h: 52 },
+        { top: '22%', left: '58%', w: 120, h: 44 },
+        { top: '34%', left: '24%', w: 90, h: 34 },
+        { top: '46%', left: '74%', w: 110, h: 40 },
+      ] as Array<{ top: DimensionValue; left: DimensionValue; w: number; h: number }>).map((c, index) => (
+        <View
+          key={`cloud-${index}`}
+          style={{
+            position: 'absolute',
+            top: c.top,
+            left: c.left,
+            width: c.w,
+            height: c.h,
+            borderRadius: c.h / 2,
+            backgroundColor: cloud,
+            opacity: 0.92,
+          }}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: -c.h * 0.4,
+              left: c.w * 0.18,
+              width: c.w * 0.42,
+              height: c.h * 0.9,
+              borderRadius: c.h / 2,
+              backgroundColor: cloud,
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              top: -c.h * 0.35,
+              left: c.w * 0.48,
+              width: c.w * 0.34,
+              height: c.h * 0.85,
+              borderRadius: c.h / 2,
+              backgroundColor: cloud,
+            }}
+          />
+        </View>
+      ))}
+
+      {/* Mountains along the bottom. */}
+      <PageMountain size={230} color={peak} capSize={78} style={{ position: 'absolute', bottom: -40, left: '-8%' }} />
+      <PageMountain size={170} color={peak2} capSize={58} style={{ position: 'absolute', bottom: -30, left: '26%' }} />
+      <PageMountain size={200} color={peak3} capSize={68} style={{ position: 'absolute', bottom: -36, left: '52%' }} />
+      <PageMountain size={150} color={peak} capSize={52} style={{ position: 'absolute', bottom: -28, right: '-6%' }} />
+      <PageMountain size={120} color={peak2} capSize={42} style={{ position: 'absolute', bottom: -22, left: '78%' }} />
+
+      {/* Smaller peaks in the mid distance. */}
+      <PageMountain size={96} color={tint(palette, palette.primary, 0.4)} capSize={32} style={{ position: 'absolute', bottom: '18%', left: '8%', opacity: 0.7 }} />
+      <PageMountain size={84} color={tint(palette, palette.primary, 0.45)} capSize={28} style={{ position: 'absolute', bottom: '22%', left: '46%', opacity: 0.65 }} />
+      <PageMountain size={74} color={tint(palette, palette.primary, 0.5)} capSize={24} style={{ position: 'absolute', bottom: '20%', right: '12%', opacity: 0.6 }} />
+
+      {/* Confetti. */}
+      {Array.from({ length: 22 }).map((_, index) => (
+        <View
+          key={`confetti-${index}`}
+          style={{
+            position: 'absolute',
+            top: `${6 + ((index * 37) % 86)}%`,
+            left: `${(index * 53) % 94}%`,
+            width: index % 3 === 0 ? 9 : 6,
+            height: index % 3 === 0 ? 9 : 6,
+            borderRadius: index % 2 === 0 ? 0 : 3,
+            backgroundColor: confetti[index % confetti.length],
+            opacity: 0.7,
+            transform: [{ rotate: `${(index * 41) % 90}deg` }],
+          }}
+        />
+      ))}
+
+      {/* Snowflakes. */}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <View
+          key={`snow-${index}`}
+          style={{
+            position: 'absolute',
+            top: `${8 + ((index * 43) % 84)}%`,
+            left: `${(index * 61) % 92}%`,
+            width: index % 2 === 0 ? 4 : 3,
+            height: index % 2 === 0 ? 4 : 3,
+            borderRadius: 2,
+            backgroundColor: cloud,
+            opacity: 0.85,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -2501,4 +2696,5 @@ export const PAGE_MOTIFS: Partial<
   petals: SakuraMotif,
   embers: EmberMotif,
   grid: GridMotif,
+  mountains: MountainsMotif,
 };

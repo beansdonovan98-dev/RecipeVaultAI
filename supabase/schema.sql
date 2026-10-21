@@ -289,7 +289,7 @@ begin
     raise exception 'Invalid font color';
   end if;
 
-  if v_key = 'app_theme_key' and v_value not in ('taverna', 'riso', 'diner', 'midnight', 'seaglass', 'butter', 'newsprint', 'citrus', 'lavender', 'sakura', 'ember', 'blueprint', 'shinobi') then
+  if v_key = 'app_theme_key' and v_value not in ('taverna', 'riso', 'diner', 'midnight', 'seaglass', 'butter', 'newsprint', 'citrus', 'lavender', 'sakura', 'ember', 'blueprint', 'shinobi', 'southpark') then
     raise exception 'Invalid theme key';
   end if;
 
