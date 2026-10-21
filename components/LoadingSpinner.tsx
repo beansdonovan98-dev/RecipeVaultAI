@@ -11,7 +11,7 @@ export function LoadingSpinner({ size = 'large' }: LoadingSpinnerProps) {
   const { theme } = useAppearance();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <ActivityIndicator size={size} color={theme.primary} />
     </View>
   );

@@ -343,7 +343,7 @@ export function CrashReportsView({ onClose }: CrashReportsViewProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: 'transparent',
   },
   viewerHeader: {
     flexDirection: 'row',
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: 'transparent',
     gap: Spacing.md,
   },
   loadingText: {

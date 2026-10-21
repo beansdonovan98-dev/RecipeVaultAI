@@ -7,6 +7,7 @@ import { useAppearance } from '@/contexts/AppearanceContext';
 import { openScreenOverlay } from '@/services/screenOverlay';
 import { recordBreadcrumb } from '@/services/crashTracker';
 import { AssistantBackdrop } from '@/components/AssistantBackdrop';
+import { ThemePagePattern } from '@/components/ThemePagePattern';
 import { themeCardStyle } from '@/constants/themes';
 
 export default function AIToolsScreen() {
@@ -14,8 +15,9 @@ export default function AIToolsScreen() {
   const cardTokens = themeCardStyle(design, theme);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
     <AssistantBackdrop />
+    <ThemePagePattern opacity={0.32} />
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={styles.content}

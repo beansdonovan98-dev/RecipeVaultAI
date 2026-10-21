@@ -18,6 +18,8 @@ import { AUTHORS, type AuthorId } from '@/constants/authors';
 import { RecipeInput } from '@/types/recipe';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AssistantBackdrop } from '@/components/AssistantBackdrop';
+import { ThemePagePattern } from '@/components/ThemePagePattern';
+import { ThemeCardPattern } from '@/components/ThemeCardPattern';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { notifyDataChanged } from '@/services/dataEvents';
 import { syncRecipes } from '@/services/recipeSync';
@@ -223,8 +225,9 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
 
   return (
     <ErrorBoundary>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <AssistantBackdrop />
+      <ThemePagePattern opacity={0.32} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -333,6 +336,15 @@ export default function AIRecipeLookupScreen({ onClose }: AIRecipeLookupScreenPr
               { backgroundColor: theme.card },
             ]}
           >
+            <View
+              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFill,
+                { borderRadius: design.cardRadius, overflow: 'hidden', opacity: 0.45 },
+              ]}
+            >
+              <ThemeCardPattern pattern={design.cardPattern} palette={theme} />
+            </View>
             <Text style={[styles.recipeName, { fontFamily: displayFamily }]}>{generatedRecipe.title}</Text>
             <Text style={[styles.recipeDescription, { color: theme.textSecondary }]}>
               {generatedRecipe.description}

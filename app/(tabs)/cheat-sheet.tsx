@@ -297,7 +297,7 @@ export default function CheatSheetScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.container, { backgroundColor: 'transparent' }]}
       contentContainerStyle={styles.content}
     >
       <View style={styles.header}>

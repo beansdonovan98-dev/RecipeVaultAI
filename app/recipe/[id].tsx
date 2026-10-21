@@ -26,6 +26,7 @@ import { navigateSafely } from '@/utils/safeNavigation';
 import { getCategoryInfo } from '@/constants/categories';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { themeCardStyle } from '@/constants/themes';
+import { ThemeCardPattern } from '@/components/ThemeCardPattern';
 
 function SectionHeader({
   icon,
@@ -117,7 +118,7 @@ export default function RecipeDetailScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           {recipe.imageUri ? (
             <Image source={{ uri: recipe.imageUri }} style={styles.image} />
@@ -142,7 +143,7 @@ export default function RecipeDetailScreen() {
             style={[
               styles.content,
               {
-                backgroundColor: theme.background,
+                backgroundColor: 'transparent',
                 borderTopLeftRadius: Math.max(design.cardRadius + 10, 22),
                 borderTopRightRadius: Math.max(design.cardRadius + 10, 22),
               },
@@ -243,6 +244,15 @@ export default function RecipeDetailScreen() {
                   { backgroundColor: theme.card },
                 ]}
               >
+                <View
+                  pointerEvents="none"
+                  style={[
+                    StyleSheet.absoluteFill,
+                    { borderRadius: design.cardRadius, overflow: 'hidden', opacity: 0.55 },
+                  ]}
+                >
+                  <ThemeCardPattern pattern={design.cardPattern} palette={theme} />
+                </View>
                 {recipe.ingredients.map((ing, index) => (
                   <View
                     key={index}

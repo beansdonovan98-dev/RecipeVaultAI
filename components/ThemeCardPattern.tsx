@@ -488,9 +488,8 @@ function SprigsPattern({ palette }: PatternProps) {
   );
 }
 
-/** Sakura: petals drifting across the card. */
+/** Sakura: notched cherry-blossom petals drifting across the card. */
 function PetalsPattern({ palette }: PatternProps) {
-  const petal = tint(palette, palette.accent, 0.32);
   const pollen = tint(palette, palette.primary, 0.14);
 
   const petals: Array<{
@@ -498,34 +497,39 @@ function PetalsPattern({ palette }: PatternProps) {
     left: DimensionValue;
     size: number;
     rotate: string;
+    opacity?: number;
   }> = [
-    { top: '6%', left: '74%', size: 20, rotate: '24deg' },
-    { top: '20%', left: '86%', size: 12, rotate: '-16deg' },
-    { top: '30%', left: '8%', size: 16, rotate: '-38deg' },
-    { top: '58%', left: '68%', size: 10, rotate: '52deg' },
-    { top: '76%', left: '20%', size: 14, rotate: '12deg' },
-    { top: '86%', left: '58%', size: 8, rotate: '-24deg' },
+    { top: '4%', left: '72%', size: 26, rotate: '24deg' },
+    { top: '18%', left: '87%', size: 14, rotate: '-16deg', opacity: 0.85 },
+    { top: '29%', left: '6%', size: 21, rotate: '-38deg' },
+    { top: '44%', left: '43%', size: 13, rotate: '78deg', opacity: 0.7 },
+    { top: '57%', left: '70%', size: 17, rotate: '52deg' },
+    { top: '72%', left: '18%', size: 15, rotate: '12deg', opacity: 0.9 },
+    { top: '84%', left: '58%', size: 11, rotate: '-24deg', opacity: 0.8 },
+    { top: '10%', left: '38%', size: 12, rotate: '-64deg', opacity: 0.65 },
+    { top: '64%', left: '30%', size: 9, rotate: '130deg', opacity: 0.6 },
   ];
 
   return (
     <View style={StyleSheet.absoluteFill}>
       {petals.map((entry, index) => (
-        <View
+        <Image
           key={index}
+          source={require('../assets/theme-petal.png')}
+          resizeMode="contain"
           style={{
             position: 'absolute',
             top: entry.top,
             left: entry.left,
-            width: entry.size * 0.55,
+            width: entry.size * 0.66,
             height: entry.size,
-            borderRadius: entry.size * 0.5,
-            backgroundColor: petal,
+            opacity: entry.opacity ?? 1,
             transform: [{ rotate: entry.rotate }],
           }}
         />
       ))}
       {([
-        { top: '22%', left: '78%' },
+        { top: '22%', left: '72%' },
         { top: '62%', left: '24%' },
         { top: '80%', left: '64%' },
       ] as Array<{ top: DimensionValue; left: DimensionValue }>).map((dot, index) => (

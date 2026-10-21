@@ -194,7 +194,7 @@ export function RoomSetupView({ onClose }: RoomSetupViewProps) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.container, { backgroundColor: 'transparent' }]}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >

@@ -46,7 +46,7 @@ export default function FavoritesScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
         <View style={styles.header}>
           <Text style={[styles.headerTitle, { fontFamily: displayFamily }]}>Favorites</Text>
           <Text style={styles.headerSubtitle}>{favorites.length} saved</Text>

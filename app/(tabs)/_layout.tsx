@@ -44,6 +44,9 @@ export default function TabLayout() {
           fontWeight: '500',
           fontFamily,
         },
+        sceneStyle: {
+          backgroundColor: 'transparent',
+        },
         headerStyle: {
           backgroundColor: theme.background,
         },

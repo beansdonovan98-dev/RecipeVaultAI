@@ -44,7 +44,7 @@ export default function HomeScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
         <View style={styles.header}>
           <View style={styles.brandRow}>
             <View style={styles.brandBlock}>

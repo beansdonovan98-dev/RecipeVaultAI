@@ -29,7 +29,7 @@ export default function SearchScreen() {
 
   return (
     <ErrorBoundary>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
         <View style={styles.searchContainer}>
           <SearchBar
             value={query}

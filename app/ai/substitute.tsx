@@ -11,10 +11,12 @@ import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText
 import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AssistantBackdrop } from '@/components/AssistantBackdrop';
+import { ThemePagePattern } from '@/components/ThemePagePattern';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { themeCardStyle } from '@/constants/themes';
+import { ThemeCardPattern } from '@/components/ThemeCardPattern';
 
 export default function AISubstituteScreen() {
   const { theme, design, displayFamily } = useAppearance();
@@ -55,8 +57,9 @@ export default function AISubstituteScreen() {
 
   return (
     <ErrorBoundary>
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
     <AssistantBackdrop />
+    <ThemePagePattern opacity={0.32} />
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={styles.scrollContent}
@@ -109,6 +112,15 @@ export default function AISubstituteScreen() {
               { backgroundColor: theme.card },
             ]}
           >
+            <View
+              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFill,
+                { borderRadius: design.cardRadius, overflow: 'hidden', opacity: 0.55 },
+              ]}
+            >
+              <ThemeCardPattern pattern={design.cardPattern} palette={theme} />
+            </View>
             {substitutions.map((sub, index) => (
               <View
                 key={index}

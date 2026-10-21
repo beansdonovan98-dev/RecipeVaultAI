@@ -18,6 +18,7 @@ import AISubstituteScreen from '@/app/ai/substitute';
 import { AppText as Text } from '@/components/AppText';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StartupErrorScreen } from '@/components/StartupErrorScreen';
+import { ThemePagePattern } from '@/components/ThemePagePattern';
 import { CrashReportsView } from '@/components/CrashReportsView';
 import { RoomSetupView } from '@/components/RoomSetupView';
 import { SyncStatusView } from '@/components/SyncStatusView';
@@ -178,6 +179,7 @@ function RootLayoutContent() {
 
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
+      <ThemePagePattern />
       <ErrorBoundary onViewCrashReports={() => setShowCrashViewer(true)}>
         {failed ? (
           <StartupErrorScreen
@@ -200,7 +202,7 @@ function RootLayoutContent() {
               },
               headerShadowVisible: false,
               contentStyle: {
-                backgroundColor: theme.background,
+                backgroundColor: 'transparent',
               },
             }}
           >
@@ -214,7 +216,7 @@ function RootLayoutContent() {
         )}
       </ErrorBoundary>
       {screenOverlay ? (
-        <View style={[styles.overlay, { backgroundColor: theme.background }]}>
+        <View style={[styles.overlay, styles.transparentOverlay]}>
           <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
             <View
               style={[
@@ -257,7 +259,7 @@ function RootLayoutContent() {
         </View>
       ) : null}
       {showCrashViewer ? (
-        <View style={[styles.overlay, { backgroundColor: theme.background }]}>
+        <View style={[styles.overlay, styles.transparentOverlay]}>
           <ErrorBoundary
             fallback={
               <View style={[styles.fallback, { backgroundColor: theme.background }]}>
@@ -295,6 +297,9 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: Colors.background,
+  },
+  transparentOverlay: {
+    backgroundColor: 'transparent',
   },
   safeArea: {
     flex: 1,

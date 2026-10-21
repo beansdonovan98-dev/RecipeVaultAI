@@ -103,7 +103,7 @@ export function SyncStatusView({ onClose }: SyncStatusViewProps) {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.container, { backgroundColor: 'transparent' }]}
       contentContainerStyle={styles.content}
     >
       <View

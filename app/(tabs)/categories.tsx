@@ -56,7 +56,7 @@ export default function CategoriesScreen() {
 
   if (categoriesWithRecipes.length === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
         <EmptyState
           icon="grid-outline"
           title="No categories yet"
@@ -67,7 +67,7 @@ export default function CategoriesScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <FlatList
         data={categoriesWithRecipes}
         keyExtractor={item => item}

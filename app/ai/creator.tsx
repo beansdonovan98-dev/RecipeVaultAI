@@ -25,6 +25,8 @@ import { syncRecipes } from '@/services/recipeSync';
 import { captureException, recordBreadcrumb } from '@/services/crashTracker';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AssistantBackdrop } from '@/components/AssistantBackdrop';
+import { ThemePagePattern } from '@/components/ThemePagePattern';
+import { ThemeCardPattern } from '@/components/ThemeCardPattern';
 import type { RecipeInput } from '@/types/recipe';
 
 interface CreatorTurn {
@@ -308,6 +310,15 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
               { backgroundColor: theme.card },
             ]}
           >
+            <View
+              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFill,
+                { borderRadius: design.cardRadius, overflow: 'hidden', opacity: 0.45 },
+              ]}
+            >
+              <ThemeCardPattern pattern={design.cardPattern} palette={theme} />
+            </View>
             <View style={styles.recipeHeader}>
               <Ionicons name="sparkles" size={16} color={theme.accent} />
               <Text style={[styles.recipeTitle, { fontFamily: displayFamily }]}>{recipe.title}</Text>
@@ -378,10 +389,11 @@ export default function AICreatorScreen(_props: CreatorScreenProps) {
   return (
     <ErrorBoundary>
       <KeyboardAvoidingView
-        style={[styles.container, { backgroundColor: theme.background }]}
+        style={[styles.container, { backgroundColor: 'transparent' }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <AssistantBackdrop />
+        <ThemePagePattern opacity={0.32} />
         <ScrollView
           ref={scrollRef}
           style={styles.messagesScroll}
