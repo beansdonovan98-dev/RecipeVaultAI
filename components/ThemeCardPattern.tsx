@@ -1794,17 +1794,13 @@ function SpacePattern({ palette }: PatternProps) {
 function CandyPattern({ palette }: PatternProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
+      <Image
+        source={require('../assets/theme-candy-scene.png')}
+        resizeMode="cover"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', opacity: 0.9 } as any}
+      />
       {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={'lollipop-' + index} source={require('../assets/theme-lollipop.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 17) % 60)) + '%', left: ((index * 23) % 80) + '%', width: 40, height: 80, opacity: 0.8, transform: [{ rotate: ((index * 31) % 40 - 20) + 'deg' }] } as any} />
-      ))}
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={'candy-' + index} source={require('../assets/theme-candy.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 29) % 88)) + '%', left: ((index * 47) % 92) + '%', width: index % 3 === 0 ? 28 : 18, height: index % 3 === 0 ? 28 : 18, opacity: 0.75, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
-      ))}
-      {Array.from({ length: 4 }).map((_, index) => (
-        <Image key={'chocolate-' + index} source={require('../assets/theme-chocolate.png')} resizeMode="contain" style={{ position: 'absolute', top: (15 + ((index * 31) % 60)) + '%', left: ((index * 43) % 75) + '%', width: 55, height: 44, opacity: 0.7, transform: [{ rotate: ((index * 19) % 30 - 15) + 'deg' }] } as any} />
-      ))}
-      {Array.from({ length: 5 }).map((_, index) => (
-        <View key={'sprinkle-' + index} style={{ position: 'absolute', top: (5 + ((index * 23) % 88)) + '%', left: ((index * 41) % 92) + '%', width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: ((index * 41) % 120 - 60) + 'deg' }] } as any} />
+        <View key={`sprinkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 23) % 90)}%`, left: `${(index * 41) % 94}%`, width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: `${(index * 41) % 120 - 60}deg` }] } as any} />
       ))}
     </View>
   );

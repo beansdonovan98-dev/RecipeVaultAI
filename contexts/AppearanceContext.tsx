@@ -160,7 +160,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
             ? normalizeHexColor(savedFontColor)
             : isHexColor(localFontColor ?? '')
               ? normalizeHexColor(localFontColor as string)
-              : getThemePalette(nextThemeKey).text;
+              : DEFAULT_FONT_COLOR;
 
         if (!isFontKey(savedFontKey) && isFontKey(localFontKey)) {
           nextFontKey = localFontKey;
@@ -262,26 +262,17 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   const setThemeKey = useCallback(
     async (next: ThemeKey) => {
       lastThemeChangeRef.current = Date.now();
-      const palette = getThemePalette(next);
-      setThemeKeyState(next);
-      setFontColorState(palette.text);
       setThemeKeyState(next);
       if (hasRemoteRoom && roomCode && roomId) {
         try {
-          await Promise.all([
-            setRoomSetting(roomCode, THEME_KEY_SETTING, next),
-            setRoomSetting(roomCode, FONT_COLOR_SETTING, palette.text),
-          ]);
+          await setRoomSetting(roomCode, THEME_KEY_SETTING, next);
           return;
         } catch (error) {
           captureException(error, { source: 'appearance.setThemeShared' });
         }
       }
       try {
-        await Promise.all([
-          setSetting(THEME_KEY_SETTING, next),
-          setSetting(FONT_COLOR_SETTING, palette.text),
-        ]);
+        await setSetting(THEME_KEY_SETTING, next);
       } catch (error) {
         captureException(error, { source: 'appearance.setThemeLocal' });
       }

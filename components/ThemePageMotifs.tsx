@@ -2823,21 +2823,13 @@ function SpaceMotif({ palette }: MotifProps) {
 function CandyMotif({ palette }: MotifProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '30%', backgroundColor: tint(palette, palette.accentLight, 0.2), opacity: 0.5 }} />
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={`lollipop-${index}`} source={require('../assets/theme-lollipop.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 17) % 70)}%`, left: `${(index * 23) % 85}%`, width: index % 2 === 0 ? 55 : 40, height: index % 2 === 0 ? 110 : 80, opacity: 0.8, transform: [{ rotate: `${(index * 31) % 40 - 20}deg` }] }} />
-      ))}
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={`candy-${index}`} source={require('../assets/theme-candy.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 29) % 90)}%`, left: `${(index * 47) % 94}%`, width: index % 3 === 0 ? 35 : 24, height: index % 3 === 0 ? 35 : 24, opacity: 0.75, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
-      ))}
+      <Image
+        source={require('../assets/theme-candy-scene.png')}
+        resizeMode="cover"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', opacity: 0.95 } as any}
+      />
       {Array.from({ length: 8 }).map((_, index) => (
-        <Image key={`chocolate-${index}`} source={require('../assets/theme-chocolate.png')} resizeMode="contain" style={{ position: 'absolute', top: `${15 + ((index * 31) % 65)}%`, left: `${(index * 43) % 80}%`, width: 70, height: 56, opacity: 0.7, transform: [{ rotate: `${(index * 19) % 30 - 15}deg` }] }} />
-      ))}
-      {Array.from({ length: 7 }).map((_, index) => (
-        <View key={`sprinkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 23) % 90)}%`, left: `${(index * 41) % 94}%`, width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: `${(index * 41) % 120 - 60}deg` }] }} />
-      ))}
-      {Array.from({ length: 6 }).map((_, index) => (
-        <View key={`confetti-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 37) % 88)}%`, left: `${(index * 53) % 92}%`, width: index % 2 === 0 ? 6 : 4, height: index % 2 === 0 ? 6 : 4, borderRadius: index % 2 === 0 ? 3 : 0, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.6, transform: [{ rotate: `${(index * 41) % 90}deg` }] }} />
+        <View key={`sprinkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 23) % 90)}%`, left: `${(index * 41) % 94}%`, width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: `${(index * 41) % 120 - 60}deg` }] } as any} />
       ))}
     </View>
   );
