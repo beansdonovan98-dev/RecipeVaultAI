@@ -280,7 +280,7 @@ function RolodexCard({
       accessibilityRole="button"
       accessibilityLabel={`${recipe.title}. Open recipe`}
     >
-      <View style={[styles.photoWrap, { backgroundColor: theme.inputBackground }]}>
+      <View style={[styles.photoWrap, { backgroundColor: theme.background }]}>
         {recipe.imageUri ? (
           <Image source={{ uri: recipe.imageUri }} style={styles.photo} resizeMode="cover" />
         ) : (
@@ -322,7 +322,7 @@ function RolodexCard({
         <View style={[styles.accentStrip, { backgroundColor: category.color }]} />
         <View style={styles.tagRow}>
           {tags.map((tag) => (
-            <View key={tag} style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+            <View key={tag} style={[styles.tag, { backgroundColor: theme.background }]}>
               <Text style={[styles.tagText, { color: theme.textSecondary }]} numberOfLines={1}>
                 {tag}
               </Text>
@@ -350,15 +350,15 @@ function RolodexCard({
 
         <View style={[styles.footer, { borderTopColor: theme.borderLight }]}>
           <View style={styles.chips}>
-            <View style={[styles.chip, { backgroundColor: theme.inputBackground }]}>
+            <View style={[styles.chip, { backgroundColor: theme.background }]}>
               <Ionicons name="time-outline" size={12} color={theme.accent} />
               <Text style={[styles.chipText, { color: theme.text }]}>{recipe.prepTime}m</Text>
             </View>
-            <View style={[styles.chip, { backgroundColor: theme.inputBackground }]}>
+            <View style={[styles.chip, { backgroundColor: theme.background }]}>
               <Ionicons name="flame-outline" size={12} color={theme.accent} />
               <Text style={[styles.chipText, { color: theme.text }]}>{recipe.cookTime}m</Text>
             </View>
-            <View style={[styles.chip, { backgroundColor: theme.inputBackground }]}>
+            <View style={[styles.chip, { backgroundColor: theme.background }]}>
               <Ionicons name="people-outline" size={12} color={theme.accent} />
               <Text style={[styles.chipText, { color: theme.text }]}>{recipe.servings}</Text>
             </View>

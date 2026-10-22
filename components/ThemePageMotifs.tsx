@@ -2759,53 +2759,36 @@ function HalloweenMotif({ palette }: MotifProps) {
 }
 
 function OceanMotif({ palette }: MotifProps) {
-  const wave = tint(palette, palette.primary, 0.6);
-  const bubble = tint(palette, palette.accent, 0.5);
-  const coral = tint(palette, palette.accentLight, 0.7);
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', backgroundColor: tint(palette, palette.primaryLight, 0.15), opacity: 0.7 }} />
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={`wave-${index}`} source={require('../assets/theme-wave.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${index * 12}%`, left: '-5%', right: '-5%', width: '110%', height: 80, opacity: 0.5 + (index % 2) * 0.15, transform: [{ rotate: index % 2 === 0 ? '0deg' : '180deg' }] }} />
-      ))}
-      {Array.from({ length: 12 }).map((_, index) => (
-        <Image key={`bubble-${index}`} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: `${8 + ((index * 41) % 80)}%`, left: `${(index * 59) % 88}%`, width: index % 3 === 0 ? 48 : 28, height: index % 3 === 0 ? 48 : 28, opacity: 0.5 } as any} />
-      ))}
+      <Image
+        source={require('../assets/theme-ocean-scene.png')}
+        resizeMode="cover"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', opacity: 0.95 } as any}
+      />
       {Array.from({ length: 8 }).map((_, index) => (
-        <Image key={`fish-${index}`} source={require('../assets/theme-fish.png')} resizeMode="contain" style={{ position: 'absolute', top: `${10 + ((index * 41) % 70)}%`, left: `${(index * 59) % 80}%`, width: index % 2 === 0 ? 80 : 60, height: index % 2 === 0 ? 53 : 40, opacity: 0.7, transform: [{ rotate: `${(index * 23) % 40 - 20}deg` }, { scaleX: index % 2 === 0 ? 1 : -1 }] }} />
+        <Image key={`bubble-${index}`} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: `${8 + ((index * 41) % 80)}%`, left: `${(index * 59) % 88}%`, width: index % 3 === 0 ? 40 : 24, height: index % 3 === 0 ? 40 : 24, opacity: 0.5 } as any} />
       ))}
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={`coral-${index}`} source={require('../assets/theme-coral.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${5 + index * 3}%`, left: `${10 + index * 14}%`, width: 60, height: 90, opacity: 0.75, transform: [{ rotate: `${(index * 17) % 20 - 10}deg` }] }} />
-      ))}
-      {Array.from({ length: 10 }).map((_, index) => (
-        <Image key={`shell-${index}`} source={require('../assets/theme-shell.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${3 + ((index * 29) % 15)}%`, left: `${(index * 47) % 88}%`, width: 40, height: 40, opacity: 0.65, transform: [{ rotate: `${(index * 37) % 60 - 30}deg` }] }} />
-      ))}
-      {Array.from({ length: 6 }).map((_, index) => (
-        <View key={`sparkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 43) % 90)}%`, left: `${(index * 61) % 94}%`, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.8 }} />
+      {Array.from({ length: 3 }).map((_, index) => (
+        <View key={`sparkle-${index}`} style={{ position: 'absolute', top: `${10 + ((index * 43) % 80)}%`, left: `${(index * 61) % 90}%`, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.8 }} />
       ))}
     </View>
   );
 }
 
 function ForestMotif({ palette }: MotifProps) {
-  const leaf = tint(palette, palette.accent, 0.6);
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35%', backgroundColor: tint(palette, palette.primary, 0.08), opacity: 0.6 }} />
-      {Array.from({ length: 8 }).map((_, index) => (
-        <Image key={`tree-${index}`} source={require('../assets/theme-tree.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${index % 2 === 0 ? -5 : 2}%`, left: `${(index * 13) % 85}%`, width: index % 3 === 0 ? 100 : 75, height: index % 3 === 0 ? 167 : 125, opacity: 0.85, transform: [{ scaleX: index % 2 === 0 ? 1 : -1 }] }} />
+      <Image
+        source={require('../assets/theme-forest-scene.png')}
+        resizeMode="cover"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', opacity: 0.95 } as any}
+      />
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Image key={`firefly-${index}`} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: `${8 + ((index * 31) % 80)}%`, left: `${(index * 53) % 90}%`, width: 16, height: 16, opacity: 0.8 } as any} />
       ))}
       {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={`mushroom-${index}`} source={require('../assets/theme-mushroom.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${8 + ((index * 23) % 20)}%`, left: `${(index * 47) % 88}%`, width: 40, height: 50, opacity: 0.8, transform: [{ rotate: `${(index * 17) % 20 - 10}deg` }] }} />
-      ))}
-      {Array.from({ length: 10 }).map((_, index) => (
-        <Image key={`firefly-${index}`} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 31) % 88)}%`, left: `${(index * 53) % 94}%`, width: 20, height: 20, opacity: 0.8 }} />
-      ))}
-      {Array.from({ length: 9 }).map((_, index) => (
-        <Image key={`leaf-${index}`} source={require('../assets/theme-leaf.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 43) % 88)}%`, left: `${(index * 61) % 94}%`, width: 30, height: 40, opacity: 0.6, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
-      ))}
-      {Array.from({ length: 8 }).map((_, index) => (
-        <View key={`vine-${index}`} style={{ position: 'absolute', top: `${(index * 12) % 60}%`, left: `${(index * 17) % 80}%`, width: 2, height: 60 + (index % 3) * 20, backgroundColor: tint(palette, palette.primary, 0.4), opacity: 0.4, transform: [{ rotate: `${(index * 23) % 30 - 15}deg` }] }} />
+        <Image key={`mushroom-${index}`} source={require('../assets/theme-mushroom.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${5 + (index * 3)}%`, left: `${(index * 47) % 85}%`, width: 32, height: 40, opacity: 0.7 } as any} />
       ))}
     </View>
   );

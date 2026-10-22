@@ -45,7 +45,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
               styles.compactImage,
               styles.placeholderImage,
               {
-                backgroundColor: theme.inputBackground,
+                backgroundColor: theme.background,
                 borderTopLeftRadius: imageRadius,
                 borderBottomLeftRadius: imageRadius,
               },
@@ -95,7 +95,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
             styles.image,
             styles.placeholderImage,
             {
-              backgroundColor: theme.inputBackground,
+              backgroundColor: theme.background,
               borderTopLeftRadius: imageRadius,
               borderTopRightRadius: imageRadius,
             },
@@ -124,7 +124,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
             {tags.slice(0, 3).map((tag) => {
               const info = getCategoryInfo(tag as any);
               return (
-                <View key={tag} style={[styles.categoryBadge, { backgroundColor: theme.inputBackground }]}>
+                <View key={tag} style={[styles.categoryBadge, { backgroundColor: theme.background }]}>
                   <Ionicons name={info.icon as any} size={12} color={info.color} />
                   <Text style={styles.categoryText}>{tag}</Text>
                 </View>

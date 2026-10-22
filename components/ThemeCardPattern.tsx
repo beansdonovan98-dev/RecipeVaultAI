@@ -1741,46 +1741,33 @@ function HalloweenPattern({ palette }: PatternProps) {
 function OceanPattern({ palette }: PatternProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
+      <Image
+        source={require('../assets/theme-ocean-scene.png')}
+        resizeMode="cover"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', opacity: 0.9 } as any}
+      />
       {Array.from({ length: 4 }).map((_, index) => (
-        <Image key={'wave-' + index} source={require('../assets/theme-wave.png')} resizeMode="contain" style={{ position: 'absolute', bottom: (index * 14) + '%', left: '-5%', width: '110%', height: 50, opacity: 0.5, transform: [{ rotate: index % 2 === 0 ? '0deg' : '180deg' }] } as any} />
-      ))}
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Image key={'bubble-' + index} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 37) % 85)) + '%', left: ((index * 53) % 92) + '%', width: index % 3 === 0 ? 32 : 18, height: index % 3 === 0 ? 32 : 18, opacity: 0.6 } as any} />
-      ))}
-      {Array.from({ length: 4 }).map((_, index) => (
-        <Image key={'fish-' + index} source={require('../assets/theme-fish.png')} resizeMode="contain" style={{ position: 'absolute', top: (15 + ((index * 41) % 60)) + '%', left: ((index * 59) % 70) + '%', width: 55, height: 36, opacity: 0.75, transform: [{ rotate: ((index * 23) % 40 - 20) + 'deg' }, { scaleX: index % 2 === 0 ? 1 : -1 }] } as any} />
-      ))}
-      {Array.from({ length: 3 }).map((_, index) => (
-        <Image key={'coral-' + index} source={require('../assets/theme-coral.png')} resizeMode="contain" style={{ position: 'absolute', bottom: 5, left: (10 + index * 30) + '%', width: 40, height: 60, opacity: 0.7 } as any} />
-      ))}
-      {Array.from({ length: 5 }).map((_, index) => (
-        <Image key={'shell-' + index} source={require('../assets/theme-shell.png')} resizeMode="contain" style={{ position: 'absolute', bottom: (3 + index * 2) + '%', left: ((index * 47) % 85) + '%', width: 28, height: 28, opacity: 0.65, transform: [{ rotate: ((index * 37) % 60 - 30) + 'deg' }] } as any} />
+        <Image key={`bubble-${index}`} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: `${8 + ((index * 41) % 80)}%`, left: `${(index * 59) % 88}%`, width: 24, height: 24, opacity: 0.5 } as any} />
       ))}
     </View>
   );
 }
 
-/** Forest: trees, mushrooms, fireflies, and falling leaves. */
 function ForestPattern({ palette }: PatternProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
+      <Image
+        source={require('../assets/theme-forest-scene.png')}
+        resizeMode="cover"
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', opacity: 0.9 } as any}
+      />
       {Array.from({ length: 4 }).map((_, index) => (
-        <Image key={'tree-' + index} source={require('../assets/theme-tree.png')} resizeMode="contain" style={{ position: 'absolute', bottom: -10, left: ((index * 23) % 75) + '%', width: index % 2 === 0 ? 65 : 50, height: index % 2 === 0 ? 108 : 83, opacity: 0.8 } as any} />
-      ))}
-      {Array.from({ length: 5 }).map((_, index) => (
-        <Image key={'mushroom-' + index} source={require('../assets/theme-mushroom.png')} resizeMode="contain" style={{ position: 'absolute', bottom: 5, left: ((index * 47) % 85) + '%', width: 32, height: 42, opacity: 0.75, transform: [{ rotate: ((index * 17) % 20 - 10) + 'deg' }] } as any} />
-      ))}
-      {Array.from({ length: 8 }).map((_, index) => (
-        <Image key={'firefly-' + index} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: (8 + ((index * 31) % 80)) + '%', left: ((index * 53) % 90) + '%', width: 14, height: 14, opacity: 0.8 } as any} />
-      ))}
-      {Array.from({ length: 5 }).map((_, index) => (
-        <Image key={'leaf-' + index} source={require('../assets/theme-leaf.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 43) % 85)) + '%', left: ((index * 61) % 90) + '%', width: 22, height: 30, opacity: 0.6, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
+        <Image key={`firefly-${index}`} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: `${8 + ((index * 31) % 80)}%`, left: `${(index * 53) % 90}%`, width: 12, height: 12, opacity: 0.8 } as any} />
       ))}
     </View>
   );
 }
 
-/** Space: planets, stars, rockets, and nebulas. */
 function SpacePattern({ palette }: PatternProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
