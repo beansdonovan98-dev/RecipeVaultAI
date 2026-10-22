@@ -1508,6 +1508,94 @@ function CloudsPattern(_props: PatternProps) {
           transform: [{ rotate: '-6deg' }],
         }}
       />
+      <Image
+        source={require('../assets/theme-cloud.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: '10%',
+          left: '30%',
+          width: 60,
+          height: 40,
+          opacity: 0.6,
+          transform: [{ rotate: '12deg' }],
+        }}
+      />
+      <Image
+        source={require('../assets/theme-shuriken.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: '8%',
+          right: 20,
+          width: 32,
+          height: 32,
+          opacity: 0.7,
+          transform: [{ rotate: '15deg' }],
+        }}
+      />
+      <Image
+        source={require('../assets/theme-shuriken.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          bottom: '15%',
+          left: 15,
+          width: 28,
+          height: 28,
+          opacity: 0.6,
+          transform: [{ rotate: '-20deg' }],
+        }}
+      />
+      <Image
+        source={require('../assets/theme-shuriken.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: '45%',
+          right: '30%',
+          width: 24,
+          height: 24,
+          opacity: 0.5,
+          transform: [{ rotate: '30deg' }],
+        }}
+      />
+      <Image
+        source={require('../assets/theme-kurama.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          bottom: -5,
+          right: -10,
+          width: 70,
+          height: 55,
+          opacity: 0.5,
+        }}
+      />
+      <Image
+        source={require('../assets/theme-konoha.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: 5,
+          left: '35%',
+          width: 40,
+          height: 40,
+          opacity: 0.45,
+        }}
+      />
+      <Image
+        source={require('../assets/theme-ramen.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          bottom: 5,
+          left: '10%',
+          width: 50,
+          height: 37,
+          opacity: 0.55,
+        }}
+      />
     </View>
   );
 }
@@ -1649,24 +1737,105 @@ function HalloweenPattern({ palette }: PatternProps) {
   );
 }
 
+/** Ocean: waves, bubbles, fish, coral, and shells. */
+function OceanPattern({ palette }: PatternProps) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Image key={'wave-' + index} source={require('../assets/theme-wave.png')} resizeMode="contain" style={{ position: 'absolute', bottom: (index * 14) + '%', left: '-5%', width: '110%', height: 50, opacity: 0.5, transform: [{ rotate: index % 2 === 0 ? '0deg' : '180deg' }] } as any} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Image key={'bubble-' + index} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 37) % 85)) + '%', left: ((index * 53) % 92) + '%', width: index % 3 === 0 ? 32 : 18, height: index % 3 === 0 ? 32 : 18, opacity: 0.6 } as any} />
+      ))}
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Image key={'fish-' + index} source={require('../assets/theme-fish.png')} resizeMode="contain" style={{ position: 'absolute', top: (15 + ((index * 41) % 60)) + '%', left: ((index * 59) % 70) + '%', width: 55, height: 36, opacity: 0.75, transform: [{ rotate: ((index * 23) % 40 - 20) + 'deg' }, { scaleX: index % 2 === 0 ? 1 : -1 }] } as any} />
+      ))}
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Image key={'coral-' + index} source={require('../assets/theme-coral.png')} resizeMode="contain" style={{ position: 'absolute', bottom: 5, left: (10 + index * 30) + '%', width: 40, height: 60, opacity: 0.7 } as any} />
+      ))}
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Image key={'shell-' + index} source={require('../assets/theme-shell.png')} resizeMode="contain" style={{ position: 'absolute', bottom: (3 + index * 2) + '%', left: ((index * 47) % 85) + '%', width: 28, height: 28, opacity: 0.65, transform: [{ rotate: ((index * 37) % 60 - 30) + 'deg' }] } as any} />
+      ))}
+    </View>
+  );
+}
+
+/** Forest: trees, mushrooms, fireflies, and falling leaves. */
+function ForestPattern({ palette }: PatternProps) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Image key={'tree-' + index} source={require('../assets/theme-tree.png')} resizeMode="contain" style={{ position: 'absolute', bottom: -10, left: ((index * 23) % 75) + '%', width: index % 2 === 0 ? 65 : 50, height: index % 2 === 0 ? 108 : 83, opacity: 0.8 } as any} />
+      ))}
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Image key={'mushroom-' + index} source={require('../assets/theme-mushroom.png')} resizeMode="contain" style={{ position: 'absolute', bottom: 5, left: ((index * 47) % 85) + '%', width: 32, height: 42, opacity: 0.75, transform: [{ rotate: ((index * 17) % 20 - 10) + 'deg' }] } as any} />
+      ))}
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Image key={'firefly-' + index} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: (8 + ((index * 31) % 80)) + '%', left: ((index * 53) % 90) + '%', width: 14, height: 14, opacity: 0.8 } as any} />
+      ))}
+      {Array.from({ length: 10 }).map((_, index) => (
+        <Image key={'leaf-' + index} source={require('../assets/theme-leaf.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 43) % 85)) + '%', left: ((index * 61) % 90) + '%', width: 22, height: 30, opacity: 0.6, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
+      ))}
+    </View>
+  );
+}
+
+/** Space: planets, stars, rockets, and nebulas. */
+function SpacePattern({ palette }: PatternProps) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {Array.from({ length: 20 }).map((_, index) => (
+        <View key={'star-' + index} style={{ position: 'absolute', top: ((index * 37) % 98) + '%', left: ((index * 53) % 98) + '%', width: index % 5 === 0 ? 3 : 2, height: index % 5 === 0 ? 3 : 2, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.6 } as any} />
+      ))}
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Image key={'nebula-' + index} source={require('../assets/theme-nebula.png')} resizeMode="contain" style={{ position: 'absolute', top: ((index * 17) % 50) + '%', left: ((index * 23) % 50) + '%', width: 90, height: 90, opacity: 0.4 } as any} />
+      ))}
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Image key={'planet-' + index} source={require('../assets/theme-planet.png')} resizeMode="contain" style={{ position: 'absolute', top: (10 + ((index * 19) % 60)) + '%', left: ((index * 31) % 70) + '%', width: 50, height: 50, opacity: 0.8 } as any} />
+      ))}
+      {Array.from({ length: 2 }).map((_, index) => (
+        <Image key={'rocket-' + index} source={require('../assets/theme-rocket.png')} resizeMode="contain" style={{ position: 'absolute', top: (20 + index * 30) + '%', left: (25 + index * 35) + '%', width: 30, height: 60, opacity: 0.7, transform: [{ rotate: (index * 15 - 10) + 'deg' }] } as any} />
+      ))}
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Image key={'star-' + index} source={require('../assets/theme-star.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 41) % 88)) + '%', left: ((index * 59) % 90) + '%', width: 22, height: 22, opacity: 0.7, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
+      ))}
+    </View>
+  );
+}
+
+/** Candy: lollipops, candy pieces, chocolate, and sprinkles. */
+function CandyPattern({ palette }: PatternProps) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Image key={'lollipop-' + index} source={require('../assets/theme-lollipop.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 17) % 60)) + '%', left: ((index * 23) % 80) + '%', width: 40, height: 80, opacity: 0.8, transform: [{ rotate: ((index * 31) % 40 - 20) + 'deg' }] } as any} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Image key={'candy-' + index} source={require('../assets/theme-candy.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 29) % 88)) + '%', left: ((index * 47) % 92) + '%', width: index % 3 === 0 ? 28 : 18, height: index % 3 === 0 ? 28 : 18, opacity: 0.75, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
+      ))}
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Image key={'chocolate-' + index} source={require('../assets/theme-chocolate.png')} resizeMode="contain" style={{ position: 'absolute', top: (15 + ((index * 31) % 60)) + '%', left: ((index * 43) % 75) + '%', width: 55, height: 44, opacity: 0.7, transform: [{ rotate: ((index * 19) % 30 - 15) + 'deg' }] } as any} />
+      ))}
+      {Array.from({ length: 20 }).map((_, index) => (
+        <View key={'sprinkle-' + index} style={{ position: 'absolute', top: (5 + ((index * 23) % 88)) + '%', left: ((index * 41) % 92) + '%', width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: ((index * 41) % 120 - 60) + 'deg' }] } as any} />
+      ))}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
 /* ------------------------------------------------------------------ */
 
 const PATTERNS: Record<CardPattern, React.ComponentType<PatternProps>> = {
-  olive: OlivePattern,
-  riso: RisoPattern,
-  stripes: StripesPattern,
-  stars: StarsPattern,
-  bubbles: BubblesPattern,
-  cookies: CookiesPattern,
-  rules: RulesPattern,
-  slices: SlicesPattern,
-  sprigs: SprigsPattern,
-  petals: PetalsPattern,
-  embers: EmbersPattern,
-  grid: GridPattern,
   clouds: CloudsPattern,
   mountains: MountainsPattern,
   halloween: HalloweenPattern,
+  petals: PetalsPattern,
+  ocean: OceanPattern,
+  forest: ForestPattern,
+  space: SpacePattern,
+  candy: CandyPattern,
 };
 
 /**

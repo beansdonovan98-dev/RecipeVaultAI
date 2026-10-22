@@ -1,19 +1,12 @@
 export type ThemeKey =
-  | 'taverna'
-  | 'riso'
-  | 'diner'
-  | 'midnight'
-  | 'seaglass'
-  | 'butter'
-  | 'newsprint'
-  | 'citrus'
-  | 'lavender'
-  | 'sakura'
-  | 'ember'
-  | 'blueprint'
   | 'shinobi'
   | 'southpark'
-  | 'halloween';
+  | 'halloween'
+  | 'sakura'
+  | 'ocean'
+  | 'forest'
+  | 'space'
+  | 'candy';
 
 export interface ThemePalette {
   background: string;
@@ -49,21 +42,14 @@ export type DisplayFontKey = 'sans' | 'serif' | 'mono' | 'rounded' | 'condensed'
 
 /** Optional decorative wallpaper drawn inside recipe cards. */
 export type CardPattern =
-  | 'olive'
-  | 'riso'
-  | 'stripes'
-  | 'stars'
-  | 'bubbles'
-  | 'cookies'
-  | 'rules'
-  | 'slices'
-  | 'sprigs'
-  | 'petals'
-  | 'embers'
-  | 'grid'
   | 'clouds'
   | 'mountains'
-  | 'halloween';
+  | 'halloween'
+  | 'petals'
+  | 'ocean'
+  | 'forest'
+  | 'space'
+  | 'candy';
 
 export interface ThemeDesign {
   cardRadius: number;
@@ -103,7 +89,7 @@ export const DISPLAY_FONTS: Record<
   },
 };
 
-export const DEFAULT_THEME_KEY: ThemeKey = 'taverna';
+export const DEFAULT_THEME_KEY: ThemeKey = 'shinobi';
 
 const TAVERNA: ThemePalette = {
   background: '#F3E7D3',
@@ -444,20 +430,20 @@ const SOUTHPARK: ThemePalette = {
 };
 
 const HALLOWEEN: ThemePalette = {
-  background: '#FFF8E7',
+  background: '#2D1B3D',
   card: '#FFFFFF',
   primary: '#E65100',
   primaryLight: '#FF8A50',
-  secondary: '#5D4037',
-  accent: '#7B1FA2',
-  accentLight: '#AB47BC',
+  secondary: '#AB47BC',
+  accent: '#AB47BC',
+  accentLight: '#CE93D8',
   tipBackground: '#FFF9C4',
   tipBorder: '#E65100',
   border: '#E65100',
   borderLight: '#FFCC80',
-  text: '#3E2723',
-  textSecondary: '#5D4037',
-  textMuted: '#8D6E63',
+  text: '#F3E5F5',
+  textSecondary: '#CE93D8',
+  textMuted: '#AB47BC',
   white: '#FFFFFF',
   error: '#D92D20',
   success: '#2E7D32',
@@ -494,164 +480,112 @@ const SHINOBI: ThemePalette = {
   shadow: 'rgba(20, 24, 31, 0.9)',
   overlay: 'rgba(20, 24, 31, 0.6)',
 };
+const OCEAN: ThemePalette = {
+  background: '#E0F7FA',
+  card: '#FFFFFF',
+  primary: '#006064',
+  primaryLight: '#00838F',
+  secondary: '#004D40',
+  accent: '#00BCD4',
+  accentLight: '#4DD0E1',
+  tipBackground: '#B2EBF2',
+  tipBorder: '#006064',
+  border: '#006064',
+  borderLight: '#B2DFDB',
+  text: '#00363A',
+  textSecondary: '#004D40',
+  textMuted: '#4DB6AC',
+  white: '#FFFFFF',
+  error: '#D32F2F',
+  success: '#2E7D32',
+  warning: '#F57C00',
+  heart: '#00BCD4',
+  heartEmpty: '#B2DFDB',
+  inputBackground: '#E0F2F1',
+  shadow: 'rgba(0, 96, 100, 0.2)',
+  overlay: 'rgba(0, 54, 58, 0.55)',
+};
+
+const FOREST: ThemePalette = {
+  background: '#E8F5E9',
+  card: '#FFFFFF',
+  primary: '#2E7D32',
+  primaryLight: '#43A047',
+  secondary: '#1B5E20',
+  accent: '#8BC34A',
+  accentLight: '#AED581',
+  tipBackground: '#C8E6C9',
+  tipBorder: '#2E7D32',
+  border: '#2E7D32',
+  borderLight: '#A5D6A7',
+  text: '#1B3A1E',
+  textSecondary: '#2E5A31',
+  textMuted: '#66BB6A',
+  white: '#FFFFFF',
+  error: '#D32F2F',
+  success: '#1B5E20',
+  warning: '#F57C00',
+  heart: '#8BC34A',
+  heartEmpty: '#A5D6A7',
+  inputBackground: '#F1F8E9',
+  shadow: 'rgba(46, 125, 50, 0.2)',
+  overlay: 'rgba(27, 58, 30, 0.55)',
+};
+
+const SPACE: ThemePalette = {
+  background: '#0D1B2A',
+  card: '#1B2838',
+  primary: '#7C4DFF',
+  primaryLight: '#9C7CFF',
+  secondary: '#4A5568',
+  accent: '#00E5FF',
+  accentLight: '#64FFDA',
+  tipBackground: '#1A237E',
+  tipBorder: '#7C4DFF',
+  border: '#7C4DFF',
+  borderLight: '#2D3748',
+  text: '#E0E0E0',
+  textSecondary: '#B0BEC5',
+  textMuted: '#78909C',
+  white: '#FFFFFF',
+  error: '#FF5252',
+  success: '#69F0AE',
+  warning: '#FFD740',
+  heart: '#00E5FF',
+  heartEmpty: '#4A5568',
+  inputBackground: '#263238',
+  shadow: 'rgba(124, 77, 255, 0.3)',
+  overlay: 'rgba(13, 27, 42, 0.7)',
+};
+
+const CANDY: ThemePalette = {
+  background: '#FCE4EC',
+  card: '#FFFFFF',
+  primary: '#E91E63',
+  primaryLight: '#F06292',
+  secondary: '#AD1457',
+  accent: '#FF4081',
+  accentLight: '#FF80AB',
+  tipBackground: '#FFF8E1',
+  tipBorder: '#E91E63',
+  border: '#E91E63',
+  borderLight: '#F8BBD0',
+  text: '#4A102A',
+  textSecondary: '#880E4F',
+  textMuted: '#C2185B',
+  white: '#FFFFFF',
+  error: '#D32F2F',
+  success: '#2E7D32',
+  warning: '#F57C00',
+  heart: '#FF4081',
+  heartEmpty: '#F8BBD0',
+  inputBackground: '#FDE7F3',
+  shadow: 'rgba(233, 30, 99, 0.2)',
+  overlay: 'rgba(74, 16, 42, 0.55)',
+};
+
 
 export const THEME_OPTIONS: ThemeOption[] = [
-  {
-    id: 'taverna',
-    label: 'Taverna',
-    description: 'Parchment and terracotta strewn with olive branches',
-    colors: TAVERNA,
-    design: {
-      cardRadius: 14,
-      cardBorderWidth: 1,
-      cardShadow: 'soft',
-      displayFont: 'serif',
-      cardPattern: 'olive',
-    },
-  },
-  {
-    id: 'riso',
-    label: 'Riso Pop',
-    description: 'Risograph blue, fluorescent pink, and warm paper',
-    colors: RISO,
-    design: {
-      cardRadius: 12,
-      cardBorderWidth: 2,
-      cardShadow: 'hard',
-      displayFont: 'sans',
-      cardPattern: 'riso',
-    },
-  },
-  {
-    id: 'diner',
-    label: 'Night Diner',
-    description: 'Neon pink and mint with a checkerboard counter after midnight',
-    colors: DINER,
-    design: {
-      cardRadius: 6,
-      cardBorderWidth: 1,
-      cardShadow: 'none',
-      displayFont: 'mono',
-      cardPattern: 'stripes',
-    },
-  },
-  {
-    id: 'midnight',
-    label: 'Midnight Brass',
-    description: 'Deep navy and brass with constellations and a ringed planet',
-    colors: MIDNIGHT,
-    design: {
-      cardRadius: 18,
-      cardBorderWidth: 1,
-      cardShadow: 'soft',
-      displayFont: 'serif',
-      cardPattern: 'stars',
-    },
-  },
-  {
-    id: 'seaglass',
-    label: 'Sea Glass',
-    description: 'Sea-glass mint with sand dollars, starfish, and coral shards',
-    colors: SEAGLASS,
-    design: {
-      cardRadius: 24,
-      cardBorderWidth: 0,
-      cardShadow: 'soft',
-      displayFont: 'rounded',
-      cardPattern: 'bubbles',
-    },
-  },
-  {
-    id: 'butter',
-    label: 'Butter & Cocoa',
-    description: 'Buttercream, cocoa, and raspberry with chocolate-chip cookies',
-    colors: BUTTER,
-    design: {
-      cardRadius: 20,
-      cardBorderWidth: 2,
-      cardShadow: 'soft',
-      displayFont: 'rounded',
-      cardPattern: 'cookies',
-    },
-  },
-  {
-    id: 'newsprint',
-    label: 'Newsprint',
-    description: 'Ink-black newspaper columns, red stamps, and coffee rings',
-    colors: NEWSPRINT,
-    design: {
-      cardRadius: 4,
-      cardBorderWidth: 1,
-      cardShadow: 'none',
-      displayFont: 'serif',
-      cardPattern: 'rules',
-    },
-  },
-  {
-    id: 'citrus',
-    label: 'Citrus Grove',
-    description: 'Lemon light with orange, lemon, and lime wheels',
-    colors: CITRUS,
-    design: {
-      cardRadius: 18,
-      cardBorderWidth: 1,
-      cardShadow: 'soft',
-      displayFont: 'rounded',
-      cardPattern: 'slices',
-    },
-  },
-  {
-    id: 'lavender',
-    label: 'Lavender Haze',
-    description: 'Soft violet light with lavender sprigs and drifting buds',
-    colors: LAVENDER,
-    design: {
-      cardRadius: 22,
-      cardBorderWidth: 0,
-      cardShadow: 'soft',
-      displayFont: 'serif',
-      cardPattern: 'sprigs',
-    },
-  },
-  {
-    id: 'sakura',
-    label: 'Sakura',
-    description: 'Blush pink with a blossoming branch and drifting petals',
-    colors: SAKURA,
-    design: {
-      cardRadius: 24,
-      cardBorderWidth: 0,
-      cardShadow: 'soft',
-      displayFont: 'rounded',
-      cardPattern: 'petals',
-    },
-  },
-  {
-    id: 'ember',
-    label: 'Ember',
-    description: 'Charcoal and flame with rising embers and smoke trails',
-    colors: EMBER,
-    design: {
-      cardRadius: 12,
-      cardBorderWidth: 1,
-      cardShadow: 'soft',
-      displayFont: 'serif',
-      cardPattern: 'embers',
-    },
-  },
-  {
-    id: 'blueprint',
-    label: 'Blueprint',
-    description: 'Drafting-table navy with a full grid and technical marks',
-    colors: BLUEPRINT,
-    design: {
-      cardRadius: 8,
-      cardBorderWidth: 1,
-      cardShadow: 'none',
-      displayFont: 'mono',
-      cardPattern: 'grid',
-    },
-  },
   {
     id: 'shinobi',
     label: 'Shinobi',
@@ -689,6 +623,71 @@ export const THEME_OPTIONS: ThemeOption[] = [
       cardShadow: 'soft',
       displayFont: 'rounded',
       cardPattern: 'halloween',
+    },
+  },
+  {
+    id: 'sakura',
+    label: 'Sakura',
+    description: 'Blush pink with a blossoming branch and drifting petals',
+    colors: SAKURA,
+    design: {
+      cardRadius: 16,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'serif',
+      cardPattern: 'petals',
+    },
+  },
+  {
+    id: 'ocean',
+    label: 'Ocean',
+    description: 'Deep sea blues with bubbles, coral, and drifting waves',
+    colors: OCEAN,
+    design: {
+      cardRadius: 14,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'ocean',
+    },
+  },
+  {
+    id: 'forest',
+    label: 'Forest',
+    description: 'Enchanted woodland with trees, mushrooms, and fireflies',
+    colors: FOREST,
+    design: {
+      cardRadius: 14,
+      cardBorderWidth: 1,
+      cardShadow: 'soft',
+      displayFont: 'serif',
+      cardPattern: 'forest',
+    },
+  },
+  {
+    id: 'space',
+    label: 'Space',
+    description: 'Deep cosmos with stars, planets, and nebulas',
+    colors: SPACE,
+    design: {
+      cardRadius: 8,
+      cardBorderWidth: 1,
+      cardShadow: 'none',
+      displayFont: 'mono',
+      cardPattern: 'space',
+    },
+  },
+  {
+    id: 'candy',
+    label: 'Candy',
+    description: 'Sweet shop with lollipops, sprinkles, and chocolate',
+    colors: CANDY,
+    design: {
+      cardRadius: 20,
+      cardBorderWidth: 2,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'candy',
     },
   },
 ];

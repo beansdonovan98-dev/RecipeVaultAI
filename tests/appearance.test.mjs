@@ -58,21 +58,14 @@ test('theme presets are valid and complete', () => {
   assert.ok(THEME_OPTIONS.length >= 3);
 
   const patterns = [
-    'olive',
-    'riso',
-    'stripes',
-    'stars',
-    'bubbles',
-    'cookies',
-    'rules',
-    'slices',
-    'sprigs',
-    'petals',
-    'embers',
-    'grid',
     'clouds',
     'mountains',
     'halloween',
+    'petals',
+    'ocean',
+    'forest',
+    'space',
+    'candy',
   ];
   const ids = new Set();
   const designs = new Set();

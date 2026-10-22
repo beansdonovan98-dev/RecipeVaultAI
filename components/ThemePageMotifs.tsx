@@ -1806,6 +1806,44 @@ function SakuraMotif({ palette }: MotifProps) {
           transform: [{ rotate: '184deg' }],
         }}
       />
+      <Image
+        source={require('../assets/theme-sakura-branch.png')}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          top: '30%',
+          left: '40%',
+          width: 320,
+          height: 164,
+          opacity: 0.45,
+          transform: [{ rotate: '12deg' }],
+        }}
+      />
+      {/* Soft pink glow. */}
+      <View
+        style={{
+          position: 'absolute',
+          top: '10%',
+          left: '20%',
+          width: 250,
+          height: 250,
+          borderRadius: 125,
+          backgroundColor: tint(palette, palette.accent, 0.12),
+          opacity: 0.6,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          bottom: '15%',
+          right: '10%',
+          width: 200,
+          height: 200,
+          borderRadius: 100,
+          backgroundColor: tint(palette, palette.accent, 0.1),
+          opacity: 0.5,
+        }}
+      />
       {SAKURA_PETALS.map((petal, index) => (
         <Image
           key={`petal-${index}`}
@@ -1835,6 +1873,23 @@ function SakuraMotif({ palette }: MotifProps) {
             backgroundColor: tint(palette, palette.primary, 0.25),
             opacity: 0.65,
           }}
+        />
+      ))}
+      {/* Ground petals. */}
+      {Array.from({ length: 14 }).map((_, index) => (
+        <Image
+          key={`ground-petal-${index}`}
+          source={require('../assets/theme-petal.png')}
+          resizeMode="contain"
+          style={{
+            position: 'absolute',
+            bottom: `${2 + ((index * 7) % 8)}%`,
+            left: `${(index * 13) % 90}%`,
+            width: (12 + (index % 4) * 4) * 0.658,
+            height: 12 + (index % 4) * 4,
+            opacity: 0.5 + (index % 3) * 0.1,
+            transform: [{ rotate: `${(index * 37) % 90}deg` }],
+          } as any}
         />
       ))}
     </View>
@@ -2703,6 +2758,108 @@ function HalloweenMotif({ palette }: MotifProps) {
   );
 }
 
+function OceanMotif({ palette }: MotifProps) {
+  const wave = tint(palette, palette.primary, 0.6);
+  const bubble = tint(palette, palette.accent, 0.5);
+  const coral = tint(palette, palette.accentLight, 0.7);
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', backgroundColor: tint(palette, palette.primaryLight, 0.15), opacity: 0.7 }} />
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Image key={`wave-${index}`} source={require('../assets/theme-wave.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${index * 12}%`, left: '-5%', right: '-5%', width: '110%', height: 80, opacity: 0.5 + (index % 2) * 0.15, transform: [{ rotate: index % 2 === 0 ? '0deg' : '180deg' }] }} />
+      ))}
+      {Array.from({ length: 25 }).map((_, index) => (
+        <Image key={`bubble-${index}`} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 37) % 85)}%`, left: `${(index * 53) % 92}%`, width: index % 3 === 0 ? 40 : 24, height: index % 3 === 0 ? 40 : 24, opacity: 0.6 }} />
+      ))}
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Image key={`fish-${index}`} source={require('../assets/theme-fish.png')} resizeMode="contain" style={{ position: 'absolute', top: `${10 + ((index * 41) % 70)}%`, left: `${(index * 59) % 80}%`, width: index % 2 === 0 ? 80 : 60, height: index % 2 === 0 ? 53 : 40, opacity: 0.7, transform: [{ rotate: `${(index * 23) % 40 - 20}deg` }, { scaleX: index % 2 === 0 ? 1 : -1 }] }} />
+      ))}
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Image key={`coral-${index}`} source={require('../assets/theme-coral.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${5 + index * 3}%`, left: `${10 + index * 14}%`, width: 60, height: 90, opacity: 0.75, transform: [{ rotate: `${(index * 17) % 20 - 10}deg` }] }} />
+      ))}
+      {Array.from({ length: 10 }).map((_, index) => (
+        <Image key={`shell-${index}`} source={require('../assets/theme-shell.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${3 + ((index * 29) % 15)}%`, left: `${(index * 47) % 88}%`, width: 40, height: 40, opacity: 0.65, transform: [{ rotate: `${(index * 37) % 60 - 30}deg` }] }} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <View key={`sparkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 43) % 90)}%`, left: `${(index * 61) % 94}%`, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.8 }} />
+      ))}
+    </View>
+  );
+}
+
+function ForestMotif({ palette }: MotifProps) {
+  const leaf = tint(palette, palette.accent, 0.6);
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35%', backgroundColor: tint(palette, palette.primary, 0.08), opacity: 0.6 }} />
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Image key={`tree-${index}`} source={require('../assets/theme-tree.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${index % 2 === 0 ? -5 : 2}%`, left: `${(index * 13) % 85}%`, width: index % 3 === 0 ? 100 : 75, height: index % 3 === 0 ? 167 : 125, opacity: 0.85, transform: [{ scaleX: index % 2 === 0 ? 1 : -1 }] }} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Image key={`mushroom-${index}`} source={require('../assets/theme-mushroom.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${8 + ((index * 23) % 20)}%`, left: `${(index * 47) % 88}%`, width: 40, height: 50, opacity: 0.8, transform: [{ rotate: `${(index * 17) % 20 - 10}deg` }] }} />
+      ))}
+      {Array.from({ length: 20 }).map((_, index) => (
+        <Image key={`firefly-${index}`} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 31) % 88)}%`, left: `${(index * 53) % 94}%`, width: 20, height: 20, opacity: 0.8 }} />
+      ))}
+      {Array.from({ length: 18 }).map((_, index) => (
+        <Image key={`leaf-${index}`} source={require('../assets/theme-leaf.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 43) % 88)}%`, left: `${(index * 61) % 94}%`, width: 30, height: 40, opacity: 0.6, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
+      ))}
+      {Array.from({ length: 8 }).map((_, index) => (
+        <View key={`vine-${index}`} style={{ position: 'absolute', top: `${(index * 12) % 60}%`, left: `${(index * 17) % 80}%`, width: 2, height: 60 + (index % 3) * 20, backgroundColor: tint(palette, palette.primary, 0.4), opacity: 0.4, transform: [{ rotate: `${(index * 23) % 30 - 15}deg` }] }} />
+      ))}
+    </View>
+  );
+}
+
+function SpaceMotif({ palette }: MotifProps) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: tint(palette, palette.background, 0.3) }} />
+      {Array.from({ length: 60 }).map((_, index) => (
+        <View key={`star-${index}`} style={{ position: 'absolute', top: `${(index * 37) % 98}%`, left: `${(index * 53) % 98}%`, width: index % 5 === 0 ? 3 : 2, height: index % 5 === 0 ? 3 : 2, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.5 + (index % 5) * 0.1 }} />
+      ))}
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Image key={`nebula-${index}`} source={require('../assets/theme-nebula.png')} resizeMode="contain" style={{ position: 'absolute', top: `${(index * 17) % 60}%`, left: `${(index * 23) % 60}%`, width: index % 2 === 0 ? 180 : 120, height: index % 2 === 0 ? 180 : 120, opacity: 0.5, transform: [{ rotate: `${index * 45}deg` }] }} />
+      ))}
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Image key={`planet-${index}`} source={require('../assets/theme-planet.png')} resizeMode="contain" style={{ position: 'absolute', top: `${10 + ((index * 19) % 70)}%`, left: `${(index * 31) % 75}%`, width: index % 2 === 0 ? 90 : 60, height: index % 2 === 0 ? 90 : 60, opacity: 0.85, transform: [{ rotate: `${index * 30}deg` }] }} />
+      ))}
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Image key={`rocket-${index}`} source={require('../assets/theme-rocket.png')} resizeMode="contain" style={{ position: 'absolute', top: `${15 + index * 25}%`, left: `${20 + index * 30}%`, width: 50, height: 100, opacity: 0.7, transform: [{ rotate: `${index * 15 - 10}deg` }] }} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Image key={`star-${index}`} source={require('../assets/theme-star.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 41) % 90)}%`, left: `${(index * 59) % 92}%`, width: 30, height: 30, opacity: 0.7, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
+      ))}
+      {Array.from({ length: 3 }).map((_, index) => (
+        <View key={`orbit-${index}`} style={{ position: 'absolute', top: `${20 + index * 22}%`, left: `${15 + index * 25}%`, width: 120 + index * 40, height: 40 + index * 15, borderRadius: 60, borderWidth: 1, borderColor: tint(palette, palette.accent, 0.4), opacity: 0.3, transform: [{ rotate: `${index * 15}deg` }] }} />
+      ))}
+    </View>
+  );
+}
+
+function CandyMotif({ palette }: MotifProps) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '30%', backgroundColor: tint(palette, palette.accentLight, 0.2), opacity: 0.5 }} />
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Image key={`lollipop-${index}`} source={require('../assets/theme-lollipop.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 17) % 70)}%`, left: `${(index * 23) % 85}%`, width: index % 2 === 0 ? 55 : 40, height: index % 2 === 0 ? 110 : 80, opacity: 0.8, transform: [{ rotate: `${(index * 31) % 40 - 20}deg` }] }} />
+      ))}
+      {Array.from({ length: 24 }).map((_, index) => (
+        <Image key={`candy-${index}`} source={require('../assets/theme-candy.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 29) % 90)}%`, left: `${(index * 47) % 94}%`, width: index % 3 === 0 ? 35 : 24, height: index % 3 === 0 ? 35 : 24, opacity: 0.75, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
+      ))}
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Image key={`chocolate-${index}`} source={require('../assets/theme-chocolate.png')} resizeMode="contain" style={{ position: 'absolute', top: `${15 + ((index * 31) % 65)}%`, left: `${(index * 43) % 80}%`, width: 70, height: 56, opacity: 0.7, transform: [{ rotate: `${(index * 19) % 30 - 15}deg` }] }} />
+      ))}
+      {Array.from({ length: 30 }).map((_, index) => (
+        <View key={`sprinkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 23) % 90)}%`, left: `${(index * 41) % 94}%`, width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: `${(index * 41) % 120 - 60}deg` }] }} />
+      ))}
+      {Array.from({ length: 12 }).map((_, index) => (
+        <View key={`confetti-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 37) % 88)}%`, left: `${(index * 53) % 92}%`, width: index % 2 === 0 ? 6 : 4, height: index % 2 === 0 ? 6 : 4, borderRadius: index % 2 === 0 ? 3 : 0, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.6, transform: [{ rotate: `${(index * 41) % 90}deg` }] }} />
+      ))}
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */
@@ -2710,18 +2867,11 @@ function HalloweenMotif({ palette }: MotifProps) {
 export const PAGE_MOTIFS: Partial<
   Record<CardPattern, React.ComponentType<MotifProps>>
 > = {
-  olive: OliveMotif,
-  riso: RisoMotif,
-  stripes: DinerMotif,
-  stars: MidnightMotif,
-  bubbles: SeaglassMotif,
-  cookies: CookiesMotif,
-  rules: NewsprintMotif,
-  slices: CitrusMotif,
-  sprigs: LavenderMotif,
-  petals: SakuraMotif,
-  embers: EmberMotif,
-  grid: GridMotif,
   mountains: MountainsMotif,
   halloween: HalloweenMotif,
+  petals: SakuraMotif,
+  ocean: OceanMotif,
+  forest: ForestMotif,
+  space: SpaceMotif,
+  candy: CandyMotif,
 };
