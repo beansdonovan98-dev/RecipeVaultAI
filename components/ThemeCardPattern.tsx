@@ -1563,6 +1563,92 @@ function MountainsPattern({ palette }: PatternProps) {
     </View>
   );
 }
+/** Halloween: friendly ghosts, smiling pumpkins, candy corn, and bats. */
+function HalloweenPattern({ palette }: PatternProps) {
+  const ghost = tint(palette, palette.white, 0.95);
+  const pumpkin = tint(palette, palette.primary, 0.85);
+  const purple = tint(palette, palette.accent, 0.7);
+  const yellow = tint(palette, palette.tipBackground, 0.9);
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {/* Spider webs in corners. */}
+      <Image
+        source={require('../assets/theme-spiderweb.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', top: -30, left: -30, width: 110, height: 110, opacity: 0.35 }}
+      />
+      <Image
+        source={require('../assets/theme-spiderweb.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', bottom: -30, right: -30, width: 90, height: 90, opacity: 0.3, transform: [{ rotate: '180deg' }] }}
+      />
+      {/* Ghosts. */}
+      <Image
+        source={require('../assets/theme-ghost.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', top: -10, right: 10, width: 70, height: 100, opacity: 0.85, transform: [{ rotate: '-8deg' }] }}
+      />
+      <Image
+        source={require('../assets/theme-ghost.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', bottom: -5, left: 20, width: 50, height: 72, opacity: 0.7, transform: [{ rotate: '12deg' }] }}
+      />
+      {/* Pumpkins. */}
+      <Image
+        source={require('../assets/theme-pumpkin.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', bottom: -15, right: -10, width: 80, height: 82, opacity: 0.85, transform: [{ rotate: '-6deg' }] }}
+      />
+      <Image
+        source={require('../assets/theme-pumpkin.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', top: 10, left: -5, width: 55, height: 57, opacity: 0.7, transform: [{ rotate: '10deg' }] }}
+      />
+      {/* Bats. */}
+      <Image
+        source={require('../assets/theme-bat.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', top: 20, left: '30%', width: 60, height: 36, opacity: 0.6, transform: [{ rotate: '-15deg' }] }}
+      />
+      <Image
+        source={require('../assets/theme-bat.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', top: 55, right: '25%', width: 45, height: 27, opacity: 0.5, transform: [{ rotate: '20deg' }] }}
+      />
+      {/* Candy corn. */}
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Image
+          key={`candy-${index}`}
+          source={require('../assets/theme-candy-corn.png')}
+          resizeMode="contain"
+          style={{
+            position: 'absolute',
+            top: `${10 + ((index * 37) % 75)}%`,
+            left: `${(index * 53) % 88}%`,
+            width: index % 2 === 0 ? 22 : 16,
+            height: index % 2 === 0 ? 33 : 24,
+            opacity: 0.7,
+            transform: [{ rotate: `${(index * 41) % 60 - 30}deg` }],
+          }}
+        />
+      ))}
+      {/* Witch hat. */}
+      <Image
+        source={require('../assets/theme-witch-hat.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', top: -8, left: '45%', width: 40, height: 50, opacity: 0.6, transform: [{ rotate: '-12deg' }] }}
+      />
+      {/* Cauldron. */}
+      <Image
+        source={require('../assets/theme-cauldron.png')}
+        resizeMode="contain"
+        style={{ position: 'absolute', bottom: 8, left: '35%', width: 55, height: 48, opacity: 0.65 }}
+      />
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 const PATTERNS: Record<CardPattern, React.ComponentType<PatternProps>> = {
@@ -1580,6 +1666,7 @@ const PATTERNS: Record<CardPattern, React.ComponentType<PatternProps>> = {
   grid: GridPattern,
   clouds: CloudsPattern,
   mountains: MountainsPattern,
+  halloween: HalloweenPattern,
 };
 
 /**

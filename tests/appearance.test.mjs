@@ -72,6 +72,7 @@ test('theme presets are valid and complete', () => {
     'grid',
     'clouds',
     'mountains',
+    'halloween',
   ];
   const ids = new Set();
   const designs = new Set();

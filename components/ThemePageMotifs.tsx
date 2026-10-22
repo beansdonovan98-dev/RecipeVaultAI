@@ -2616,6 +2616,93 @@ function MountainsMotif({ palette }: MotifProps) {
     </View>
   );
 }
+function HalloweenMotif({ palette }: MotifProps) {
+  const pumpkin = tint(palette, palette.primary, 0.85);
+  const ghost = tint(palette, palette.white, 0.95);
+  const purple = tint(palette, palette.accent, 0.7);
+  const yellow = tint(palette, palette.tipBackground, 0.9);
+  const brown = tint(palette, palette.secondary, 0.7);
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {/* Warm autumn sky gradient. */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', backgroundColor: tint(palette, palette.tipBackground, 0.3), opacity: 0.6 }} />
+      <View style={{ position: 'absolute', top: '35%', left: 0, right: 0, height: '15%', backgroundColor: tint(palette, palette.primary, 0.15), opacity: 0.4 }} />
+
+      {/* Moon. */}
+      <View style={{ position: 'absolute', top: '6%', right: '10%', width: 90, height: 90, borderRadius: 45, backgroundColor: yellow, opacity: 0.9 }} />
+      <View style={{ position: 'absolute', top: '8%', right: '13%', width: 70, height: 70, borderRadius: 35, backgroundColor: tint(palette, palette.tipBackground, 0.6), opacity: 0.5 }} />
+
+      {/* Stars. */}
+      {Array.from({ length: 18 }).map((_, index) => (
+        <View key={`star-${index}`} style={{ position: 'absolute', top: `${4 + ((index * 37) % 30)}%`, left: `${(index * 53) % 94}%`, width: index % 3 === 0 ? 4 : 3, height: index % 3 === 0 ? 4 : 3, borderRadius: 2, backgroundColor: yellow, opacity: 0.7 }} />
+      ))}
+
+      {/* Spider webs in corners. */}
+      <Image source={require('../assets/theme-spiderweb.png')} resizeMode="contain" style={{ position: 'absolute', top: -40, left: -40, width: 180, height: 180, opacity: 0.4 }} />
+      <Image source={require('../assets/theme-spiderweb.png')} resizeMode="contain" style={{ position: 'absolute', top: -30, right: -30, width: 150, height: 150, opacity: 0.35, transform: [{ rotate: '90deg' }] }} />
+      <Image source={require('../assets/theme-spiderweb.png')} resizeMode="contain" style={{ position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, opacity: 0.3, transform: [{ rotate: '270deg' }] }} />
+      <Image source={require('../assets/theme-spiderweb.png')} resizeMode="contain" style={{ position: 'absolute', bottom: -30, right: -30, width: 140, height: 140, opacity: 0.35, transform: [{ rotate: '180deg' }] }} />
+
+      {/* Ghosts floating. */}
+      {[
+        { top: '8%', left: '5%', w: 90, rot: '-10deg', op: 0.8 },
+        { top: '18%', right: '8%', w: 70, rot: '15deg', op: 0.7 },
+        { top: '42%', left: '2%', w: 60, rot: '-5deg', op: 0.6 },
+        { top: '55%', right: '5%', w: 80, rot: '8deg', op: 0.75 },
+        { top: '72%', left: '15%', w: 55, rot: '-12deg', op: 0.65 },
+      ].map((g, index) => (
+        <Image key={`ghost-${index}`} source={require('../assets/theme-ghost.png')} resizeMode="contain" style={{ position: 'absolute', top: g.top, left: g.left, right: g.right, width: g.w, height: g.w * 1.44, opacity: g.op, transform: [{ rotate: g.rot }] } as any} />
+      ))}
+
+      {/* Pumpkins along the bottom. */}
+      <View style={{ position: 'absolute', bottom: '8%', left: '2%', right: '2%', height: 90, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', opacity: 0.9 }}>
+        {[85, 70, 95, 65, 80, 75, 90].map((size, index) => (
+          <Image key={`pumpkin-${index}`} source={require('../assets/theme-pumpkin.png')} resizeMode="contain" style={{ width: size, height: size, transform: [{ rotate: `${(index % 3) * 6 - 6}deg` }] }} />
+        ))}
+      </View>
+
+      {/* Bats flying. */}
+      {[
+        { top: '12%', left: '25%', w: 70, rot: '-20deg', op: 0.7 },
+        { top: '25%', right: '20%', w: 55, rot: '15deg', op: 0.6 },
+        { top: '38%', left: '60%', w: 60, rot: '-10deg', op: 0.55 },
+        { top: '50%', right: '35%', w: 45, rot: '25deg', op: 0.5 },
+        { top: '65%', left: '40%', w: 50, rot: '-15deg', op: 0.6 },
+      ].map((b, index) => (
+        <Image key={`bat-${index}`} source={require('../assets/theme-bat.png')} resizeMode="contain" style={{ position: 'absolute', top: b.top, left: b.left, right: b.right, width: b.w, height: b.w * 0.44, opacity: b.op, transform: [{ rotate: b.rot }] } as any} />
+      ))}
+
+      {/* Candy corn scattered. */}
+      {Array.from({ length: 16 }).map((_, index) => (
+        <Image key={`candy-${index}`} source={require('../assets/theme-candy-corn.png')} resizeMode="contain" style={{ position: 'absolute', top: `${10 + ((index * 37) % 78)}%`, left: `${(index * 53) % 92}%`, width: index % 2 === 0 ? 28 : 20, height: index % 2 === 0 ? 42 : 30, opacity: 0.7, transform: [{ rotate: `${(index * 41) % 80 - 40}deg` }] }} />
+      ))}
+
+      {/* Witch hats. */}
+      {[
+        { top: '5%', left: '30%', w: 45, rot: '-15deg', op: 0.65 },
+        { top: '35%', right: '12%', w: 38, rot: '10deg', op: 0.55 },
+        { top: '60%', left: '70%', w: 40, rot: '-8deg', op: 0.5 },
+      ].map((w, index) => (
+        <Image key={`hat-${index}`} source={require('../assets/theme-witch-hat.png')} resizeMode="contain" style={{ position: 'absolute', top: w.top, left: w.left, right: w.right, width: w.w, height: w.w * 1.27, opacity: w.op, transform: [{ rotate: w.rot }] } as any} />
+      ))}
+
+      {/* Cauldrons. */}
+      {[
+        { bottom: '18%', left: '8%', w: 65, op: 0.7 },
+        { bottom: '22%', right: '12%', w: 55, op: 0.6 },
+      ].map((c, index) => (
+        <Image key={`cauldron-${index}`} source={require('../assets/theme-cauldron.png')} resizeMode="contain" style={{ position: 'absolute', bottom: c.bottom, left: c.left, right: c.right, width: c.w, height: c.w * 0.76, opacity: c.op } as any} />
+      ))}
+
+      {/* Autumn leaves falling. */}
+      {Array.from({ length: 14 }).map((_, index) => (
+        <View key={`leaf-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 43) % 88)}%`, left: `${(index * 61) % 94}%`, width: index % 2 === 0 ? 10 : 7, height: index % 2 === 0 ? 12 : 9, borderRadius: 2, backgroundColor: [palette.primary, palette.accent, palette.tipBackground, '#D32F2F', '#F57C00'][index % 5], opacity: 0.7, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
+      ))}
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */
@@ -2636,4 +2723,5 @@ export const PAGE_MOTIFS: Partial<
   embers: EmberMotif,
   grid: GridMotif,
   mountains: MountainsMotif,
+  halloween: HalloweenMotif,
 };

@@ -12,7 +12,8 @@ export type ThemeKey =
   | 'ember'
   | 'blueprint'
   | 'shinobi'
-  | 'southpark';
+  | 'southpark'
+  | 'halloween';
 
 export interface ThemePalette {
   background: string;
@@ -61,7 +62,8 @@ export type CardPattern =
   | 'embers'
   | 'grid'
   | 'clouds'
-  | 'mountains';
+  | 'mountains'
+  | 'halloween';
 
 export interface ThemeDesign {
   cardRadius: number;
@@ -441,6 +443,32 @@ const SOUTHPARK: ThemePalette = {
   overlay: 'rgba(10, 30, 50, 0.55)',
 };
 
+const HALLOWEEN: ThemePalette = {
+  background: '#FFF8E7',
+  card: '#FFFFFF',
+  primary: '#E65100',
+  primaryLight: '#FF8A50',
+  secondary: '#5D4037',
+  accent: '#7B1FA2',
+  accentLight: '#AB47BC',
+  tipBackground: '#FFF9C4',
+  tipBorder: '#E65100',
+  border: '#E65100',
+  borderLight: '#FFCC80',
+  text: '#3E2723',
+  textSecondary: '#5D4037',
+  textMuted: '#8D6E63',
+  white: '#FFFFFF',
+  error: '#D92D20',
+  success: '#2E7D32',
+  warning: '#F57C00',
+  heart: '#E65100',
+  heartEmpty: '#FFCC80',
+  inputBackground: '#FFF3E0',
+  shadow: 'rgba(230, 81, 0, 0.2)',
+  overlay: 'rgba(62, 39, 35, 0.55)',
+};
+
 const SHINOBI: ThemePalette = {
   background: '#F6E6C8',
   card: '#FFFBF2',
@@ -648,6 +676,19 @@ export const THEME_OPTIONS: ThemeOption[] = [
       cardShadow: 'hard',
       displayFont: 'comic',
       cardPattern: 'mountains',
+    },
+  },
+  {
+    id: 'halloween',
+    label: 'Halloween',
+    description: 'Friendly ghosts, pumpkins, and candy corn on a warm autumn night',
+    colors: HALLOWEEN,
+    design: {
+      cardRadius: 16,
+      cardBorderWidth: 2,
+      cardShadow: 'soft',
+      displayFont: 'rounded',
+      cardPattern: 'halloween',
     },
   },
 ];

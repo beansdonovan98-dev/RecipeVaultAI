@@ -20,6 +20,7 @@ const MOTIF_OPACITY: Partial<Record<CardPattern, number>> = {
   embers: 0.95,
   grid: 0.88,
   mountains: 0.9,
+  halloween: 0.9,
 };
 
 /** Patterns that already fill their space, so one faint layer is plenty. */
