@@ -22,7 +22,8 @@ test('font and color options are valid', () => {
   assert.equal(isFontKey('serif'), true);
   assert.equal(isFontKey('handwritten'), true);
   assert.equal(isFontKey('condensed'), true);
-  assert.equal(isFontKey('comic'), false);
+  assert.equal(isFontKey('comic'), true);
+  assert.equal(isFontKey('not-a-real-font'), false);
   assert.equal(isFontKey(null), false);
   assert.ok(FONT_OPTIONS.length >= 8);
   assert.ok(FONT_COLORS.length >= 18);

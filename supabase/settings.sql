@@ -32,7 +32,7 @@ begin
     raise exception 'Unknown setting';
   end if;
 
-  if v_key = 'app_font_key' and v_value not in ('system', 'serif', 'rounded', 'mono', 'elegant', 'condensed', 'geometric', 'editorial', 'slab', 'handwritten') then
+  if v_key = 'app_font_key' and v_value not in ('system', 'serif', 'rounded', 'mono', 'elegant', 'condensed', 'geometric', 'editorial', 'slab', 'handwritten', 'comic', 'script', 'black', 'marker', 'chalkboard', 'avenir', 'optima', 'didot', 'trebuchet', 'impact') then
     raise exception 'Invalid font key';
   end if;
 

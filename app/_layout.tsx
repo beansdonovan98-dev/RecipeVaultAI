@@ -74,7 +74,7 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  const { fontFamily, fontColor, theme, displayFamily } = useAppearance();
+  const { fontFamily, fontColor, theme } = useAppearance();
   const headerTextColor = readableTextColor(fontColor, theme.background, theme.text);
   const [dbError, setDbError] = useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -197,7 +197,7 @@ function RootLayoutContent() {
               headerTintColor: headerTextColor,
               headerTitleStyle: {
                 fontWeight: '600',
-                fontFamily: displayFamily ?? fontFamily,
+                fontFamily,
                 color: headerTextColor,
               },
               headerShadowVisible: false,

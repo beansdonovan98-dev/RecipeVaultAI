@@ -8,7 +8,17 @@ export type FontKey =
   | 'geometric'
   | 'editorial'
   | 'slab'
-  | 'handwritten';
+  | 'handwritten'
+  | 'comic'
+  | 'script'
+  | 'black'
+  | 'marker'
+  | 'chalkboard'
+  | 'avenir'
+  | 'optima'
+  | 'didot'
+  | 'trebuchet'
+  | 'impact';
 
 export interface FontOption {
   id: FontKey;
@@ -91,6 +101,66 @@ export const FONT_OPTIONS: FontOption[] = [
     label: 'Handwritten',
     description: 'Casual kitchen notes',
     families: { ios: 'Bradley Hand', android: 'casual', default: 'cursive' },
+  },
+  {
+    id: 'comic',
+    label: 'Comic',
+    description: 'Fun and playful',
+    families: { ios: 'Comic Sans MS', android: 'cursive', default: 'cursive' },
+  },
+  {
+    id: 'script',
+    label: 'Script',
+    description: 'Elegant flowing cursive',
+    families: { ios: 'Snell Roundhand', android: 'cursive', default: 'cursive' },
+  },
+  {
+    id: 'black',
+    label: 'Black',
+    description: 'Heavy bold weight',
+    families: { ios: 'Arial Black', android: 'sans-serif-black', default: 'sans-serif' },
+  },
+  {
+    id: 'marker',
+    label: 'Marker',
+    description: 'Bold marker strokes',
+    families: { ios: 'Marker Felt', android: 'casual', default: 'cursive' },
+  },
+  {
+    id: 'chalkboard',
+    label: 'Chalkboard',
+    description: 'Chalk on a board',
+    families: { ios: 'Chalkboard SE', android: 'casual', default: 'cursive' },
+  },
+  {
+    id: 'avenir',
+    label: 'Avenir',
+    description: 'Clean and modern',
+    families: { ios: 'Avenir Next', android: 'sans-serif-light', default: 'sans-serif' },
+  },
+  {
+    id: 'optima',
+    label: 'Optima',
+    description: 'Elegant and refined',
+    families: { ios: 'Optima', android: 'sans-serif', default: 'sans-serif' },
+  },
+  {
+    id: 'didot',
+    label: 'Didot',
+    description: 'High-fashion serif',
+    families: { ios: 'Didot', android: 'serif', default: 'serif' },
+  },
+  {
+    id: 'trebuchet',
+    label: 'Trebuchet',
+    description: 'Friendly and readable',
+    families: { ios: 'Trebuchet MS', android: 'sans-serif', default: 'sans-serif' },
+  },
+  {
+    id: 'impact',
+    label: 'Impact',
+    description: 'Bold condensed headlines',
+    families: { ios: 'Impact', android: 'sans-serif-condensed', default: 'sans-serif' },
   },
 ];
 

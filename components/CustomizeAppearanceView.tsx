@@ -539,7 +539,7 @@ export function CustomizeAppearanceView({ onClose }: CustomizeAppearanceViewProp
 
       <View style={[styles.previewCard, cardTokens, { backgroundColor: theme.card }]}>
         <Text style={[styles.sectionLabel, { fontFamily: displayFamily }]}>Preview</Text>
-        <RNText style={[styles.previewTitle, { fontFamily: displayFamily, color: readableTextColor(fontColor, theme.card, theme.text) }]}>
+        <RNText style={[styles.previewTitle, { fontFamily, color: readableTextColor(fontColor, theme.card, theme.text) }]}>
           Sunday Pot Roast
         </RNText>
         <RNText style={[styles.previewBody, { fontFamily, color: readableTextColor(fontColor, theme.card, theme.text) }]}>

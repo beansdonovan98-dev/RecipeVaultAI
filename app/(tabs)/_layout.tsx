@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 export default function TabLayout() {
-  const { fontFamily, theme, design, displayFamily } = useAppearance();
+  const { fontFamily, theme, design } = useAppearance();
   const member = useMember();
   const { config } = useRoomConfig();
   const partner = usePartnerPresence(config, member);
@@ -55,7 +55,7 @@ export default function TabLayout() {
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 20,
-          fontFamily: displayFamily ?? fontFamily,
+          fontFamily,
           color: theme.text,
         },
         headerShadowVisible: false,
