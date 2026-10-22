@@ -452,7 +452,7 @@ function DinerMotif({ palette }: MotifProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
       <View style={{ position: 'absolute', top: -10, left: -24, right: -24, height: 82 }}>
-        {Array.from({ length: 24 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <View
             key={`stripe-${index}`}
             style={{
@@ -466,7 +466,7 @@ function DinerMotif({ palette }: MotifProps) {
             }}
           />
         ))}
-        {Array.from({ length: 24 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <View
             key={`scallop-${index}`}
             style={{
@@ -497,7 +497,7 @@ function DinerMotif({ palette }: MotifProps) {
       >
         {Array.from({ length: 4 }).map((_, row) => (
           <View key={`row-${row}`} style={{ flexDirection: 'row' }}>
-            {Array.from({ length: 24 }).map((_, col) => (
+            {Array.from({ length: 6 }).map((_, col) => (
               <View
                 key={`tile-${row}-${col}`}
                 style={{
@@ -863,7 +863,7 @@ function MidnightMotif({ palette }: MotifProps) {
         />
       ))}
 
-      {Array.from({ length: 22 }).map((_, index) => (
+      {Array.from({ length: 11 }).map((_, index) => (
         <View
           key={`dust-${index}`}
           style={{
@@ -1042,7 +1042,7 @@ function SeaglassMotif({ palette }: MotifProps) {
           />
         </View>
       ))}
-      {Array.from({ length: 14 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <View
           key={`speck-${index}`}
           style={{
@@ -1665,7 +1665,7 @@ function LavenderMotif({ palette }: MotifProps) {
     left: DimensionValue;
     size: number;
     rotate: string;
-  }> = Array.from({ length: 18 }).map((_, index) => ({
+  }> = Array.from({ length: 9 }).map((_, index) => ({
     top: `${4 + ((index * 37) % 92)}%`,
     left: `${(index * 53) % 94}%`,
     size: index % 3 === 0 ? 12 : 8,
@@ -1876,7 +1876,7 @@ function SakuraMotif({ palette }: MotifProps) {
         />
       ))}
       {/* Ground petals. */}
-      {Array.from({ length: 14 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <Image
           key={`ground-petal-${index}`}
           source={require('../assets/theme-petal.png')}
@@ -2155,7 +2155,7 @@ function GridMotif({ palette }: MotifProps) {
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      {Array.from({ length: 22 }).map((_, index) => (
+      {Array.from({ length: 11 }).map((_, index) => (
         <View
           key={`v-${index}`}
           style={{
@@ -2169,7 +2169,7 @@ function GridMotif({ palette }: MotifProps) {
           }}
         />
       ))}
-      {Array.from({ length: 30 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <View
           key={`h-${index}`}
           style={{
@@ -2621,7 +2621,7 @@ function MountainsMotif({ palette }: MotifProps) {
         }}
       />
       {/* Construction paper fiber texture. */}
-      {Array.from({ length: 20 }).map((_, index) => (
+      {Array.from({ length: 10 }).map((_, index) => (
         <View
           key={`fiber-${index}`}
           style={{
@@ -2653,7 +2653,7 @@ function MountainsMotif({ palette }: MotifProps) {
         />
       ))}
       {/* Snowflakes. */}
-      {Array.from({ length: 20 }).map((_, index) => (
+      {Array.from({ length: 10 }).map((_, index) => (
         <View
           key={`snow-${index}`}
           style={{
@@ -2689,7 +2689,7 @@ function HalloweenMotif({ palette }: MotifProps) {
       <View style={{ position: 'absolute', top: '8%', right: '13%', width: 70, height: 70, borderRadius: 35, backgroundColor: tint(palette, palette.tipBackground, 0.6), opacity: 0.5 }} />
 
       {/* Stars. */}
-      {Array.from({ length: 18 }).map((_, index) => (
+      {Array.from({ length: 9 }).map((_, index) => (
         <View key={`star-${index}`} style={{ position: 'absolute', top: `${4 + ((index * 37) % 30)}%`, left: `${(index * 53) % 94}%`, width: index % 3 === 0 ? 4 : 3, height: index % 3 === 0 ? 4 : 3, borderRadius: 2, backgroundColor: yellow, opacity: 0.7 }} />
       ))}
 
@@ -2729,7 +2729,7 @@ function HalloweenMotif({ palette }: MotifProps) {
       ))}
 
       {/* Candy corn scattered. */}
-      {Array.from({ length: 16 }).map((_, index) => (
+      {Array.from({ length: 8 }).map((_, index) => (
         <Image key={`candy-${index}`} source={require('../assets/theme-candy-corn.png')} resizeMode="contain" style={{ position: 'absolute', top: `${10 + ((index * 37) % 78)}%`, left: `${(index * 53) % 92}%`, width: index % 2 === 0 ? 28 : 20, height: index % 2 === 0 ? 42 : 30, opacity: 0.7, transform: [{ rotate: `${(index * 41) % 80 - 40}deg` }] }} />
       ))}
 
@@ -2751,7 +2751,7 @@ function HalloweenMotif({ palette }: MotifProps) {
       ))}
 
       {/* Autumn leaves falling. */}
-      {Array.from({ length: 14 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <View key={`leaf-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 43) % 88)}%`, left: `${(index * 61) % 94}%`, width: index % 2 === 0 ? 10 : 7, height: index % 2 === 0 ? 12 : 9, borderRadius: 2, backgroundColor: [palette.primary, palette.accent, palette.tipBackground, '#D32F2F', '#F57C00'][index % 5], opacity: 0.7, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
       ))}
     </View>
@@ -2780,7 +2780,7 @@ function OceanMotif({ palette }: MotifProps) {
       {Array.from({ length: 10 }).map((_, index) => (
         <Image key={`shell-${index}`} source={require('../assets/theme-shell.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${3 + ((index * 29) % 15)}%`, left: `${(index * 47) % 88}%`, width: 40, height: 40, opacity: 0.65, transform: [{ rotate: `${(index * 37) % 60 - 30}deg` }] }} />
       ))}
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <View key={`sparkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 43) % 90)}%`, left: `${(index * 61) % 94}%`, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.8 }} />
       ))}
     </View>
@@ -2795,13 +2795,13 @@ function ForestMotif({ palette }: MotifProps) {
       {Array.from({ length: 8 }).map((_, index) => (
         <Image key={`tree-${index}`} source={require('../assets/theme-tree.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${index % 2 === 0 ? -5 : 2}%`, left: `${(index * 13) % 85}%`, width: index % 3 === 0 ? 100 : 75, height: index % 3 === 0 ? 167 : 125, opacity: 0.85, transform: [{ scaleX: index % 2 === 0 ? 1 : -1 }] }} />
       ))}
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <Image key={`mushroom-${index}`} source={require('../assets/theme-mushroom.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${8 + ((index * 23) % 20)}%`, left: `${(index * 47) % 88}%`, width: 40, height: 50, opacity: 0.8, transform: [{ rotate: `${(index * 17) % 20 - 10}deg` }] }} />
       ))}
-      {Array.from({ length: 20 }).map((_, index) => (
+      {Array.from({ length: 10 }).map((_, index) => (
         <Image key={`firefly-${index}`} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 31) % 88)}%`, left: `${(index * 53) % 94}%`, width: 20, height: 20, opacity: 0.8 }} />
       ))}
-      {Array.from({ length: 18 }).map((_, index) => (
+      {Array.from({ length: 9 }).map((_, index) => (
         <Image key={`leaf-${index}`} source={require('../assets/theme-leaf.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 43) % 88)}%`, left: `${(index * 61) % 94}%`, width: 30, height: 40, opacity: 0.6, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
       ))}
       {Array.from({ length: 8 }).map((_, index) => (
@@ -2815,7 +2815,7 @@ function SpaceMotif({ palette }: MotifProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: tint(palette, palette.background, 0.3) }} />
-      {Array.from({ length: 60 }).map((_, index) => (
+      {Array.from({ length: 25 }).map((_, index) => (
         <View key={`star-${index}`} style={{ position: 'absolute', top: `${(index * 37) % 98}%`, left: `${(index * 53) % 98}%`, width: index % 5 === 0 ? 3 : 2, height: index % 5 === 0 ? 3 : 2, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.5 + (index % 5) * 0.1 }} />
       ))}
       {Array.from({ length: 6 }).map((_, index) => (
@@ -2827,7 +2827,7 @@ function SpaceMotif({ palette }: MotifProps) {
       {Array.from({ length: 3 }).map((_, index) => (
         <Image key={`rocket-${index}`} source={require('../assets/theme-rocket.png')} resizeMode="contain" style={{ position: 'absolute', top: `${15 + index * 25}%`, left: `${20 + index * 30}%`, width: 50, height: 100, opacity: 0.7, transform: [{ rotate: `${index * 15 - 10}deg` }] }} />
       ))}
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <Image key={`star-${index}`} source={require('../assets/theme-star.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 41) % 90)}%`, left: `${(index * 59) % 92}%`, width: 30, height: 30, opacity: 0.7, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
       ))}
       {Array.from({ length: 3 }).map((_, index) => (
@@ -2841,19 +2841,19 @@ function CandyMotif({ palette }: MotifProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '30%', backgroundColor: tint(palette, palette.accentLight, 0.2), opacity: 0.5 }} />
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <Image key={`lollipop-${index}`} source={require('../assets/theme-lollipop.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 17) % 70)}%`, left: `${(index * 23) % 85}%`, width: index % 2 === 0 ? 55 : 40, height: index % 2 === 0 ? 110 : 80, opacity: 0.8, transform: [{ rotate: `${(index * 31) % 40 - 20}deg` }] }} />
       ))}
-      {Array.from({ length: 24 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <Image key={`candy-${index}`} source={require('../assets/theme-candy.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 29) % 90)}%`, left: `${(index * 47) % 94}%`, width: index % 3 === 0 ? 35 : 24, height: index % 3 === 0 ? 35 : 24, opacity: 0.75, transform: [{ rotate: `${(index * 37) % 90}deg` }] }} />
       ))}
       {Array.from({ length: 8 }).map((_, index) => (
         <Image key={`chocolate-${index}`} source={require('../assets/theme-chocolate.png')} resizeMode="contain" style={{ position: 'absolute', top: `${15 + ((index * 31) % 65)}%`, left: `${(index * 43) % 80}%`, width: 70, height: 56, opacity: 0.7, transform: [{ rotate: `${(index * 19) % 30 - 15}deg` }] }} />
       ))}
-      {Array.from({ length: 30 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <View key={`sprinkle-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 23) % 90)}%`, left: `${(index * 41) % 94}%`, width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: `${(index * 41) % 120 - 60}deg` }] }} />
       ))}
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <View key={`confetti-${index}`} style={{ position: 'absolute', top: `${5 + ((index * 37) % 88)}%`, left: `${(index * 53) % 92}%`, width: index % 2 === 0 ? 6 : 4, height: index % 2 === 0 ? 6 : 4, borderRadius: index % 2 === 0 ? 3 : 0, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.6, transform: [{ rotate: `${(index * 41) % 90}deg` }] }} />
       ))}
     </View>

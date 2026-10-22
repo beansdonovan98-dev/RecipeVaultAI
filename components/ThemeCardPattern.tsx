@@ -258,7 +258,7 @@ function RisoPattern({ palette }: PatternProps) {
           transform: [{ rotate: '-8deg' }],
         }}
       >
-        {Array.from({ length: 20 }).map((_, index) => {
+        {Array.from({ length: 5 }).map((_, index) => {
           const size = index % 4 === 0 ? 7 : index % 3 === 0 ? 5 : 3.5;
           return (
             <View
@@ -1632,7 +1632,7 @@ function MountainsPattern({ palette }: PatternProps) {
         />
       ))}
       {/* Confetti (character colors). */}
-      {Array.from({ length: 16 }).map((_, index) => (
+      {Array.from({ length: 8 }).map((_, index) => (
         <View
           key={`confetti-${index}`}
           style={{
@@ -1744,7 +1744,7 @@ function OceanPattern({ palette }: PatternProps) {
       {Array.from({ length: 4 }).map((_, index) => (
         <Image key={'wave-' + index} source={require('../assets/theme-wave.png')} resizeMode="contain" style={{ position: 'absolute', bottom: (index * 14) + '%', left: '-5%', width: '110%', height: 50, opacity: 0.5, transform: [{ rotate: index % 2 === 0 ? '0deg' : '180deg' }] } as any} />
       ))}
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <Image key={'bubble-' + index} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 37) % 85)) + '%', left: ((index * 53) % 92) + '%', width: index % 3 === 0 ? 32 : 18, height: index % 3 === 0 ? 32 : 18, opacity: 0.6 } as any} />
       ))}
       {Array.from({ length: 4 }).map((_, index) => (
@@ -1773,7 +1773,7 @@ function ForestPattern({ palette }: PatternProps) {
       {Array.from({ length: 8 }).map((_, index) => (
         <Image key={'firefly-' + index} source={require('../assets/theme-firefly.png')} resizeMode="contain" style={{ position: 'absolute', top: (8 + ((index * 31) % 80)) + '%', left: ((index * 53) % 90) + '%', width: 14, height: 14, opacity: 0.8 } as any} />
       ))}
-      {Array.from({ length: 10 }).map((_, index) => (
+      {Array.from({ length: 5 }).map((_, index) => (
         <Image key={'leaf-' + index} source={require('../assets/theme-leaf.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 43) % 85)) + '%', left: ((index * 61) % 90) + '%', width: 22, height: 30, opacity: 0.6, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
       ))}
     </View>
@@ -1784,7 +1784,7 @@ function ForestPattern({ palette }: PatternProps) {
 function SpacePattern({ palette }: PatternProps) {
   return (
     <View style={StyleSheet.absoluteFill}>
-      {Array.from({ length: 20 }).map((_, index) => (
+      {Array.from({ length: 5 }).map((_, index) => (
         <View key={'star-' + index} style={{ position: 'absolute', top: ((index * 37) % 98) + '%', left: ((index * 53) % 98) + '%', width: index % 5 === 0 ? 3 : 2, height: index % 5 === 0 ? 3 : 2, borderRadius: 1.5, backgroundColor: '#FFFFFF', opacity: 0.6 } as any} />
       ))}
       {Array.from({ length: 3 }).map((_, index) => (
@@ -1810,13 +1810,13 @@ function CandyPattern({ palette }: PatternProps) {
       {Array.from({ length: 6 }).map((_, index) => (
         <Image key={'lollipop-' + index} source={require('../assets/theme-lollipop.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 17) % 60)) + '%', left: ((index * 23) % 80) + '%', width: 40, height: 80, opacity: 0.8, transform: [{ rotate: ((index * 31) % 40 - 20) + 'deg' }] } as any} />
       ))}
-      {Array.from({ length: 12 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <Image key={'candy-' + index} source={require('../assets/theme-candy.png')} resizeMode="contain" style={{ position: 'absolute', top: (5 + ((index * 29) % 88)) + '%', left: ((index * 47) % 92) + '%', width: index % 3 === 0 ? 28 : 18, height: index % 3 === 0 ? 28 : 18, opacity: 0.75, transform: [{ rotate: ((index * 37) % 90) + 'deg' }] } as any} />
       ))}
       {Array.from({ length: 4 }).map((_, index) => (
         <Image key={'chocolate-' + index} source={require('../assets/theme-chocolate.png')} resizeMode="contain" style={{ position: 'absolute', top: (15 + ((index * 31) % 60)) + '%', left: ((index * 43) % 75) + '%', width: 55, height: 44, opacity: 0.7, transform: [{ rotate: ((index * 19) % 30 - 15) + 'deg' }] } as any} />
       ))}
-      {Array.from({ length: 20 }).map((_, index) => (
+      {Array.from({ length: 5 }).map((_, index) => (
         <View key={'sprinkle-' + index} style={{ position: 'absolute', top: (5 + ((index * 23) % 88)) + '%', left: ((index * 41) % 92) + '%', width: 3, height: 8, borderRadius: 1.5, backgroundColor: ['#E91E63', '#FF4081', '#F06292', '#FF80AB', '#FFD54F', '#FFF176'][index % 6], opacity: 0.7, transform: [{ rotate: ((index * 41) % 120 - 60) + 'deg' }] } as any} />
       ))}
     </View>
