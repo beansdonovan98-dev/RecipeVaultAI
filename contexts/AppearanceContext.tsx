@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { AppState, Platform } from 'react-native';
@@ -76,6 +77,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   const [fontKey, setFontKeyState] = useState<FontKey>(DEFAULT_FONT_KEY);
   const [fontColor, setFontColorState] = useState(DEFAULT_FONT_COLOR);
   const [themeKey, setThemeKeyState] = useState<ThemeKey>(DEFAULT_THEME_KEY);
+  const lastThemeChangeRef = useRef<number>(0);
   const roomCode = config?.code ?? null;
   const roomId = config?.roomId ?? null;
   const hasRemoteRoom = Boolean(roomCode && roomId && isRemoteConfigured());
@@ -142,11 +144,17 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
         const localThemeKey = await getSetting(THEME_KEY_SETTING);
 
         let nextFontKey = isFontKey(savedFontKey) ? savedFontKey : DEFAULT_FONT_KEY;
-        let nextThemeKey = isThemeKey(savedThemeKey)
-          ? savedThemeKey
-          : isThemeKey(localThemeKey)
-            ? localThemeKey
-            : DEFAULT_THEME_KEY;
+        const recentlyChanged = Date.now() - lastThemeChangeRef.current < 30000;
+        let nextThemeKey: ThemeKey;
+        if (recentlyChanged && isThemeKey(localThemeKey)) {
+          nextThemeKey = localThemeKey;
+        } else if (isThemeKey(savedThemeKey)) {
+          nextThemeKey = savedThemeKey;
+        } else if (isThemeKey(localThemeKey)) {
+          nextThemeKey = localThemeKey;
+        } else {
+          nextThemeKey = DEFAULT_THEME_KEY;
+        }
         let nextFontColor =
           savedFontColor && isHexColor(savedFontColor)
             ? normalizeHexColor(savedFontColor)
@@ -253,6 +261,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
 
   const setThemeKey = useCallback(
     async (next: ThemeKey) => {
+      lastThemeChangeRef.current = Date.now();
       const palette = getThemePalette(next);
       setThemeKeyState(next);
       setFontColorState(palette.text);

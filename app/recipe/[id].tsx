@@ -210,7 +210,7 @@ export default function RecipeDetailScreen() {
               style={[
                 styles.metaRow,
                 cardTokens,
-                { backgroundColor: theme.card },
+                { backgroundColor: 'transparent' },
               ]}
             >
               {[
@@ -241,14 +241,14 @@ export default function RecipeDetailScreen() {
                 style={[
                   styles.ingredientsCard,
                   cardTokens,
-                  { backgroundColor: theme.card },
+                  { backgroundColor: 'transparent' },
                 ]}
               >
                 <View
                   pointerEvents="none"
                   style={[
                     StyleSheet.absoluteFill,
-                    { borderRadius: design.cardRadius, overflow: 'hidden', opacity: 0.55 },
+                    { borderRadius: design.cardRadius, overflow: 'hidden', opacity: 0.85 },
                   ]}
                 >
                   <ThemeCardPattern pattern={design.cardPattern} palette={theme} />
@@ -285,7 +285,7 @@ export default function RecipeDetailScreen() {
                 style={[
                   styles.instructionsCard,
                   cardTokens,
-                  { backgroundColor: theme.card },
+                  { backgroundColor: 'transparent' },
                 ]}
               >
                 {recipe.instructions.map((inst, index) => {
