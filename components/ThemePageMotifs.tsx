@@ -2768,8 +2768,8 @@ function OceanMotif({ palette }: MotifProps) {
       {Array.from({ length: 6 }).map((_, index) => (
         <Image key={`wave-${index}`} source={require('../assets/theme-wave.png')} resizeMode="contain" style={{ position: 'absolute', bottom: `${index * 12}%`, left: '-5%', right: '-5%', width: '110%', height: 80, opacity: 0.5 + (index % 2) * 0.15, transform: [{ rotate: index % 2 === 0 ? '0deg' : '180deg' }] }} />
       ))}
-      {Array.from({ length: 25 }).map((_, index) => (
-        <Image key={`bubble-${index}`} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: `${5 + ((index * 37) % 85)}%`, left: `${(index * 53) % 92}%`, width: index % 3 === 0 ? 40 : 24, height: index % 3 === 0 ? 40 : 24, opacity: 0.6 }} />
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Image key={`bubble-${index}`} source={require('../assets/theme-bubble.png')} resizeMode="contain" style={{ position: 'absolute', top: `${8 + ((index * 41) % 80)}%`, left: `${(index * 59) % 88}%`, width: index % 3 === 0 ? 48 : 28, height: index % 3 === 0 ? 48 : 28, opacity: 0.5 } as any} />
       ))}
       {Array.from({ length: 8 }).map((_, index) => (
         <Image key={`fish-${index}`} source={require('../assets/theme-fish.png')} resizeMode="contain" style={{ position: 'absolute', top: `${10 + ((index * 41) % 70)}%`, left: `${(index * 59) % 80}%`, width: index % 2 === 0 ? 80 : 60, height: index % 2 === 0 ? 53 : 40, opacity: 0.7, transform: [{ rotate: `${(index * 23) % 40 - 20}deg` }, { scaleX: index % 2 === 0 ? 1 : -1 }] }} />

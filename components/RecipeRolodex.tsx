@@ -109,7 +109,7 @@ export function RecipeRolodex({ recipes, onOpen, onToggleFavorite }: RecipeRolod
               width: cardWidth,
               height: cardHeight,
               ...cardTokens,
-              backgroundColor: theme.card,
+              backgroundColor: theme.background,
               opacity,
               transform: [{ perspective: 1100 }, { translateY }, { rotateY }, { scale }],
             },
@@ -143,7 +143,7 @@ export function RecipeRolodex({ recipes, onOpen, onToggleFavorite }: RecipeRolod
                 top: Spacing.xxl / 2 + 18,
                 width: cardWidth,
                 height: cardHeight,
-                backgroundColor: theme.card,
+                backgroundColor: theme.background,
                 borderColor: cardTokens.borderColor,
                 borderRadius: cardTokens.borderRadius,
                 borderWidth: cardTokens.borderWidth,
@@ -160,7 +160,7 @@ export function RecipeRolodex({ recipes, onOpen, onToggleFavorite }: RecipeRolod
                 top: Spacing.xxl / 2 + 9,
                 width: cardWidth,
                 height: cardHeight,
-                backgroundColor: theme.card,
+                backgroundColor: theme.background,
                 borderColor: cardTokens.borderColor,
                 borderRadius: cardTokens.borderRadius,
                 borderWidth: cardTokens.borderWidth,
@@ -202,7 +202,7 @@ export function RecipeRolodex({ recipes, onOpen, onToggleFavorite }: RecipeRolod
         <TouchableOpacity
           style={[
             styles.arrow,
-            { borderColor: cardTokens.borderColor, borderWidth: Math.max(cardTokens.borderWidth, 1), backgroundColor: theme.card },
+            { borderColor: cardTokens.borderColor, borderWidth: Math.max(cardTokens.borderWidth, 1), backgroundColor: theme.background },
             index === 0 && styles.arrowDisabled,
           ]}
           onPress={() => goTo(index - 1)}
@@ -228,7 +228,7 @@ export function RecipeRolodex({ recipes, onOpen, onToggleFavorite }: RecipeRolod
         <TouchableOpacity
           style={[
             styles.arrow,
-            { borderColor: cardTokens.borderColor, borderWidth: Math.max(cardTokens.borderWidth, 1), backgroundColor: theme.card },
+            { borderColor: cardTokens.borderColor, borderWidth: Math.max(cardTokens.borderWidth, 1), backgroundColor: theme.background },
             index >= recipes.length - 1 && styles.arrowDisabled,
           ]}
           onPress={() => goTo(index + 1)}
@@ -275,7 +275,7 @@ function RolodexCard({
       onPress={onOpen}
       style={[
         styles.card,
-        { backgroundColor: theme.card, borderRadius: cardRadius },
+        { backgroundColor: theme.background, borderRadius: cardRadius },
       ]}
       accessibilityRole="button"
       accessibilityLabel={`${recipe.title}. Open recipe`}
@@ -294,7 +294,7 @@ function RolodexCard({
           </View>
         )}
 
-        <View style={[styles.categoryPill, { backgroundColor: theme.card }]}>
+        <View style={[styles.categoryPill, { backgroundColor: theme.background }]}>
           <Ionicons name={category.icon as never} size={12} color={category.color} />
           <Text style={[styles.categoryText, { color: category.color }]}>
             {recipe.category.toUpperCase()}
@@ -302,7 +302,7 @@ function RolodexCard({
         </View>
 
         <TouchableOpacity
-          style={[styles.heart, { backgroundColor: theme.card }]}
+          style={[styles.heart, { backgroundColor: theme.background }]}
           onPress={onToggleFavorite}
           activeOpacity={0.7}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}

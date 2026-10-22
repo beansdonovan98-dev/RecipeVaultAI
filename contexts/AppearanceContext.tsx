@@ -265,6 +265,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
       const palette = getThemePalette(next);
       setThemeKeyState(next);
       setFontColorState(palette.text);
+      setThemeKeyState(next);
       if (hasRemoteRoom && roomCode && roomId) {
         try {
           await Promise.all([

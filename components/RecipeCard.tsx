@@ -27,7 +27,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
   if (variant === 'compact') {
     return (
       <TouchableOpacity
-        style={[styles.compactCard, cardTokens, { backgroundColor: theme.card }]}
+        style={[styles.compactCard, cardTokens, { backgroundColor: theme.background }]}
         onPress={onPress}
         activeOpacity={0.8}
       >
@@ -80,7 +80,7 @@ export function RecipeCard({ recipe, onPress, onToggleFavorite, variant = 'full'
 
   return (
     <TouchableOpacity
-      style={[styles.card, cardTokens, { backgroundColor: theme.card }]}
+      style={[styles.card, cardTokens, { backgroundColor: theme.background }]}
       onPress={onPress}
       activeOpacity={0.95}
     >
