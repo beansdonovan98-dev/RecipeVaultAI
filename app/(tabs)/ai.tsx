@@ -52,27 +52,6 @@ export default function AIToolsScreen() {
         <TouchableOpacity
           style={[styles.toolCard, cardTokens, { backgroundColor: theme.card }]}
           onPress={() => {
-            recordBreadcrumb('tap:ai-lookup');
-            openScreenOverlay('ai-lookup');
-          }}
-          activeOpacity={0.8}
-        >
-          <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
-            <Ionicons name="search" size={28} color="#3182CE" />
-          </View>
-          <Text style={[styles.toolTitle, { fontFamily: displayFamily }]}>Recipe Name Lookup</Text>
-          <Text style={styles.toolDescription}>
-            Enter a recipe name and get a method, ingredients, and steps you can save
-          </Text>
-          <View style={styles.toolAction}>
-            <Text style={[styles.toolActionText, { color: theme.primary }]}>Look Up Recipe</Text>
-            <Ionicons name="arrow-forward" size={16} color={theme.primary} />
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.toolCard, cardTokens, { backgroundColor: theme.card }]}
-          onPress={() => {
             recordBreadcrumb('tap:ai-substitute');
             openScreenOverlay('ai-substitute');
           }}

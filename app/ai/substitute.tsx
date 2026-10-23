@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { getIngredientSubstitution, getAllSubstitutions } from '@/services/ai';
+import { useAssistant } from '@/contexts/AssistantContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AssistantBackdrop } from '@/components/AssistantBackdrop';
 import { ThemePagePattern } from '@/components/ThemePagePattern';
@@ -20,6 +21,7 @@ import { ThemeCardPattern } from '@/components/ThemeCardPattern';
 
 export default function AISubstituteScreen() {
   const { theme, design, displayFamily } = useAppearance();
+  const { name: assistantName } = useAssistant();
   const cardTokens = themeCardStyle(design, theme);
   const [ingredient, setIngredient] = useState('');
   const [substitutions, setSubstitutions] = useState<string[]>([]);
@@ -45,7 +47,7 @@ export default function AISubstituteScreen() {
     if (!ingredient.trim()) return;
     setLoading(true);
     try {
-      const results = await getIngredientSubstitution(ingredient);
+      const results = await getIngredientSubstitution(ingredient, assistantName);
       setSubstitutions(results);
     } catch (e) {
       captureException(e, { source: 'aiSubstitute.getIngredientSubstitution', extra: { ingredient } });

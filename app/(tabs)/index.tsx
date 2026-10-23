@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText as Text } from '@/components/AppText';
 import { useRecipes } from '@/hooks/useRecipes';
@@ -10,8 +10,6 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useAppearance } from '@/contexts/AppearanceContext';
-import { CategoryBadge } from '@/components/CategoryBadge';
-import { ALL_CATEGORIES, Category } from '@/types/recipe';
 import { navigateSafely } from '@/utils/safeNavigation';
 import { requestCrashViewer } from '@/services/crashViewer';
 import { openScreenOverlay } from '@/services/screenOverlay';
@@ -21,14 +19,6 @@ export default function HomeScreen() {
   const { theme, displayFamily } = useAppearance();
   const { recipes, loading, error, toggleFavorite, refresh } = useRecipes();
   const { config: roomConfig } = useRoomConfig();
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-
-  const filteredRecipes = useMemo(() => {
-    if (!selectedCategory) return recipes;
-    return recipes.filter(
-      (recipe) => recipe.category === selectedCategory || recipe.tags.includes(selectedCategory)
-    );
-  }, [recipes, selectedCategory]);
 
   if (loading) return <LoadingSpinner />;
 
@@ -75,9 +65,7 @@ export default function HomeScreen() {
 
           <View style={styles.headerMetaRow}>
             <Text style={styles.headerSubtitle}>
-              {filteredRecipes.length === recipes.length
-                ? `${recipes.length} recipes`
-                : `${filteredRecipes.length} of ${recipes.length} recipes`}
+              {`${recipes.length} recipes`}
             </Text>
             <TouchableOpacity
               style={[styles.roomChip, { backgroundColor: theme.tipBackground }]}
@@ -101,33 +89,16 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.filterSection}>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={ALL_CATEGORIES}
-            keyExtractor={item => item}
-            contentContainerStyle={styles.filterList}
-            renderItem={({ item }) => (
-              <CategoryBadge
-                category={item}
-                selected={selectedCategory === item}
-                onPress={() => setSelectedCategory(selectedCategory === item ? null : item)}
-              />
-            )}
-          />
-        </View>
-
-        {filteredRecipes.length === 0 ? (
+        {recipes.length === 0 ? (
           <EmptyState
             icon="restaurant-outline"
-            title={selectedCategory ? `No ${selectedCategory} recipes` : 'No recipes yet'}
-            message={selectedCategory ? 'Try a different category' : 'Tap the + button to add your first recipe'}
+            title="No recipes yet"
+            message="Tap the + button to add your first recipe"
           />
         ) : (
           <View style={styles.deck}>
             <RecipeRolodex
-              recipes={filteredRecipes}
+              recipes={recipes}
               onOpen={(recipe) =>
                 navigateSafely(`/recipe/${recipe.id}`, 'tap:recipe-detail')
               }
@@ -222,13 +193,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: Spacing.md,
     marginTop: Spacing.xs,
-  },
-  filterSection: {
-    marginBottom: Spacing.sm,
-  },
-  filterList: {
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.sm,
   },
   deck: {
     flex: 1,

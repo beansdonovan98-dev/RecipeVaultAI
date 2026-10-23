@@ -18,8 +18,7 @@ import { AuthorSelector } from '@/components/AuthorSelector';
 import { AppText as Text, AppTextInput as TextInput } from '@/components/AppText';
 import { AUTHORS, type AuthorId } from '@/constants/authors';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/theme';
-import { ALL_CATEGORIES, Category, Ingredient, Instruction } from '@/types/recipe';
-import { CategoryBadge } from '@/components/CategoryBadge';
+import { Ingredient, Instruction } from '@/types/recipe';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { InstructionEditor } from '@/components/InstructionEditor';
 import { useAppearance } from '@/contexts/AppearanceContext';
@@ -40,7 +39,8 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [tags, setTags] = useState<Category[]>(['Dinner']);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const [prepTime, setPrepTime] = useState('15');
   const [cookTime, setCookTime] = useState('30');
   const [servings, setServings] = useState('4');
@@ -54,7 +54,7 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
   const [cropAspect, setCropAspect] = useState<[number, number]>([16, 9]);
   const [member, setMemberState] = useState<AuthorId | null>(null);
   const [saving, setSaving] = useState(false);
-  const category = tags[0] ?? 'Dinner';
+  const category = 'Dinner';
 
   useEffect(() => {
     recordBreadcrumb('screen-mount:add');
@@ -156,10 +156,16 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
     setInstructions(instructions.filter((_, i) => i !== index));
   };
 
-  const toggleTag = (tag: Category) => {
-    setTags((current) =>
-      current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]
-    );
+  const addTag = () => {
+    const trimmed = tagInput.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags((current) => [...current, trimmed]);
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => {
+    setTags((current) => current.filter((item) => item !== tag));
   };
 
   const validate = (): boolean => {
@@ -284,17 +290,43 @@ export default function AddRecipeScreen({ onClose }: AddRecipeScreenProps) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Tags * (select all that apply)</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
-            {ALL_CATEGORIES.map(cat => (
-              <CategoryBadge
-                key={cat}
-                category={cat}
-                selected={tags.includes(cat)}
-                onPress={() => toggleTag(cat)}
-              />
-            ))}
-          </ScrollView>
+          <Text style={styles.sectionLabel}>Tags</Text>
+          <View style={styles.tagInputRow}>
+            <TextInput
+              style={[
+                styles.input,
+                { backgroundColor: theme.inputBackground, borderColor: theme.borderLight, flex: 1 },
+              ]}
+              value={tagInput}
+              onChangeText={setTagInput}
+              placeholder="Type a tag and press +"
+              placeholderTextColor={theme.textMuted}
+              returnKeyType="done"
+              onSubmitEditing={addTag}
+            />
+            <TouchableOpacity
+              style={[styles.addTagButton, { backgroundColor: theme.primary }]}
+              onPress={addTag}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="add" size={22} color={theme.white} />
+            </TouchableOpacity>
+          </View>
+          {tags.length > 0 && (
+            <View style={styles.tagChipRow}>
+              {tags.map((tag) => (
+                <TouchableOpacity
+                  key={tag}
+                  style={[styles.tagChip, { backgroundColor: theme.inputBackground, borderColor: theme.borderLight }]}
+                  onPress={() => removeTag(tag)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.tagChipText, { color: theme.text }]}>{tag}</Text>
+                  <Ionicons name="close-circle" size={14} color={theme.textMuted} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={styles.row}>
@@ -474,9 +506,36 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
-  categoryList: {
+  tagInputRow: {
+    flexDirection: 'row',
     gap: Spacing.sm,
-    paddingVertical: Spacing.xs,
+    alignItems: 'center',
+  },
+  addTagButton: {
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tagChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  tagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  tagChipText: {
+    ...Typography.label,
+    fontSize: 12,
   },
   row: {
     flexDirection: 'row',

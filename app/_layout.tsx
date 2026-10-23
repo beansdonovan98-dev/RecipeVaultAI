@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { initializeDatabase } from '@/db/schema';
 import AddRecipeScreen from '@/app/add';
-import AIRecipeLookupScreen from '@/app/ai/lookup';
 import AICreatorScreen from '@/app/ai/creator';
 import AISubstituteScreen from '@/app/ai/substitute';
 import { AppText as Text } from '@/components/AppText';
@@ -49,7 +48,6 @@ console.log('[STARTUP] JS startup');
 
 const OVERLAY_TITLES: Record<OverlayScreen, string> = {
   add: 'Add Recipe',
-  'ai-lookup': 'Recipe Name Lookup',
   'ai-creator': 'Recipe Creator',
   'ai-substitute': 'Ingredient Substitutions',
   settings: 'Shared Room',
@@ -239,8 +237,6 @@ function RootLayoutContent() {
             <View style={styles.overlayContent}>
               {screenOverlay === 'add' ? (
                 <AddRecipeScreen onClose={closeScreenOverlay} />
-              ) : screenOverlay === 'ai-lookup' ? (
-                <AIRecipeLookupScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'ai-creator' ? (
                 <AICreatorScreen onClose={closeScreenOverlay} />
               ) : screenOverlay === 'settings' ? (
